@@ -156,6 +156,7 @@ def create_ad_background(
     except Exception as e:
         return {"error": str(e)}
 
+# --------- 실행 함수------------
 def create_ad_with_ip_adapter(
     user_img_path: str,
     product_type: str,
@@ -181,7 +182,7 @@ def create_ad_with_ip_adapter(
         guidance_scale=9
     )
 
-
+# ----------종합 실행 함수 ---------
 def create_ad(
     user_img_path: str,
     product_type: str,
