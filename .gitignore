@@ -1,0 +1,41 @@
+ # Python bytecode
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environment
+venv/
+.env/
+.venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VSCode settings (협업 시 무조건 제외 추천)
+.vscode/
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# 환경 설정
+.env
+*.env
+
+# Logs
+*.log
+
+# 빌드 결과물
+build/
+dist/
+*.egg-info/
+
+# 기타
+*.sqlite3
+*.db
+*.pkl
+
+# 내부 이미지 파일
+frontend/src/image
+
+
