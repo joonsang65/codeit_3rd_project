@@ -1,0 +1,3 @@
+openai>=1.3.7
+
+# python-dotenv>=1.0.0  : api 키 관리용  -> 필요 시에만 import
