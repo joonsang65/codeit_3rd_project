@@ -1,6 +1,6 @@
 import asyncio
-from models import OpenAIClient, PROMPT_CONFIGS
-
+from models import OpenAIClient
+from prompts import PROMPT_CONFIGS
 
 def select_option(prompt_msg: str, valid_options: list):
     """입력 유효성 검사"""
