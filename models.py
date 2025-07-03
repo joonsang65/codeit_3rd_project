@@ -81,9 +81,3 @@ class OpenAIClient:
         
         last_time = time.time()
         print(f"\n📊 전체 인퍼런스 시간: {(last_time - zero_set):.2f}초")
-
-
-# --- 프롬프트 설정 ---
-system_prompt_insta, few_shot_examples_insta = PROMPT_CONFIGS['instagram']
-system_prompt_blog, few_shot_examples_blsystem_prompt_blog = PROMPT_CONFIGS['blog']
-system_prompt_poster, few_shot_examples_blsystem_prompt_poster = PROMPT_CONFIGS['poster']
