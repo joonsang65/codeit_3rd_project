@@ -6,6 +6,16 @@ from modules.logger import setup_logger
 logger = setup_logger(__name__)
 
 def load_pipe_with_loras(config, category: str):
+    """
+    지정된 카테고리에 따라 LoRA 어댑터를 적용한 Stable Diffusion 파이프라인을 로드합니다.
+
+    Args:
+        config (dict): 설정 값을 담은 딕셔너리 (config.yaml 파싱 결과).
+        category (str): 적용할 LoRA 카테고리 이름 (예: "food", "cosmetics" 등).
+
+    Returns:
+        diffusers.StableDiffusionPipeline: LoRA가 적용된 텍스트-투-이미지 파이프라인 객체.
+    """
     logger.info(f"Loading pipeline with category: {category}")
     pipe = AutoPipelineForText2Image.from_pretrained(
         config["sd_pipeline"]["model_id"],
@@ -15,7 +25,7 @@ def load_pipe_with_loras(config, category: str):
 
     if category:
         lora_dir = config['paths']['lora_dir']
-        lora_items = config['lora']['category_map'].get(category, [])
+        lora_items = config['lora']['category_map'].get(category, 'furniture')
 
         logger.info(f"Applying LoRAs: {[l['name'] for l in lora_items]}")
 

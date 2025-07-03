@@ -6,6 +6,25 @@ from modules.logger import setup_logger
 logger = setup_logger(__name__)
 
 def generate_ad_banner(config, gpt_client, pipe):
+    """
+    광고 배너 생성을 위한 전체 파이프라인을 실행합니다.
+
+    1. 제품 이미지 및 참조 이미지 인코딩
+    2. GPT를 통한 광고 기획안 생성
+    3. 기획안을 기반으로 Stable Diffusion 프롬프트 생성
+    4. 배경 이미지 생성
+    5. 빈 그릇 여부 판단
+    6. IP-Adapter를 사용한 제품 합성
+    7. 결과물 저장
+
+    Args:
+        config (dict): 설정 값을 담은 딕셔너리 (config.yaml 파싱 결과).
+        gpt_client (GPTClient): GPT 연동을 위한 클라이언트.
+        pipe (StableDiffusionPipeline): LoRA 적용된 Stable Diffusion 파이프라인.
+
+    Returns:
+        PIL.Image: 최종 생성된 이미지.
+    """
     logger.info("=== Start: Generating advertisement banner ===")
     # 1) 이미지 base64 인코딩 (resize 포함)
     product_b64 = encode_image(config["paths"]["product_image"], size=tuple(config["image"]["input_size"]))
@@ -22,7 +41,6 @@ def generate_ad_banner(config, gpt_client, pipe):
     logger.info("Converting ad plan to SD prompt")
     sd_prompt = gpt_client.convert_to_sd_prompt(ad_plan)
     logger.debug(f"Prompt: {sd_prompt}")
-
 
     # 4) 광고 배경 생성
     logger.info("Generating background image using Stable Diffusion")
