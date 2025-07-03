@@ -5,7 +5,6 @@ import hashlib
 import json
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
-from prompts import PROMPT_CONFIGS
 
 class OpenAIClient:
     def __init__(self, env_path="/path/to/your/name.env"):
