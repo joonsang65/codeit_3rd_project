@@ -40,8 +40,11 @@ npm install
 yarn
 ```
 
-4. 개발 서버 실행
+4. 개발 서버 실행 
+react 폴더 진입 후 npm start
+
 ```bash
+cd react_app
 npm start
 ```
 
