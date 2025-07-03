@@ -3,14 +3,19 @@ import io
 import base64
 from rembg import remove
 import os
+from modules.logger import setup_logger
+
+logger = setup_logger(__name__)
 
 def encode_image(image_path, size=(512, 512)):
+    logger.info(f"Encoding image: {image_path} to size {size}")
     image = Image.open(image_path).convert("RGB").resize(size)
     buffered = io.BytesIO()
     image.save(buffered, format="PNG")
     return base64.b64encode(buffered.getvalue()).decode("utf-8")
 
 def remove_background(image_path):
+    logger.info(f"Removing background from image: {image_path}")
     with open(image_path, "rb") as f:
         input_data = f.read()
     output_data = remove(input_data)

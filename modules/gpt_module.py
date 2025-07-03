@@ -1,16 +1,22 @@
 from openai import OpenAI
+from modules.logger import setup_logger
+
+logger = setup_logger(__name__)
 
 class GPTClient:
     def __init__(self, api_key, model_name):
+        logger.info(f"Initializing GPTClient with model: {model_name}")
         self.client = OpenAI(api_key=api_key)
         self.model_name = model_name
 
     def chat(self, messages, max_tokens=300):
+        logger.debug("Sending chat message to OpenAI")
         response = self.client.chat.completions.create(
             model=self.model_name,
             messages=messages,
             max_tokens=max_tokens
         )
+        logger.debug("Received response from OpenAI")
         return response.choices[0].message.content.strip()
 
     def analyze_ad_plan(self, product_b64, ref_b64):
