@@ -4,7 +4,7 @@
 사전 준비
 이 프로젝트는 React 기반이며, 실행을 위해 Node.js가 필요합니다.
 
-1. Node.js 설치
+1. Node.js 설치  
 Node.js 공식 웹사이트 에서 LTS(Long Term Support) 버전을 설치하세요.
 
 권장 버전: Node.js 18.x 이상
@@ -17,7 +17,7 @@ node -v
 npm -v
 ```
 
-2. 프로젝트 클론
+2. 프로젝트 클론  
 GitHub에서 프로젝트를 내려받고 폴더로 이동합니다:
 
 ```bash
@@ -27,7 +27,7 @@ cd your-repo-name
 
 ⚠️ your-username과 your-repo-name은 실제 GitHub 주소에 맞게 바꾸세요.
 
-3. 의존성 설치
+3. 의존성 설치  
 React 프로젝트에 필요한 라이브러리들을 설치합니다:
 
 ```bash
@@ -40,7 +40,7 @@ npm install
 yarn
 ```
 
-4. 개발 서버 실행 
+4. 개발 서버 실행  
 react 폴더 진입 후 npm start
 
 ```bash
@@ -56,7 +56,7 @@ yarn start
 실행 후 브라우저에서 자동으로 열리며,
 직접 열려면 http://localhost:3000에 접속하세요.
 
-5. 배포용 빌드 (선택)
+5. 배포용 빌드 (선택)  
 ```bash
 npm run build
 ```
