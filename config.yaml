@@ -42,10 +42,10 @@ image:
 generation:
   inference_steps: 40
   guidance_scale: 8
-  negative_prompt: logo, text, watermark, blurry, extra fingers
+  negative_prompt: logo, text, watermark, blurry, extra fingers, human
 
 paths:
-  product_image: ./images/food1.jfif
-  reference_image: ./images/style_ref.png
+  product_image: ./images/beach.jfif
+  reference_image: ./images/ref_image.png
   output_dir: ./out
   lora_dir: ./lora

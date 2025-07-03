@@ -19,14 +19,14 @@ class GPTClient:
         logger.debug("Received response from OpenAI")
         return response.choices[0].message.content.strip()
 
-    def analyze_ad_plan(self, product_b64, ref_b64):
+    def analyze_ad_plan(self, product_b64, ref_b64, product_type="food", marketing_type="홍보 배너 제작"):
         sys_prompt = (
             "You are an AI advertisement planner.\n"
             "Given a main product image and an optional reference image, write a Korean ad plan.\n"
             "Describe tone, background, layout, and suggest short copy for a banner."
         )
         user_prompt = [
-            {"type": "text", "text": "Product type: Korean food. Context: 광고 배너."},
+            {"type": "text", "text": f"Product type: {product_type}. Context: {marketing_type}."},
             {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{product_b64}"}},
         ]
         if ref_b64:

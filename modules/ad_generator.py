@@ -15,12 +15,13 @@ def generate_ad_banner(config, gpt_client, pipe):
 
     # 2) GPT 광고 기획안 생성
     logger.info("Generating ad plan from GPT")
-    ad_plan = gpt_client.analyze_ad_plan(product_b64, ref_b64)
+    ad_plan = gpt_client.analyze_ad_plan(product_b64, ref_b64, "tour place")
     logger.debug(f"Ad plan:\n{ad_plan}")
 
     # 3) SD 프롬프트 변환
     logger.info("Converting ad plan to SD prompt")
     sd_prompt = gpt_client.convert_to_sd_prompt(ad_plan)
+    logger.debug(f"Prompt: {sd_prompt}")
 
 
     # 4) 광고 배경 생성
@@ -60,6 +61,7 @@ def generate_ad_banner(config, gpt_client, pipe):
     input_image = Image.open(config["paths"]["product_image"]).convert("RGB").resize(tuple(config["image"]["input_size"]))
     ip_images = ip_adapter.generate(
         pil_image=input_image,
+        image=bg_image,
         prompt=sd_prompt,
         negative_prompt=config["generation"]["negative_prompt"],
         scale=0.8,
