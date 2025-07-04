@@ -1,0 +1,54 @@
+openai:
+  api_key_env: OPENAI_API_KEY
+  gpt_model: gpt-4.1-mini
+
+sd_pipeline:
+  inpaint:
+    model_id: runwayml/stable-diffusion-inpainting
+  text2img:
+    model_id: runwayml/stable-diffusion-v1-5
+  torch_dtype: float16
+  use_safety_checker: false
+  device: cuda
+
+lora:
+  category_map:
+    food:
+      - name: foodplatters
+        scale: 1.0
+      - name: FoodPorn_v2
+        scale: 0.8
+      - name: meishi
+        scale: 0.6
+    cosmetics:
+      - name: e-commerce_photography02
+        scale: 1.0
+      - name: showcase
+        scale: 0.9
+    furniture:
+      - name: product_design_v3
+        scale: 1.0
+      - name: showcase
+        scale: 0.8
+
+image:
+  input_size: [512, 512]
+  output_ratios:
+    square: [512, 512]
+    landscape: [912, 512]
+    portrait: [512, 912]
+  overlay_position:
+    square: [120, 360]
+    landscape: [200, 360]
+    portrait: [120, 600]
+
+generation:
+  inference_steps: 40
+  guidance_scale: 8
+  negative_prompt: logo, text, watermark, blurry, extra fingers, human
+
+paths:
+  product_image: ./images/burger.jfif
+  reference_image: ./images/ref_image.png
+  output_dir: ./out
+  lora_dir: ./lora
