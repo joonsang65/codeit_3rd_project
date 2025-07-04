@@ -1,11 +1,21 @@
 import yaml
+from typing import Any, Dict
 
-def load_config(path="config.yaml"):
+
+def load_config(path: str = "config.yaml") -> Dict[str, Any]:
     """
-    config.yaml을 불러옵니다.
+    YAML 구성 파일을 로드하여 딕셔너리로 반환합니다.
 
     Args:
-        - path: config.yaml의 경로
+        path (str): YAML 파일 경로
+
+    Returns:
+        dict: 구성 데이터
     """
-    with open(path, "r") as f:
-        return yaml.safe_load(f)
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return yaml.safe_load(f)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"[ERROR] 설정 파일을 찾을 수 없습니다: {path}")
+    except yaml.YAMLError as e:
+        raise ValueError(f"[ERROR] YAML 파싱 오류: {e}")

@@ -3,7 +3,10 @@ openai:
   gpt_model: gpt-4.1-mini
 
 sd_pipeline:
-  model_id: runwayml/stable-diffusion-v1-5
+  inpaint:
+    model_id: runwayml/stable-diffusion-inpainting
+  text2img:
+    model_id: runwayml/stable-diffusion-v1-5
   torch_dtype: float16
   use_safety_checker: false
   device: cuda
@@ -45,7 +48,7 @@ generation:
   negative_prompt: logo, text, watermark, blurry, extra fingers, human
 
 paths:
-  product_image: ./images/beach.jfif
+  product_image: ./images/burger.jfif
   reference_image: ./images/ref_image.png
   output_dir: ./out
   lora_dir: ./lora
