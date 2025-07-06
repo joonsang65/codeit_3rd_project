@@ -15,7 +15,7 @@ def main():
     
     with col2:
         size = st.slider("👉 글자 크기를 선택하세요", min_value=50, max_value=200, value=125, step=1)
-        output_filename = st.text_input("👉 저장할 파일명 (예: output.jpeg)", value="output.jpeg")
+        output_filename = st.text_input("👉 저장할 파일명 (예: output.png)", value="output.png")
 
     # 상태 유지 변수
     if "generated_img" not in st.session_state:
@@ -37,11 +37,7 @@ def main():
             st.success("✅ 이미지 미리보기 생성 완료")
 
         except Exception as e:
-            st.error(f"❌ 오류 발생: {e}")
-            st.text(f"[DEBUG] 저장 경로: {output_filename}")
-            st.text(f"[DEBUG] 추론된 포맷: {fmt}")
-            st.text(f"[DEBUG] 이미지 모드: {img.mode}")
-            st.text(f"[DEBUG] 이미지 크기: {img.size}")            
+            st.error(f"❌ 오류 발생: {e}")        
             st.session_state.generated_img = None
 
     # 저장 버튼: 이미지가 있는 경우에만 표시
@@ -49,6 +45,9 @@ def main():
         if st.button("💾 이미지 저장하기"):
             try:
                 img = st.session_state.generated_img
+                if (output_filename.split(".")[1]).upper() in {"JPEG", "ICO", "PPM", "HEIF"}:
+                # 얘네는 투명도 조절이 불가능해서 RGB로 변환해줘야 함    
+                    img = img.convert("RGB")
                 img.save(output_filename)
                 st.success(f"📁 이미지 저장 완료: {output_filename}")
             except Exception as e:

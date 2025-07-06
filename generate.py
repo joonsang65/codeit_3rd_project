@@ -55,9 +55,9 @@ def render_text_image(
 
     draw.text(position, text, font=font, fill=text_color)
 
-    # JPEG, ICO 등 RGBA 지원 안 되는 포맷은 RGB로 변환
+    # RGBA 지원 안 되는 포맷은 RGB로 변환
     if fmt in {"JPEG", "ICO", "PPM", "HEIF"}:
         img = img.convert("RGB")
 
     img.save(output_path, format=fmt)
-    return output_path, fmt
+    return img, fmt
