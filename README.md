@@ -85,3 +85,18 @@ your-repo-name/
     - serviceWorker.js : Progressive Web App(PWA) 기능을 구현하는데 사용되는 서비스 워커 파일입니다. 이 파일을 수정하여 오프라인 경험, 백그라운드 동기화 등의 기능을 구현할 수 있습니다.
     - package.json : 프로젝트의 메타데이터와 의존성을 담고 있는 파일입니다. 프로젝트에 사용되는 라이브러리, 모듈, 스크립트 등이 이 파일에 명시됩니다.
     - .gitignore : Git 버전 관리 시 무시할 파일과 디렉토리를 명시하는 파일입니다. 일반적으로 node_modules 폴더, 빌드 결과물, 로그 파일 등이 이 파일에 포함됩니다.
+
+# 전체 실행 방법
+실행 순서
+1. 백엔드 실행
+```bash
+cd backend
+uvicorn main:app --reload --port 8000
+```
+2. 프론트 실행
+
+```bash
+cd react_app
+npm install
+npm start
+```

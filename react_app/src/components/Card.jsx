@@ -1,6 +1,6 @@
 // src/components/Card.jsx
 import React from "react";
-import "../App.css";
+import "./Card.css";
 import { useNavigate } from "react-router-dom";
 
 function Card({ title, caption, image, route, icon, bgColor, adType}) {
