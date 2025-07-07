@@ -16,39 +16,31 @@ lora:
     food:
       - name: foodplatters
         scale: 1.0
-      - name: FoodPorn_v2
-        scale: 0.8
       - name: meishi
-        scale: 0.6
+        scale: 0.4
     cosmetics:
       - name: e-commerce_photography02
         scale: 1.0
       - name: showcase
-        scale: 0.9
+        scale: 0.7
     furniture:
       - name: product_design_v3
         scale: 1.0
       - name: showcase
-        scale: 0.8
+        scale: 0.6
 
-image:
-  input_size: [512, 512]
-  output_ratios:
-    square: [512, 512]
-    landscape: [912, 512]
-    portrait: [512, 912]
-  overlay_position:
-    square: [120, 360]
-    landscape: [200, 360]
-    portrait: [120, 600]
+ip_adapter:
+  image_encoder: "laion/CLIP-ViT-H-14-laion2B-s32B-b79K"
+  checkpoint: "ip-adapter_sd15.bin"
 
 generation:
-  inference_steps: 40
-  guidance_scale: 8
+  inference_steps: 35
+  guidance_scale: 7
   negative_prompt: logo, text, watermark, blurry, extra fingers, human
 
 paths:
-  product_image: ./images/burger.jfif
+  product_image: ./images/perfume.jfif
   reference_image: ./images/ref_image.png
   output_dir: ./out
   lora_dir: ./lora
+  output_dir: ./output

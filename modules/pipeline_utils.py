@@ -1,11 +1,14 @@
 import torch
 from diffusers import AutoPipelineForText2Image, StableDiffusionInpaintPipeline
-from modules.logger import setup_logger
 from typing import Dict, Literal
+import logging
+from modules.utils import log_execution_time, setup_logger
+
 import logging
 
 logger = setup_logger(__name__, logging.DEBUG)
 
+@log_execution_time(label="Load Stable Diffution Pipeline...")
 def load_base_pipe(
     config: Dict,
     pipeline_type: Literal["inpaint", "text2img"] = "inpaint"
@@ -42,6 +45,7 @@ def load_base_pipe(
     logger.info("Pipeline loaded successfully.")
     return pipe
 
+@log_execution_time(label="Applying LoRA Layers...")
 def apply_loras(pipe, config, category=None):
     """Stable Diffusion 파이프라인에 category에 맞는 LoRA 적용하기"""
     if not category:
@@ -74,7 +78,7 @@ def apply_loras(pipe, config, category=None):
 
     if adapter_names:
         pipe.set_adapters(adapter_names, adapter_weights)
-
+    logger.debug(pipe.unet.active_adapters)
     return pipe
 
 def load_pipe_with_loras(
@@ -87,3 +91,27 @@ def load_pipe_with_loras(
     """
     pipe = load_base_pipe(config, pipeline_type)
     return apply_loras(pipe, config, category)
+
+@log_execution_time(label="Load IP-Adapter...")
+def load_ip_adapter(pipe, config: Dict):
+    """
+    IP-Adapter를 로드하고 pipe에 연결합니다.
+
+    Args:
+        pipe: Stable Diffusion pipeline 객체
+        config: 설정 딕셔너리
+    
+    Returns:
+        IPAdapter 객체
+    """
+    from ip_adapter import IPAdapter
+    checkpoint = config["ip_adapter"]["checkpoint"]
+    ip_adapter = IPAdapter(
+        pipe,
+        image_encoder_path=config["ip_adapter"]["image_encoder"],
+        ip_ckpt=checkpoint,
+        device=config["sd_pipeline"]["device"]
+    )
+
+    logger.info(f"IP-Adapter loaded: {checkpoint}")
+    return ip_adapter
