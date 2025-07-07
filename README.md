@@ -4,7 +4,7 @@
 
 ## 실행 방법
 ```<code>
-main.py 내부에서 mode 변경으로 'inpring', 'generate' 옵션으로 실행가능
+main.py 내부에서 mode 변경으로 'inprint', 'generate' 옵션으로 실행가능
 
 python main.py
 ```
