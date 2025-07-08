@@ -1,0 +1,45 @@
+.editor-container {
+  max-width: 1200px;
+  max-height: 900px;
+  margin: 24px auto;
+  padding: 0 16px;
+  font-family: 'Noto Sans KR', sans-serif;
+  color: #eee;
+  background: #121317;
+  border-radius: 16px;
+  box-shadow: 0 0 36px rgba(0,0,0,0.8);
+}
+
+.step-navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.step-navigation button {
+  padding: 10px 20px;
+  background-color: #5a7fff;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.step-navigation button:disabled {
+  background-color: #4a4a4a;
+  cursor: not-allowed;
+}
+
+.step-content {
+  display: flex;
+  gap: 24px;
+  height: 800px;
+  position: relative;
+  background-color: #20222a;
+  border-radius: 16px;
+  overflow: hidden;
+}

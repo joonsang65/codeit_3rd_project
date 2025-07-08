@@ -1,0 +1,25 @@
+/* src/pages/Editor/steps/Step5FinalOutput.css */
+.step5-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.final-image {
+  max-width: 90%;
+  border-radius: 12px;
+  box-shadow: 0 0 20px #444;
+  margin-bottom: 20px;
+}
+
+.step5-container button {
+  padding: 10px 20px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.step5-container button:hover {
+  background-color: #357abd;
+}

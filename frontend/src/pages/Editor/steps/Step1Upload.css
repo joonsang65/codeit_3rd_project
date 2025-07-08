@@ -1,0 +1,55 @@
+.step1-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 10vh;         /* 뷰포트 기준 중앙 정렬 가능 */
+  margin: 0 auto;
+  padding: 20px 20px;
+}
+
+.upload-controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.upload-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #6366f1, #3b82f6);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 6px 18px rgba(59, 130, 246, 0.3);
+}
+
+.upload-button:hover {
+  background: linear-gradient(135deg, #4f46e5, #2563eb);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(59, 130, 246, 0.4);
+}
+
+.upload-icon {
+  font-size: 20px;
+}
+
+.canvas-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.canvas-wrapper {
+  width: 1200px;
+  height: 800px;
+  background-color: #1c1c1c;
+  border: 2px dashed #555;
+  border-radius: 12px;
+  position: relative;
+}

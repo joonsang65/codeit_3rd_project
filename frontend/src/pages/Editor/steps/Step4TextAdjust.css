@@ -1,0 +1,15 @@
+/* src/pages/Editor/steps/Step4TextAdjust.css */
+.step4-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.canvas-area {
+  width: 600px;
+  height: 400px;
+  background-color: #222;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}

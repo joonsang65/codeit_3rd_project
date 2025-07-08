@@ -1,0 +1,38 @@
+.gallery-container {
+  padding: 40px;
+  color: #f0f0f0;
+  background-color: #121212;
+  min-height: 100vh;
+}
+
+.gallery-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 24px;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+}
+
+.gallery-card {
+  background-color: #1e1e1e;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  text-align: center;
+}
+
+.gallery-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.gallery-caption {
+  margin-top: 12px;
+  color: #ccc;
+  font-size: 14px;
+}
