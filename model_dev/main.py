@@ -1,7 +1,10 @@
 import os
 from modules import utils, pipeline_utils, gpt_module, ad_generator
 from typing import Literal
+from PIL import Image
 import logging 
+from dotenv import load_dotenv
+load_dotenv()
 
 logger = utils.setup_logger(__name__, logging.DEBUG)
 
@@ -25,6 +28,11 @@ def main(mode: Literal['inpaint', 'text2img'] = 'inpaint'):
     logger.info("이미지 사이즈 변경 중...")
     resized_img = utils.resize_to_ratio(back_rm_img, (128, 128))
 
+    # 변경 정보 빈 캠퍼스에 반영하기 (위치 정보 포함)
+    canvas = Image.new("RGBA", config['canvas_size'], (255, 255, 255, 255))
+    canvas = utils.overlay_product(canvas, resized_img, (300, 220))
+    canv_img, back_rm_canv = utils.remove_background(canvas)
+
     logger.info("OpenAI 모델 불러오기...")
     client = gpt_module.GPTClient(
         api_key=os.getenv(config['openai']['api_key_env']), 
@@ -35,11 +43,11 @@ def main(mode: Literal['inpaint', 'text2img'] = 'inpaint'):
         # 사이즈 변경된 이미지 대상으로 마스킹 시도('inpaint'의 경우)
         logger.info(f"{mode.upper()} 설정 확인!")
         logger.info(f"이미지 마스킹 생성 중...")
-        mask = utils.create_mask(resized_img)
+        mask = utils.create_mask(back_rm_canv)
         # image를 base64로 인코딩하여 OpenAI에게 참조형으로 보내기
         # 예시 광고 이미지가 있다면 마찬가지로 인코딩해서 진행하기
         logger.info(f"이미지 인코딩 -> base64...")
-        img_base64 = utils.encode_image(resized_img)
+        img_base64 = utils.encode_image(back_rm_canv)
         # ref_base64 = utils.encode_image(ref_image) # UI에서 받기
         ref_base64 = None
 
@@ -63,7 +71,7 @@ def main(mode: Literal['inpaint', 'text2img'] = 'inpaint'):
         pipe = pipeline_utils.apply_loras(base_pipe, config, category="cosmetics") 
 
         logger.info("Inference 진행 중...")
-        image = ad_generator.run_inpainting(pipe, resized_img, mask, prompt, config)
+        image = ad_generator.run_inpainting(pipe, back_rm_canv, mask, prompt, config)
 
         logger.info("생성 이미지 저장 중...")
         if len(image) > 1:
@@ -120,4 +128,4 @@ def main(mode: Literal['inpaint', 'text2img'] = 'inpaint'):
 
 
 if __name__ == "__main__":
-    main(mode='text2img')
+    main(mode='inpaint')
