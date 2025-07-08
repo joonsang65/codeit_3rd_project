@@ -1,16 +1,22 @@
+import sys
 import os
-from modules import utils, pipeline_utils, gpt_module, ad_generator
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from typing import Literal
 from PIL import Image
 import logging 
 from dotenv import load_dotenv
+from modules import utils, pipeline_utils, gpt_module, ad_generator
+
 load_dotenv()
+
+logger = utils.setup_logger(__name__, logging.DEBUG)
 
 try:
     config = utils.load_config("model_dev/model_config.yaml")
-    print(config)
+    logger.info(config)
 except Exception as e:
-    print(f"경로를 찾지 못했습니다: {e}")
+    logger.warning(f"경로를 찾지 못했습니다: {e}")
     
 def resolve_path(path):
     if not os.path.isabs(path):
@@ -20,11 +26,7 @@ def resolve_path(path):
 for key in config['paths']:
     config['paths'][key] = resolve_path(config['paths'][key])
 
-product_image_path = config['paths']['product_image']
-
-logger = utils.setup_logger(__name__, logging.DEBUG)
-
-def main(mode: Literal['inpaint', 'text2img'] = 'inpaint'):
+def run_pipe(mode: Literal['inpaint', 'text2img'] = 'inpaint'):
     utils.ensure_dir(config['paths']['output_dir'])
     # config 내부에는 존재 하지 않으나
     # User input으로 받을 경우 product type으로 config에 등록하기
@@ -143,4 +145,4 @@ def main(mode: Literal['inpaint', 'text2img'] = 'inpaint'):
 
 
 if __name__ == "__main__":
-    main(mode='inpaint')
+    run_pipe(mode='inpaint')
