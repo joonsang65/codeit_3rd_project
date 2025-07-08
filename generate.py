@@ -36,11 +36,12 @@ def render_text_image(
     font_path: str,
     font_size: int = 64,
     output_path: str = "output.png",
-    text_color: str = "#000000",
+    text_colors: list[str] | str = "#000000",
     background_size: tuple = (512, 512),
     background_color: tuple = (255, 255, 255, 0),
-    stroke_color: str = "#FFFFFF",
+    stroke_colors: list[str] | str = "#FFFFFF",
     stroke_width: int = 0,
+    word_based_colors: bool = False,
 ):
     if not os.path.exists(font_path):
         raise FileNotFoundError(f"Font file not found: {font_path}")
@@ -53,6 +54,36 @@ def render_text_image(
     img = Image.new("RGBA", background_size, background_color)
     draw = ImageDraw.Draw(img)
     font = ImageFont.truetype(font_path, font_size)
+
+    # Determine character colors based on word_based_colors flag
+    char_text_colors = []
+    char_stroke_colors = []
+
+    if word_based_colors:
+        words = text.split()
+        word_idx = 0
+        char_idx_in_word = 0
+        for char in text:
+            if char == ' ' and word_idx < len(words) - 1:
+                char_text_colors.append(hex_to_rgb("#000000")) # Space color (can be customized)
+                char_stroke_colors.append(hex_to_rgb("#FFFFFF")) # Space stroke color
+                char_idx_in_word = 0
+                word_idx += 1
+            else:
+                if isinstance(text_colors, list) and word_idx < len(text_colors):
+                    char_text_colors.append(hex_to_rgb(text_colors[word_idx]))
+                else:
+                    char_text_colors.append(hex_to_rgb(text_colors))
+
+                if isinstance(stroke_colors, list) and word_idx < len(stroke_colors):
+                    char_stroke_colors.append(hex_to_rgb(stroke_colors[word_idx]))
+                else:
+                    char_stroke_colors.append(hex_to_rgb(stroke_colors))
+                char_idx_in_word += 1
+    else:
+        # If not word-based, use single colors for all characters
+        char_text_colors = [hex_to_rgb(text_colors)] * len(text)
+        char_stroke_colors = [hex_to_rgb(stroke_colors)] * len(text)
 
     # Calculate total text width and height for centering
     total_text_width = 0
@@ -75,18 +106,15 @@ def render_text_image(
 
     current_x = start_x
 
-    stroke_color_rgb = hex_to_rgb(stroke_color) # Global stroke color
-    char_text_color_rgb = hex_to_rgb(text_color) # Use single text_color for all characters
-
     for i, char in enumerate(text):
         # Draw each character individually
         draw.text(
             (current_x, start_y),
             char,
             font=font,
-            fill=char_text_color_rgb,
+            fill=char_text_colors[i],
             stroke_width=stroke_width,
-            stroke_fill=stroke_color_rgb,
+            stroke_fill=char_stroke_colors[i],
         )
         current_x += char_widths[i] # Move x position for the next character
 
@@ -100,13 +128,14 @@ def render_text_image(
 if __name__ == "__main__":
     # 테스트용 코드
     render_text_image(
-        text="안녕하세요!",
+        text="안녕하세요! 파이썬",
         font_path="나눔손글씨 갈맷글.ttf",
         font_size=128,
         output_path="output.png",
-        text_color="#FF0000", # Example: single color for all characters
+        text_colors=["#FF0000", "#0000FF"], # Example: different colors for each word
         background_size=(1024, 512),
         background_color=(255, 255, 255, 0),
-        stroke_color="#FF0000",
+        stroke_colors=["#00FF00", "#FFFF00"], # Example: different stroke colors for each word
         stroke_width=5,
+        word_based_colors=True,
     )

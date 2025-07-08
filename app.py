@@ -2,6 +2,7 @@ import streamlit as st
 from fonts import FONTS
 from downloader import download_font
 from generate import render_text_image
+import os
 
 def main():
     st.title("텍스트 이미지 생성기")
@@ -15,10 +16,27 @@ def main():
     
     with col2:
         size = st.slider("글자 크기를 선택하세요", min_value=50, max_value=200, value=125, step=1)
-        text_color = st.color_picker("텍스트 색상을 선택하세요", "#000000")
-        stroke_color = st.color_picker("테두리 색상을 선택하세요", "#FFFFFF")
-        stroke_width = st.slider("테두리 굵기를 선택하세요", min_value=0, max_value=10, value=0, step=1)
         output_filename = st.text_input("저장할 파일명 (예: output.png)", value="output.png")
+
+    word_based_colors = st.checkbox("단어별 색상 적용")
+
+    text_colors = []
+    stroke_colors = []
+
+    if word_based_colors:
+        words = text.split()
+        st.subheader("단어별 색상 설정")
+        for i, word in enumerate(words):
+            st.write(f"**{word}** 단어 색상")
+            text_color = st.color_picker(f"텍스트 색상 {i+1}", "#000000", key=f"text_color_{i}")
+            stroke_color = st.color_picker(f"테두리 색상 {i+1}", "#FFFFFF", key=f"stroke_color_{i}")
+            text_colors.append(text_color)
+            stroke_colors.append(stroke_color)
+    else:
+        text_colors = st.color_picker("텍스트 색상을 선택하세요", "#000000")
+        stroke_colors = st.color_picker("테두리 색상을 선택하세요", "#FFFFFF")
+    
+    stroke_width = st.slider("테두리 굵기를 선택하세요", min_value=0, max_value=10, value=0, step=1)
 
     # 상태 유지 변수
     if "generated_img" not in st.session_state:
@@ -26,25 +44,35 @@ def main():
 
     if st.button("이미지 생성하기"):
         font_url = FONTS[font_name]
-        font_path = download_font(font_name, font_url)
+        
+        if font_url.startswith("http"):
+            font_path = download_font(font_name, font_url)
+        else:
+            font_path = font_url
 
-        img, fmt = render_text_image(
-            text=text,
-            font_path=font_path,
-            font_size=size,
-            text_color=text_color,
-            stroke_color=stroke_color,
-            stroke_width=stroke_width,
-            background_size=(size * (len(text) + 1), size * 2)
-        )
-        try:
-            st.session_state.generated_img = img  # 이미지 저장
-            st.image(img, caption="미리보기", use_container_width=True)
-            st.success("이미지 미리보기 생성 완료")
+        if font_path and os.path.exists(font_path):
+            img, fmt = render_text_image(
+                text=text,
+                font_path=font_path,
+                font_size=size,
+                text_colors=text_colors,
+                stroke_colors=stroke_colors,
+                stroke_width=stroke_width,
+                word_based_colors=word_based_colors,
+                background_size=(size * (len(text) + 1), size * 2)
+            )
+            try:
+                st.session_state.generated_img = img  # 이미지 저장
+                st.image(img, caption="미리보기", use_container_width=True)
+                st.success("이미지 미리보기 생성 완료")
 
-        except Exception as e:
-            st.error(f"오류 발생: {e}")        
+            except Exception as e:
+                st.error(f"오류 발생: {e}")        
+                st.session_state.generated_img = None
+        else:
+            st.error(f"폰트 파일을 찾을 수 없습니다: {font_path}")
             st.session_state.generated_img = None
+
 
     # 저장 버튼: 이미지가 있는 경우에만 표시
     if st.session_state.generated_img is not None:
