@@ -6,10 +6,25 @@ import logging
 from dotenv import load_dotenv
 load_dotenv()
 
+try:
+    config = utils.load_config("model_dev/model_config.yaml")
+    print(config)
+except Exception as e:
+    print(f"경로를 찾지 못했습니다: {e}")
+    
+def resolve_path(path):
+    if not os.path.isabs(path):
+        return os.path.abspath(os.path.join(os.path.dirname(__file__), path))
+    return path
+
+for key in config['paths']:
+    config['paths'][key] = resolve_path(config['paths'][key])
+
+product_image_path = config['paths']['product_image']
+
 logger = utils.setup_logger(__name__, logging.DEBUG)
 
 def main(mode: Literal['inpaint', 'text2img'] = 'inpaint'):
-    config = utils.load_config()
     utils.ensure_dir(config['paths']['output_dir'])
     # config 내부에는 존재 하지 않으나
     # User input으로 받을 경우 product type으로 config에 등록하기

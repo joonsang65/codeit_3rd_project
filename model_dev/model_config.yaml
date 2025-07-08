@@ -39,8 +39,7 @@ generation:
   negative_prompt: logo, text, watermark, blurry, extra fingers, human
 
 paths:
-  product_image: ./images/perfume.jfif
-  reference_image: ./images/ref_image.png
-  output_dir: ./out
-  lora_dir: ./lora
-  output_dir: ./output
+  product_image: images/perfume.jfif
+  reference_image: images/ref_image.png
+  lora_dir: lora
+  output_dir: output
