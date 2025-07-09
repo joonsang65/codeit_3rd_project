@@ -1,0 +1,4 @@
+# .gitignore.
+# lora 폴더 무시.
+.env
+model_dev/lora
