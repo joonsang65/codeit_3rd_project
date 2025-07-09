@@ -19,14 +19,14 @@ def get_base64_resized_image(image_path, height=240):
 
 
 # 카드 렌더링 (Streamlit 내부 페이지 전환 방식 적용)
-def render_clickable_card(col, title, image_path, caption, page_route, icon, bg_color):
+def render_clickable_card(col, title, image_path, caption, icon, bg_color):
     '''
     클릭 가능한 카드 UI 생성 및 세션 상태 기반 페이지 전환
     '''
     with col:
         img_data_url = get_base64_resized_image(image_path)
 
-        # 카드 UI
+        # 카드 UI 스타일
         st.markdown(
             f"""
             <style>
@@ -75,9 +75,10 @@ def render_clickable_card(col, title, image_path, caption, page_route, icon, bg_
                 """,
                 unsafe_allow_html=True
             )
-            # 클릭 시 페이지 전환
+            # 클릭 시 페이지 전환 (수정된 부분)
             if st.button(f"👉 {title} 생성 시작하기", key=title):
-                st.session_state["page"] = page_route
+                st.session_state["page"] = "generate_ad"  # 페이지 변경
+                st.session_state["step"] = 1              # step 초기화
                 st.rerun()
 
 
@@ -98,7 +99,6 @@ def render():
         "블로그 광고",
         base_dir / "blog_ad.png",
         "예시: 블로그 광고 이미지",
-        "generate_ad",
         "📝",
         "#FFF9E6"
     )
@@ -108,7 +108,6 @@ def render():
         "인스타그램 광고",
         base_dir / "instagram_ad.png",
         "예시: 인스타그램 광고 이미지",
-        "generate_ad",
         "📸",
         "#F3F0FF"
     )
@@ -118,7 +117,6 @@ def render():
         "포스터 광고",
         base_dir / "poster_ad.png",
         "예시: 포스터 광고 이미지",
-        "generate_ad",
         "🖼️",
         "#E6FFF9"
     )
