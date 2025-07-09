@@ -1,0 +1,25 @@
+torch==2.6.0
+torchvision==0.21.0
+timm
+einops
+accelerate
+transformers==4.51.3
+diffusers
+opencv-python-headless
+scipy
+wandb
+matplotlib
+Pillow
+tqdm
+omegaconf
+python-dotenv
+ninja
+ipykernel
+wheel
+triton-windows; sys_platform == "win32"
+openai>=1.35.13 
+googlesearch-python>=1.2.3 
+beautifulsoup4>=4.12.3 
+requests>=2.32.3
+huggingface_hub>=0.20.3 
+flash-attn==2.7.4.post1

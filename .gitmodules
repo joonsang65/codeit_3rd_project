@@ -1,0 +1,3 @@
+[submodule "OmniGen2"]
+	path = OmniGen2
+	url = https://github.com/VectorSpaceLab/OmniGen2.git
