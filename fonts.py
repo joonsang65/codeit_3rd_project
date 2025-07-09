@@ -10,7 +10,7 @@ FONTS = {
 "나눔손글씨 고딕 아니고 고딩": "https://github.com/google/fonts/raw/main/ofl/nanumgothic/NanumGothic-Regular.ttf",
 "나눔손글씨 갈맷글": "https://github.com/google/fonts/raw/main/ofl/nanumgothic/NanumGothic-Regular.ttf",
 "나눔손글씨 강인한 위로": "https://github.com/google/fonts/raw/main/ofl/nanumgothic/NanumGothic-Regular.ttf",
-"파셜산스": "https://github.com/google/fonts/raw/main/ofl/partialsans/PartialSansKR-Regular.otf",
+"파셜산스": "PartialSansKR-Regular.otf",
 "날씨" : "https://github.com/google/fonts/raw/main/ofl/climatecrisis/ClimateCrisisKR-2019.otf",
 "베이글" : "https://github.com/google/fonts/raw/main/ofl/bagelfatone/BagelFatOne-Regular.ttf",
 "쿠키런 블랙" : "https://github.com/google/fonts/raw/main/ofl/cookierun/CookieRun-Black.otf",
