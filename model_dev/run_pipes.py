@@ -13,7 +13,11 @@ load_dotenv()
 logger = utils.setup_logger(__name__, logging.DEBUG)
 
 try:
-    config = utils.load_config("model_dev/model_config.yaml")
+    if os.path.exists("./model_config.yaml"):
+        config = utils.load_config("model_config.yaml")
+    else:
+        config = utils.load_config("model_dev/model_config.yaml")
+
     logger.info(config)
 except Exception as e:
     logger.warning(f"경로를 찾지 못했습니다: {e}")
