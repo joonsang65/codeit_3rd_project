@@ -8,7 +8,7 @@ from streamlit_drawable_canvas import st_canvas
 # 세션 상태 초기화
 def init_session_state():
     defaults = {
-        "page": "sub_page_1",
+        "step": 1,
         "uploaded_image": None,
         "ai_generated": False,
         "current_mode": "직접 업로드",
@@ -204,5 +204,5 @@ def render():
             st.button("⬅ 이전", disabled=True)
         with next_col:
             if st.button("➡ 다음"):
-                st.session_state["page"] = "sub_page_2"
+                st.session_state["step"] =2
                 st.rerun()

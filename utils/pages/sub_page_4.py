@@ -19,7 +19,7 @@ def overlay_text_image(base_img, text_img, scale, x_offset, y_offset):
 
 
 def render():
-    st.session_state.setdefault("page", "sub_page_4")
+    st.session_state.setdefault("step", 4)
 
     # 경로 설정
     img_path = Path(__file__).parent.parent / "images"
@@ -86,9 +86,9 @@ def render():
     prev_col, next_col = st.columns(2)
     with prev_col:
         if st.button("⬅ 이전"):
-            st.session_state["page"] = "sub_page_3"
+            st.session_state["step"] = 3
             st.rerun()
     with next_col:
         if st.button("➡ 다음"):
-            st.session_state["page"] = "sub_page_5"
+            st.session_state["step"] = 5
             st.rerun()

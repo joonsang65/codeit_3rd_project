@@ -3,7 +3,7 @@ from PIL import Image
 from pathlib import Path
 
 def render():
-    st.session_state.setdefault("page", "sub_page_2")
+    st.session_state.setdefault("step", 2)
     st.session_state.setdefault("bg_ready", False)
     st.session_state.setdefault("image_cache", {})
 
@@ -110,11 +110,11 @@ def render():
         prev_col, next_col = st.columns(2)
         with prev_col:
             if st.button("⬅ 이전"):
-                st.session_state["page"] = "sub_page_1"
+                st.session_state["step"] = 1
                 st.session_state["bg_ready"] = False
                 st.rerun()
         with next_col:
             if st.button("➡ 다음"):
-                st.session_state["page"] = "sub_page_3"
+                st.session_state["step"] = 3
                 st.session_state["bg_ready"] = False
                 st.rerun()

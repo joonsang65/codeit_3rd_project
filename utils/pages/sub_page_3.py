@@ -8,7 +8,7 @@ from utils.fonts import FONTS
 def render():
     ###########################################################################################
     # 세션 상태 초기화
-    st.session_state.setdefault("page", "sub_page_3")
+    st.session_state.setdefault("step", 3)
     st.session_state.setdefault("ad_text", "")
     st.session_state.setdefault("product_name", "")
     st.session_state.setdefault("product_usage", "")
@@ -167,9 +167,9 @@ def render():
         prev_col, next_col = st.columns(2)
         with prev_col:
             if st.button("⬅ 이전"):
-                st.session_state["page"] = "sub_page_2"
+                st.session_state["step"] = 2
                 st.rerun()
         with next_col:
             if st.button("➡ 다음"):
-                st.session_state["page"] = "sub_page_4"
+                st.session_state["step"] = 4
                 st.rerun()
