@@ -1,0 +1,20 @@
+# 캐시/바이너리
+__pycache__/
+utils/pages/__pycache__/
+*.pyc
+*.pyo
+
+# IDE 설정
+.vscode/
+.idea/
+
+# 이미지 캐시 무시하고 싶으면 (선택)
+*.DS_Store
+*.png
+
+# 민감 파일 무시 (있다면)
+.env
+
+# 가상환경
+venv/
+.venv/

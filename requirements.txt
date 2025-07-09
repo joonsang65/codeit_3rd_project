@@ -1,0 +1,5 @@
+streamlit==1.40.0
+streamlit-drawable-canvas==0.9.3
+Pillow
+numpy==1.24.4 
+pyarrow
