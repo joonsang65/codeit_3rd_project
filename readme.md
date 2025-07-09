@@ -10,6 +10,8 @@ git checkout streamlit_base
 
 ### 2. 도커 빌드 및 실행
 
+clone 해 온 폴더 중 최상위 경로에서 아래를 실행
+
 ```bash
 docker compose up --build
 브라우저에서 열기: http://localhost:8501
