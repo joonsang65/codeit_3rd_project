@@ -9,6 +9,6 @@ def perform_web_search(query: str, num_results: int = 5) -> List[str]:
     """Performs a web search and returns a list of result URLs."""
     results = []
     # The 'search' function from googlesearch takes 'num' as the argument for the number of results.
-    for url in search(query, num = num_results):
+    for url in search(query, num_results = num_results, lang = "ko"):
         results.append(url)
     return results

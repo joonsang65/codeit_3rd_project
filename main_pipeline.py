@@ -1,12 +1,18 @@
 # /rag_pipeline/main.py.
 # This file will orchestrate the calls to the other modules.
-import accelerate, os, time
+import accelerate, os, sys, time
 from torchvision.transforms.functional import to_tensor
 from openai import OpenAI
 from dotenv import load_dotenv
 from huggingface_hub import notebook_login
+
+# OmniGen2 경로 설정.
+omnigen2_path = os.path.join(os.path.dirname(__file__), "OmniGen2")
+if omnigen2_path not in sys.path:
+    sys.path.append(omnigen2_path)
+
 from omnigen2.utils.img_util import create_collage
-from rag_pipeline.config import INSTAGRAM, POSTER, MODEL_PATH
+from rag_pipeline.config.config import INSTAGRAM, POSTER, MODEL_PATH
 from rag_pipeline.translation.prompt_translator import translate_korean_to_english
 from rag_pipeline.prompting.initial_prompt_generator import generate_initial_prompt
 from rag_pipeline.keyword_extraction.extractor import extract_keywords
@@ -70,7 +76,7 @@ print(f"키워드 추출 완료. 소요 시간: {end_keyword_extraction_time - s
 # 4. 웹 검색 수행.
 print("웹 검색 수행 중....")
 start_web_search_time = time.time()
-search_results = perform_web_search(llm, keywords)
+search_results = perform_web_search(keywords)
 end_web_search_time = time.time()
 print(f"웹 검색 완료. 소요 시간: {end_web_search_time - start_web_search_time:.2f}초.\n검색 결과: {search_results}")
 
