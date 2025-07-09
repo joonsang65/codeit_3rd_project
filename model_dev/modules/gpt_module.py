@@ -107,7 +107,9 @@ class GPTClient:
 
         Format: [Style or Mood], [Background elements], [Lighting or Material], [Camera angle], [Focus information]
 
-        Output only one concise and descriptive sentence.
+        Output only keywords in a comma-seperated list.
+
+        Do not include the information of product, only the background.
         """
 
         messages = [
