@@ -1,7 +1,7 @@
 import streamlit as st
 
 
-def render():
+def render(platform):
     ###########################################################################################
     # 세션 상태 초기화
     st.session_state.setdefault("page", "sub_page_3")
