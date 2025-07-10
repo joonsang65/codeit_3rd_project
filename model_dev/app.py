@@ -8,7 +8,7 @@ from modules import gpt_module
 import os
 
 
-config = load_config()
+config = load_config("model_dev/model_config.yaml")
 mode = None
 
 uploaded_file = st.file_uploader("제품 이미지 업로드", type=["png", "jpg", "jpeg", "jfif"])
@@ -68,7 +68,7 @@ if uploaded_file:
     canvas = Image.new("RGBA", canvas_size, (255, 255, 255, 0))
     canvas.paste(resieze_image, (pos_x, pos_y), resieze_image)
 
-    config['size'] = canvas_size
+    config['canvas_size'] = canvas_size
 
     mask = utils.create_mask(canvas)
 
@@ -78,13 +78,14 @@ if uploaded_file:
     with cols[1]:
         st.write(mask)
 
-    canvas.save("images/product.png")
+    canvas.save("model_dev/images/product.png")
     config['paths']['product_image'] = "./images/product.png"
 
     if st.button("GPT 분석"):
         client = gpt_module.GPTClient(os.getenv(config['openai']['api_key_env']), config['openai']['gpt_model'])
-        img_tuple = utils.encode_images(config, product_img=canvas)
-        ad_plan = client.analyze_ad_plan(img_tuple[0], img_tuple[1], "food", "배경 제작")
+        img_base64 = utils.encode_image(canvas)
+        ref_base64 = None
+        ad_plan = client.analyze_ad_plan(img_base64, ref_base64, "food", "배경 제작")
 
         st.write("GPT 분석 진행")
         st.code(ad_plan)
@@ -109,7 +110,8 @@ if uploaded_file:
                     pipe_text2img = load_base_pipe(config, pipeline_type="text2img")
                     pipe_text2img = apply_loras(pipe_text2img, config, category="cosmetics")
                     ip_adapter = load_ip_adapter(pipe_text2img, config)
-                    ip_gen = ip_adapter_inference(ip_adapter, config, "A clean food ad background with soft edges and warm lighting", gen_img)
+                    ip_gen = ip_adapter_inference(ip_adapter, config, prompt, gen_img, canvas)
                     st.image(ip_gen)
                 except Exception as e:
                     st.error(f"IP-Adapter failed: {e}")
+    

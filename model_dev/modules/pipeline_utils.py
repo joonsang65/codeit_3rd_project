@@ -39,7 +39,8 @@ def load_base_pipe(
     pipe = pipe_cls.from_pretrained(
         model_id,
         torch_dtype=torch_dtype,
-        variant=variant
+        variant=variant,
+        use_safetensors=True
     ).to(config["sd_pipeline"]["device"])
 
     logger.info("Pipeline loaded successfully.")
@@ -106,6 +107,11 @@ def load_ip_adapter(pipe, config: Dict):
     """
     from ip_adapter import IPAdapter
     checkpoint = config["ip_adapter"]["checkpoint"]
+    import os
+    if os.path.exists(checkpoint):
+        pass
+    else:
+        checkpoint = "model_dev/" + checkpoint
     ip_adapter = IPAdapter(
         pipe,
         image_encoder_path=config["ip_adapter"]["image_encoder"],

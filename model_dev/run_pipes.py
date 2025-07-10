@@ -137,7 +137,7 @@ def run_pipe(mode: Literal['inpaint', 'text2img'] = 'inpaint'):
         logger.info("IP-Adapter 설정하기...")
         ip_adapter = pipeline_utils.load_ip_adapter(pipe_t2i, config)
 
-        ip_gen = ad_generator.ip_adapter_inference(ip_adapter, config, prompt, gen_backs, resized_img)
+        ip_gen = ad_generator.ip_adapter_inference(ip_adapter, config, prompt, gen_backs, back_rm_canv)
 
         if len(ip_gen) > 1:
             for i, img in enumerate(ip_gen):
