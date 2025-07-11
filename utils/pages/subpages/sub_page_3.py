@@ -206,7 +206,7 @@ def render(platform):
     st.markdown(sub3_CSS, unsafe_allow_html=True)
 
     # 3) 이미지 경로
-    img_path = Path(__file__).parent.parent / "images"
+    img_path = Path(__file__).parent.parent.parent / "images"
     text_img_path = img_path / "output.png"
 
     # 4) 페이지 타이틀 및 구분선

@@ -192,7 +192,7 @@ def render(platform):
     init_session_state()
     st.markdown(sub1_CSS, unsafe_allow_html=True)
 
-    img_path = Path(__file__).parent.parent / "images"
+    img_path = Path(__file__).parent.parent.parent / "images"
     raw_product = str(img_path / "ex_raccoon_raw.png")
     rb_product = str(img_path / "ex_raccoon_RB.png")
 
@@ -221,3 +221,4 @@ def render(platform):
             if st.button("➡ 다음"):
                 st.session_state["step"] = 2
                 st.rerun()
+

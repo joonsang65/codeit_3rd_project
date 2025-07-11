@@ -28,13 +28,16 @@ def render_inpaint_mode(RB_image, example_bg, width, height):
     with col3:
         st.subheader("배경 설명 입력")
         st.text_area("배경 프롬프트 입력", placeholder="예: 햇살 가득한 나무 테라스 카페", key="prompt")
+        
+        # ✅ 작성 완료 버튼 추가
+        if st.button("✅ 작성 완료"):
+            if st.session_state["prompt"].strip():
+                st.session_state["bg_ready"] = True
+            else:
+                st.warning("프롬프트를 입력하세요.")
+
         st.subheader("제품 이미지 사용 안내")
-        # st.image(RB_image, caption="1페이지의 누끼 이미지", use_container_width=False)
         st.info("이전 단계에서 전달된 제품 이미지를 기반으로 배경이 생성됩니다.")
-
-
-        # 배경 준비 완료 상태 자동 설정
-        st.session_state["bg_ready"] = True
 
     with col4:
         st.subheader("배경 미리보기")
@@ -45,7 +48,8 @@ def render_inpaint_mode(RB_image, example_bg, width, height):
                 st.session_state["bg_ready"] = False
                 st.rerun()
         else:
-            st.info("제품 이미지가 준비되지 않았습니다.")
+            st.info("왼쪽 정보를 입력 후 '작성 완료'를 눌러야 미리보기가 표시됩니다.")
+
 
 #######################################################################################################
 
@@ -109,7 +113,7 @@ def render(platform):
     }
 
     # 이미지 경로
-    img_path = Path(__file__).parent.parent / "images"
+    img_path = Path(__file__).parent.parent.parent / "images"
     RB_image = str(img_path / "composed.png")
     example_bg = str(img_path / "combine.png")
 

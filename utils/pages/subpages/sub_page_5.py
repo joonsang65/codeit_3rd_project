@@ -4,7 +4,7 @@ import streamlit as st
 def render(platform):
     ###########################################################################################
     # 세션 상태 초기화
-    st.session_state.setdefault("page", "sub_page_3")
+    st.session_state.setdefault("page", "sub_page_5")
 
     ###########################################################################################
     # 제목
@@ -54,5 +54,5 @@ def render(platform):
                 st.rerun()
         with next_col:
             if st.button("처음으로"):
-                st.session_state["page"] = "sub_page_1"
+                st.session_state["page"] = "home"
                 st.rerun()

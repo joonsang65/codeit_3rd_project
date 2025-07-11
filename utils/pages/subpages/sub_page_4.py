@@ -59,7 +59,7 @@ def render(platform):
     st.session_state.setdefault("step", 4)
 
     # ---------------- 이미지 로딩 ----------------
-    img_path = Path(__file__).parent.parent / "images"
+    img_path = Path(__file__).parent.parent.parent / "images"
     base_img_path = img_path / "combine.png"
     text_img_path = img_path / "output.png"
 
