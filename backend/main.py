@@ -1,42 +1,27 @@
-# main.py
-# FastAPI 애플리케이션 실행 방법
-# 실행: uvicorn main:app --reload
-
-
-# React는 기본적으로 localhost:3000에서 실행되고, FastAPI는 localhost:8000에서 실행
-# 그러므로 CORS 설정을 반드시 해줘야 브라우저가 API 요청을 허용함
-from fastapi import FastAPI, UploadFile, File
-from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
+# backend/app/main.py
+# 실행 명령: uvicorn app.main:app --reload
 import os
-import shutil
+from dotenv import load_dotenv
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.routers import image, text
+
+# .env 파일에서 환경 변수 로드
+load_dotenv()  # .env 1회 로드
+# 그 이후부턴 os.getenv("OPENAI_API_KEY")만 쓰면 됨
 
 app = FastAPI()
 
-# CORS 설정
+# CORS 허용 (React와 통신 위해 필요)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # React 개발 서버 주소
+    allow_origins=["*"],  # 추후 특정 도메인만 허용해도 됨
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
-# 결과 이미지 저장 경로 설정
-RESULT_DIR = "app/static/results"
-os.makedirs(RESULT_DIR, exist_ok=True)
-
-# 정적 파일 서빙 (이미지 접근용)
-app.mount("/results", StaticFiles(directory=RESULT_DIR), name="results")
-
-@app.get("/")
-def root():
-    return {"message": "FastAPI is running!"}
-
-@app.post("/upload/")
-async def upload_image(file: UploadFile = File(...)):
-    file_path = os.path.join(RESULT_DIR, file.filename)
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-    return {"filename": file.filename, "url": f"/results/{file.filename}"}
+# 라우터 등록
+app.include_router(image.router, prefix="/image", tags=["Image"])
+app.include_router(text.router, prefix="/text", tags=["Text"])
