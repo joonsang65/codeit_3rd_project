@@ -1,0 +1,46 @@
+openai:
+  api_key_env: YOUR_OPENAI_API_KEY
+  gpt_model: gpt-4.1-mini
+
+sd_pipeline:
+  inpaint:
+    model_id: runwayml/stable-diffusion-inpainting
+  text2img:
+    model_id: runwayml/stable-diffusion-v1-5
+  torch_dtype: float16
+  use_safety_checker: false
+  device: cuda
+
+lora:
+  category_map:
+    food:
+      - name: foodplatters
+        scale: 1.0
+      - name: meishi
+        scale: 0.4
+    cosmetics:
+      - name: e-commerce_photography02
+        scale: 1.0
+      - name: showcase
+        scale: 0.7
+    furniture:
+      - name: product_design_v3
+        scale: 1.0
+      - name: showcase
+        scale: 0.6
+
+ip_adapter:
+  image_encoder: "laion/CLIP-ViT-H-14-laion2B-s32B-b79K"
+  checkpoint: "model_dev/lora/ip-adapter_sd15.bin"
+
+generation:
+  inference_steps: 35
+  guidance_scale: 7
+  negative_prompt: logo, text, watermark, blurry, extra fingers, human
+
+paths:
+  product_image: model_dev/images/perfume.jpeg
+  reference_image: model_dev/images/ref_image.png
+  output_dir: model_dev/out
+  lora_dir: model_dev/lora
+  output_dir: model_dev/output
