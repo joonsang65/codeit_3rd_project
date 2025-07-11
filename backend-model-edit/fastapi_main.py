@@ -11,8 +11,6 @@ from openai import OpenAI
 
 # Schema 경로.
 from utils.schema import ImagePreservationRequest, AdCopyGenerationRequest
-# 이미지 생성 경로.
-from rag_pipeline.utils.timing_utils import timing_decorator
 # 이미지 보전 경로.
 from model_dev.main import main as model_dev_main
 # 광고 문구 텍스트 생성 경로.
