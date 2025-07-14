@@ -1,11 +1,15 @@
 ## 🔧 프로젝트 구조
 
 ```
-codeit_3rd_project/
-├── test_main.py         # 메인 실행 파일
-├── requirements.txt     # 필요한 패키지 목록
-├── .env                 # API 키 설정 파일 (생성 필요)
-└── README.md           # 프로젝트 설명서
+model_textGen/
+┣ 📜main.py           # FastAPI 연동 시 메인 실행 파일
+┣ 📜test_main.py      # 모델 실행 및 테스트용 스크립트
+┣ 📜config.py         # 설정 및 환경 변수 관리
+┣ 📜models.py         # 모델 관련 코드
+┣ 📜prompts.py        # 시스템 프롬프트 및 Few-shot 예시 정의
+┣ 📜requirements.txt  # 패키지 의존성 관리
+┣ 📜.gitignore        # Git 무시 파일 목록
+┣ 📜README.md         # 프로젝트 설명 문서
 ```
 
 ## 📋 사전 준비
