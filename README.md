@@ -1,12 +1,12 @@
-# AI 광고 문구 생성기
+## 🔧 프로젝트 구조
 
-OpenAI API를 활용한 다양한 플랫폼별 광고 문구 자동 생성 도구입니다.
-
-## 🚀 주요 기능
-
-- **다양한 플랫폼 지원**: Instagram, 블로그, 포스터 광고 문구 생성
-- **모델 선택**: GPT-4o-mini, GPT-4o-nano 모델 지원
-- **Temperature 조절**: 창의성 수준별 다양한 광고 문구 생성
+```
+codeit_3rd_project/
+├── test_main.py         # 메인 실행 파일
+├── requirements.txt     # 필요한 패키지 목록
+├── .env                 # API 키 설정 파일 (생성 필요)
+└── README.md           # 프로젝트 설명서
+```
 
 ## 📋 사전 준비
 
@@ -71,14 +71,4 @@ python test_main.py
 
 🌡 Temperature 0.8 (⏱ 3.12초):
 [창의적인 광고 문구 출력]
-```
-
-## 🔧 프로젝트 구조
-
-```
-codeit_3rd_project/
-├── test_main.py         # 메인 실행 파일
-├── requirements.txt     # 필요한 패키지 목록
-├── .env                 # API 키 설정 파일 (생성 필요)
-└── README.md           # 프로젝트 설명서
 ```
