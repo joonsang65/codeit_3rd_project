@@ -1,5 +1,6 @@
+# backend/app/routers/image.py
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Header
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 import os
 import uuid
 import shutil
@@ -24,7 +25,7 @@ image_session_cache: dict[str, dict[str, Image.Image]] = {}
 
 # 세션 초기화 엔드포인트
 @router.post("/init-session")
-def reset_session(session_id: str = Header(...)):
+def reset_session(session_id: str = Header(..., alias="session-id")):
     if session_id in image_session_cache:
         del image_session_cache[session_id]
         return {"message": "세션 초기화 완료"}
@@ -35,7 +36,7 @@ def reset_session(session_id: str = Header(...)):
 @router.post("/preprocess")
 async def preprocess_image(
     file: UploadFile = File(...),
-    session_id: str = Header(...),  # 클라이언트가 헤더에 넣어줌
+    session_id: str = Header(..., alias="session-id"),
 ):
     try:
         image_bytes = await file.read()
@@ -59,7 +60,7 @@ async def preprocess_image(
 @router.post("/generate-background")
 async def generate_background(
     mode: str = Form(...),
-    session_id: str = Header(...),
+    session_id: str = Header(..., alias="session-id"),
 ):
     try:
         if session_id not in image_session_cache:
@@ -87,11 +88,17 @@ async def generate_background(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+from fastapi.responses import StreamingResponse
 
+@router.get("/generated-background")
+async def get_generated_background(session_id: str = Header(..., alias="session-id")):
+    if session_id not in image_session_cache or "generated_background" not in image_session_cache[session_id]:
+        raise HTTPException(status_code=404, detail="배경 이미지가 없습니다.")
+    
+    image = image_session_cache[session_id]["generated_background"]
 
-@router.get("/download")
-def download_image(filename: str):
-    file_path = os.path.join(OUTPUT_DIR, filename)
-    if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail="파일을 찾을 수 없습니다.")
-    return FileResponse(file_path, media_type="image/png", filename=filename)
+    img_bytes = io.BytesIO()
+    image.save(img_bytes, format="PNG")
+    img_bytes.seek(0)
+    return StreamingResponse(img_bytes, media_type="image/png")

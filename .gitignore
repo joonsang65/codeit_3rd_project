@@ -12,7 +12,10 @@ Thumbs.db
 .venv
 venv
 
-__pycache__/
+# Python cache files
+**/__pycache__/
+*.py[cod]
+*.pyo
 
 # Logs
 *.log

@@ -2,6 +2,7 @@
 // 실행: npm start
 
 import React, { useEffect, useState }from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
@@ -13,12 +14,16 @@ import './App.css';
 
 function App() {
   const [message, setMessage] = useState('');
+  const [sessionId, setSessionId] = useState('');
 
   useEffect(() => {
-    axios.get("http://localhost:8000/api/hello")
-      .then(response => {
-        setMessage(response.data.message);
-      })
+    const id = uuidv4();
+    setSessionId(id);
+
+    axios.post('http://localhost:8000/image/init-session', null, {
+      headers: {'session-id': id}
+    })
+      .then(response => setMessage(response.data.message))
       .catch(error => {
         console.error("There was an error fetching the message!", error);
       });
@@ -32,7 +37,10 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/gallery" element={<Gallery />} />
-            <Route path="/editor" element={<Editor />} />
+            {/* sessionId가 생성되기 전엔 로딩 표시하거나 null 처리 */}
+            <Route 
+              path="/editor"
+              element={sessionId ? <Editor sessionId={sessionId} /> : <div>Loading...</div>} />
           </Routes>
         </div>
       </div>

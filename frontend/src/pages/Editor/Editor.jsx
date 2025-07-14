@@ -1,3 +1,4 @@
+// frontend/src/pages/Editor/Editor.jsx
 import React, { useState } from 'react';
 import Step1Upload from './steps/Step1Upload';
 import Step2Background from './steps/Step2Background';
@@ -6,18 +7,17 @@ import Step4TextAdjust from './steps/Step4TextAdjust';
 import Step5FinalOutput from './steps/Step5FinalOutput';
 import './Editor.css';
 
-const Editor = () => {
+const Editor = ({ sessionId }) => {
   const [step, setStep] = useState(1);
 
   // 공유 데이터
-const [uploadedImage, setUploadedImage] = useState(null); // 상품 이미지
-const [imagePosition, setImagePosition] = useState({ x: 100, y: 100 }); // 위치
-const [imageSize, setImageSize] = useState({ width: 300, height: 300 }); // 크기
-const [bgPrompt, setBgPrompt] = useState('');
-const [bgImage, setBgImage] = useState(null);
-const [adText, setAdText] = useState('');
-const [textImage, setTextImage] = useState(null);
-  // ... 필요시 더 추가
+  const [uploadedImage, setUploadedImage] = useState(null); // 상품 이미지
+  const [imagePosition, setImagePosition] = useState({ x: 100, y: 100 }); // 위치
+  const [imageSize, setImageSize] = useState({ width: 300, height: 300 }); // 크기
+  const [bgPrompt, setBgPrompt] = useState('');
+  const [bgImage, setBgImage] = useState(null);
+  const [adText, setAdText] = useState('');
+  const [textImage, setTextImage] = useState(null);
 
   const nextStep = () => setStep((s) => Math.min(s + 1, 5));
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
@@ -33,6 +33,7 @@ const [textImage, setTextImage] = useState(null);
       <div className="step-content">
         {step === 1 && (
           <Step1Upload
+            sessionId={sessionId}
             uploadedImage={uploadedImage}
             setUploadedImage={setUploadedImage}
             imagePosition={imagePosition}
@@ -44,6 +45,7 @@ const [textImage, setTextImage] = useState(null);
 
         {step === 2 && (
           <Step2Background
+            sessionId={sessionId}
             uploadedImage={uploadedImage}
             imagePosition={imagePosition}
             imageSize={imageSize}
@@ -56,6 +58,7 @@ const [textImage, setTextImage] = useState(null);
 
         {step === 3 && (
           <Step3TextInput
+            sessionId={sessionId}
             adText={adText}
             setAdText={setAdText}
           />
@@ -63,6 +66,7 @@ const [textImage, setTextImage] = useState(null);
 
         {step === 4 && (
           <Step4TextAdjust
+            sessionId={sessionId}
             textImage={textImage}
             setTextImage={setTextImage}
           />
@@ -70,6 +74,7 @@ const [textImage, setTextImage] = useState(null);
 
         {step === 5 && (
           <Step5FinalOutput
+            sessionId={sessionId}
             uploadedImage={uploadedImage}
             bgImage={bgImage}
             textImage={textImage}

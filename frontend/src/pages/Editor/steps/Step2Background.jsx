@@ -1,13 +1,34 @@
 // src/pages/Editor/steps/Step2Background.jsx
 import React, { useState } from 'react';
 import './Step2Background.css';
+import { generateBackground, getGeneratedBackground } from '../../../api/imageAPI';
 
-const Step2Background = ({ bgPrompt, setBgPrompt, onGenerateBackground }) => {
+const Step2Background = ({
+  bgPrompt,
+  setBgPrompt,
+  sessionId,
+  bgImage,
+  setBgImage
+}) => {
   const [localPrompt, setLocalPrompt] = useState(bgPrompt || '');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     setBgPrompt(localPrompt);
-    onGenerateBackground(localPrompt);
+    setLoading(true);
+    setMessage('배경 이미지 생성 중...');
+    try {
+      await generateBackground('inpaint', sessionId); // 배경 생성 요청
+      const imageUrl = await getGeneratedBackground(sessionId); // 이미지 URL 얻기
+      setBgImage(imageUrl); // 상태로 저장 (부모 -> Editor에서 정의)
+      setMessage('✅ 배경 이미지 생성 완료');
+    } catch (err) {
+      console.error(err);
+      setMessage('❌ 배경 생성 실패');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -20,9 +41,23 @@ const Step2Background = ({ bgPrompt, setBgPrompt, onGenerateBackground }) => {
         onChange={(e) => setLocalPrompt(e.target.value)}
         placeholder="예: 여름 바닷가, 도시 야경"
       />
-      <button onClick={handleGenerate}>🖼️ 배경 이미지 AI 생성</button>
+      <button onClick={handleGenerate} disabled={loading}>
+        🖼️ 배경 이미지 AI 생성
+      </button>
+      {message && <p>{message}</p>}
+
+      {bgImage && (
+        <div className="canvas-wrapper">
+          <img
+            src={bgImage}
+            alt="배경 이미지"
+            style={{ width: '100%', maxWidth: '512px', marginTop: '16px', borderRadius: '8px' }}
+          />
+        </div>
+      )}
     </div>
   );
 };
 
 export default Step2Background;
+
