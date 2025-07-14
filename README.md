@@ -1,7 +1,7 @@
 ## 🔧 프로젝트 구조
 
 ```
-font_to_image/
+model_textGen/
 ┣ 📜main.py  # fastapi 연동 시 사용
 ┣ 📜test_main.py  # 모델 실행 test용
 ┣ 📜config.py  # config 관리용
