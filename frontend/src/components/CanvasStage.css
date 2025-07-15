@@ -1,0 +1,42 @@
+/* frontend/src/components/CanvasStage.css */
+.canvas-container {
+  position: relative;
+  flex: 1;
+  max-width: 1000px; /* editor-container(1500px)에서 step-panel(400px)과 gap(24px) 고려 */
+  max-height: 1000px; /* editor-container의 max-height(1200px)에 맞춤 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.canvas {
+  border: 1px solid #d9dce600; /* 밝은 테마와 조화 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: #00000000;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.error-message {
+  color: #ff4d4d;
+  margin-bottom: 10px;
+  text-align: center;
+  font-size: 1rem;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .canvas-container {
+    max-width: 100%;
+    max-height: 600px; /* 모바일에서 적절한 높이 */
+  }
+}

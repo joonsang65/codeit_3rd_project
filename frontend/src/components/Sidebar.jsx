@@ -5,7 +5,7 @@ import './Sidebar.css';
 const Sidebar = () => {
   return (
     <div className="sidebar">
-      <h2>AI 광고 제작</h2>
+      <h2>에드잇</h2>
       <nav>
         <NavLink to="/" end>✲ 홈</NavLink>
         <NavLink to="/gallery">❐ 갤러리</NavLink>

@@ -7,8 +7,7 @@ const Step2Background = ({
   bgPrompt,
   setBgPrompt,
   sessionId,
-  bgImage,
-  setBgImage
+  setBgImage,
 }) => {
   const [localPrompt, setLocalPrompt] = useState(bgPrompt || '');
   const [loading, setLoading] = useState(false);
@@ -21,7 +20,7 @@ const Step2Background = ({
     try {
       await generateBackground('inpaint', sessionId); // 배경 생성 요청
       const imageUrl = await getGeneratedBackground(sessionId); // 이미지 URL 얻기
-      setBgImage(imageUrl); // 상태로 저장 (부모 -> Editor에서 정의)
+      setBgImage(imageUrl); // 부모(Editor.jsx)로 전달
       setMessage('✅ 배경 이미지 생성 완료');
     } catch (err) {
       console.error(err);
@@ -45,19 +44,8 @@ const Step2Background = ({
         🖼️ 배경 이미지 AI 생성
       </button>
       {message && <p>{message}</p>}
-
-      {bgImage && (
-        <div className="canvas-wrapper">
-          <img
-            src={bgImage}
-            alt="배경 이미지"
-            style={{ width: '100%', maxWidth: '512px', marginTop: '16px', borderRadius: '8px' }}
-          />
-        </div>
-      )}
     </div>
   );
 };
 
 export default Step2Background;
-

@@ -1,4 +1,5 @@
 import React from "react";
+import "./Home.css";
 import Card from "../components/Card";
 import { useNavigate } from "react-router-dom";
 
@@ -45,8 +46,15 @@ function Home() {
 
   return (
     <div className="container home-container">
-      <h1>생성형 AI 광고 제작 </h1>
+      <h1>에드잇</h1>
       <h3>광고 목적에 맞는 예시를 보고 원하는 형식의 광고를 만들어보세요</h3>
+
+
+      <div className="button-group">
+        <button className="start-button" onClick={() => navigate("/editor")}>시작하기</button>
+        <button className="plan-button" onClick={() => navigate("/pricing")}>플랜 선택</button>
+      </div>
+      
       <div className="card-row">
         {cards.map((card, i) => (
           <div key={i} onClick={() => handleCardClick(card)} style={{ cursor: "pointer" }}>

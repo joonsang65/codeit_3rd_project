@@ -23,3 +23,54 @@
   justify-content: center;
   flex-wrap: wrap;
 }
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 80px;
+}
+
+.start-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #6366f1, #3b82f6);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+.start-button:hover {
+  background: linear-gradient(135deg, #4f46e5, #2563eb);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+}
+
+.plan-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #505050, #505050);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+.plan-button:hover {
+  background: linear-gradient(135deg, #fcfcfc, #8f8f8f);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgb(0, 0, 0, 0.4);
+}

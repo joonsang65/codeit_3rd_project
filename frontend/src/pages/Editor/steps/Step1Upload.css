@@ -8,8 +8,10 @@
 
 .upload-controls {
   display: flex;
-  justify-content: center;
-  margin-bottom: 30px;
+  flex-direction: column;  /* 수직 정렬 */
+  align-items: center;      /* 가운데 정렬 (선택) */
+  gap: 8px;                 /* 버튼과 메시지 사이 간격 */
+  margin-bottom: 16px;      /* 필요시 아래 여백 */
 }
 
 .upload-button {
@@ -25,13 +27,13 @@
   border-radius: 12px;
   cursor: pointer;
   transition: background 0.3s ease, transform 0.2s ease;
-  box-shadow: 0 6px 18px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
 }
 
 .upload-button:hover {
   background: linear-gradient(135deg, #4f46e5, #2563eb);
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
 }
 
 .upload-icon {

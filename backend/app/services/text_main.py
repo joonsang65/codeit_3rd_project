@@ -42,7 +42,3 @@ async def main():
         
     except Exception as e:
         print(f"❌ 오류가 발생했습니다: {e}")
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
