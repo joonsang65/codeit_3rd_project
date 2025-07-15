@@ -1,70 +1,71 @@
 import yaml
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple, Union
 import logging
 import io
 import base64
 import os
-from rembg import remove
-from typing import Tuple, Optional, Union
 import time
 from functools import wraps
-from PIL import Image
+from PIL import Image, ImageFilter
+from rembg import remove
+import cv2
 
 def load_config(path: str = "config.yaml") -> Dict[str, Any]:
-    """
-    YAML 구성 파일을 로드하여 딕셔너리로 반환합니다.
-
+    '''
+    설정 로드
+    
     Args:
-        path (str): YAML 파일 경로
-
-    Returns:
-        dict: 구성 데이터
-    """
+        - config.yaml이 저장되어있는 경로 (예: 현재경로 "config.yaml", 상위 폴더 "../config.yaml")
+    
+    returns:
+        - config dictionary
+    '''
     try:
         with open(path, "r", encoding="utf-8") as f:
-            return yaml.safe_load(f)
+            config = yaml.safe_load(f)
+        # 필수 섹션 검사
+        for key in ["sd_pipeline", "paths"]:
+            if key not in config:
+                raise ValueError(f"Config missing required section: {key}")
+        return config
     except FileNotFoundError:
         raise FileNotFoundError(f"[ERROR] 설정 파일을 찾을 수 없습니다: {path}")
     except yaml.YAMLError as e:
         raise ValueError(f"[ERROR] YAML 파싱 오류: {e}")
 
+
 def setup_logger(name: str, level: int = logging.INFO, log_to_file: Optional[str] = None) -> logging.Logger:
-    """
-    모듈별 로거를 설정합니다.
-
-    Args:
-        name (str): 로거 이름
-        level (int): 로그 레벨
-        log_to_file (str, optional): 로그를 파일로 저장할 경로
-
-    Returns:
-        Logger: 설정된 로거 인스턴스
-    """
+    '''로거를 설정한다.'''
     logger = logging.getLogger(name)
     logger.setLevel(level)
 
-    if not logger.handlers:
-        formatter = logging.Formatter(
-            "[%(asctime)s] [%(levelname)s] [%(name)s] - %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S"
-        )
+    if logger.hasHandlers():
+        logger.handlers.clear()
 
-        stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(formatter)
-        stream_handler.setLevel(level)
-        logger.addHandler(stream_handler)
+    formatter = logging.Formatter(
+        "[%(asctime)s] [%(levelname)s] [%(name)s] - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"
+    )
 
-        if log_to_file:
-            file_handler = logging.FileHandler(log_to_file, encoding="utf-8")
-            file_handler.setFormatter(formatter)
-            file_handler.setLevel(level)
-            logger.addHandler(file_handler)
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(formatter)
+    stream_handler.setLevel(level)
+    logger.addHandler(stream_handler)
+
+    if log_to_file:
+        file_handler = logging.FileHandler(log_to_file, encoding="utf-8")
+        file_handler.setFormatter(formatter)
+        file_handler.setLevel(level)
+        logger.addHandler(file_handler)
 
     return logger
 
+
 logger = setup_logger(__name__, logging.DEBUG)
 
+
 def log_execution_time(label=None):
+    '''각 기능의 추론시간 파악을 위한 데코레이터'''
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -78,22 +79,23 @@ def log_execution_time(label=None):
         return wrapper
     return decorator
 
+
 @log_execution_time(label="Encode image to base64...")
 def encode_image(
     image: Union[str, Image.Image], 
     size: Optional[Tuple[int, int]] = None, 
-    keep_aspect_ratio:bool = True
+    keep_aspect_ratio: bool = True
 ) -> str:
-    """
-    이미지를 리사이즈하고 base64로 인코딩합니다.
-
+    '''
+    GPT에서 그림을 이해할 수 있도록 하는 전처리 작업으로, 
+    이미지를 base64로 인코딩한다.
     Args:
-        image (str or PIL.Image.Image): 이미지 경로 또는 Image 객체
-        size (Tuple[int, int]): 리사이즈 크기
-
-    Returns:
-        str: base64 인코딩 문자열
-    """
+        - image: 변환하려는 이미지
+        - size: 이미지 크기
+    
+    returns:
+        - image (base64 encoded)
+    '''
     try:
         logger.info(f"Encoding image to size {size}")
         if isinstance(image, str):
@@ -106,11 +108,12 @@ def encode_image(
         image = image.convert("RGB")
 
         if size:
+            image = image.copy()
             if keep_aspect_ratio:
                 image.thumbnail(size, Image.Resampling.LANCZOS)
             else:
-                image = image.resize(size)
-        
+                image = image.resize(size, Image.Resampling.LANCZOS)
+
         buffered = io.BytesIO()
         image.save(buffered, format="PNG")
         return base64.b64encode(buffered.getvalue()).decode("utf-8")
@@ -119,19 +122,19 @@ def encode_image(
         logger.error(f"Failed to encode image: {e}")
         raise
 
+
 @log_execution_time(label="Remove Background...")
 def remove_background(image: Union[str, Image.Image]) -> Tuple[Image.Image, Image.Image]:
     """
-    rembg를 사용해 이미지 배경을 제거합니다.
-
+    이미지의 rembg라이브러리의 remove 모듈을 활용하여 배경을 제거한다.
+    
     Args:
-        image (str or PIL.Image.Image): 이미지 경로 또는 Image 객체
-
+        - image: 원본 이미지
+    
     Returns:
-        Tuple[PIL.Image, PIL.Image]: (원본 이미지, 배경 제거된 이미지)
+        - (원본이미지, 배경제거된 이미지)
     """
     try:
-        # 경로일 경우 파일 읽기
         if isinstance(image, str):
             logger.info(f"Removing background from image path: {image}")
             with open(image, "rb") as f:
@@ -146,42 +149,43 @@ def remove_background(image: Union[str, Image.Image]) -> Tuple[Image.Image, Imag
         else:
             raise TypeError(f"Unsupported image type: {type(image)}")
 
-        # rembg로 배경 제거
         output_data = remove(input_data)
         transparent_image = Image.open(io.BytesIO(output_data)).convert("RGBA")
+
+        if original_image.size != transparent_image.size:
+            logger.warning("Image size mismatch after background removal")
 
         return original_image, transparent_image
 
     except Exception as e:
         logger.error(f"Background removal failed: {e}")
         raise
-    
+
+
+@log_execution_time(label="Resize to Ratio")
 def resize_to_ratio(image: Image.Image, target_size: Tuple[int, int]) -> Image.Image:
-    """
-    이미지를 주어진 크기로 리사이즈합니다.
+    '''이미지의 크기를 resample 기법으로 변환한다.'''
+    try:
+        return image.resize(target_size, Image.Resampling.LANCZOS)
+    except Exception as e:
+        logger.error(f"Resize failed: {e}")
+        raise
 
-    Args:
-        image (PIL.Image): 리사이즈할 이미지.
-        target_size (tuple): 목표 크기 (width, height).
-
-    Returns:
-        PIL.Image: 리사이즈된 이미지.
-    """
-    return image.resize(target_size, Image.LANCZOS)
 
 @log_execution_time(label="Create Masking image...")
-def create_mask(product_image: Image.Image, threshold: int = 250) -> Image.Image:
-    """
-    RGBA 제품 이미지에서 알파 채널을 기반으로 마스크 이미지를 생성합니다.
+def create_mask(product_image: Image.Image, threshold: int = 250, blur_radius: int = 5) -> Image.Image:
+    '''
+    이미지의 마스크를 생성한다. Gaussian Blur를 추가하여 이미지 경계에 대한 정보를 흐릿하게 만들었다.
 
     Args:
-        product_image (PIL.Image): RGBA 이미지
-        threshold (int): 알파값 기준. 이 값보다 작으면 '배경'(흰색), 크면 '제품'(검정)
-
-    Returns:
-        PIL.Image: 마스크 이미지 (제품 제외 영역이 흰색인 1채널 이미지)
-    """
-    logger.info("Creating mask from alpha channel")
+        - product_image: 마스킹 작업이 필요한 제품 이미지
+        - threshold: 마스킹 생성시 설정하는 임계치 (0~254)
+        - blur_radius: 경계 정보에 추가할 노이즈의 정도
+    
+    returns:
+        - mask 이미지
+    '''
+    logger.info("Creating soft mask from alpha channel")
 
     if product_image.mode != "RGBA":
         logger.warning(f"Image mode is {product_image.mode}, converting to RGBA")
@@ -189,36 +193,64 @@ def create_mask(product_image: Image.Image, threshold: int = 250) -> Image.Image
 
     try:
         alpha = product_image.getchannel("A")
-        mask = Image.eval(alpha, lambda a: 255 if a > threshold else 0)
-        return mask.convert("L")
+        mask = Image.eval(alpha, lambda a: 255 if a > threshold else 0).convert("L")
+
+        if blur_radius > 0:
+            logger.info(f"Applying GaussianBlur with radius {blur_radius}")
+            mask = mask.filter(ImageFilter.GaussianBlur(radius=blur_radius))
+
+        return mask
     except Exception as e:
         logger.error(f"Failed to create mask: {e}")
         raise
 
+
 @log_execution_time(label="Overlaying product image...")
-def overlay_product(background: Image.Image, product: Image.Image, position: Tuple[int, int]=(120,360)):
-    """
-    배경 이미지 위에 제품 이미지를 지정한 위치에 합성합니다.
+def overlay_product(background: Image.Image, product: Image.Image, position: Tuple[int, int] = (120, 360)):
+    '''이미지를 배경 혹은 캔버스에 overlay한다. 포지션 입력으로 제품의 위치를 변경할 수 있다.'''
+    try:
+        bg = background.convert("RGBA")
+        fg = product.convert("RGBA")
 
-    Args:
-        background (PIL.Image): 배경 이미지.
-        product (PIL.Image): 합성할 제품 이미지.
-        position (tuple): 제품을 배치할 좌표 (x, y).
+        if position[0] + fg.width > bg.width or position[1] + fg.height > bg.height:
+            logger.warning("Overlay image exceeds background dimensions")
 
-    Returns:
-        PIL.Image: 합성된 최종 이미지.
-    """
-    bg = background.convert("RGBA")
-    fg = product.convert("RGBA")
-    bg.paste(fg, position, fg)
-    return bg
+        bg.paste(fg, position, fg)
+        return bg
+    except Exception as e:
+        logger.error(f"Overlay failed: {e}")
+        raise
+
 
 def ensure_dir(path: str) -> None:
-    """
-    지정한 경로가 없으면 디렉토리를 생성합니다.
-    """
-    if not os.path.exists(path):
+    '''폴더 존재 확인'''
+    if os.path.exists(path):
+        if not os.path.isdir(path):
+            raise NotADirectoryError(f"{path} exists and is not a directory")
+    else:
         os.makedirs(path, exist_ok=True)
         logger.info(f"Created directory: {path}")
 
+def get_canny(image_pil):
+    '''윤곽선 추출'''
+    image_np = np.array(image_pil.convert("RGB"))
+    gray = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
+    edges = cv2.Canny(gray, 100, 200)
+    edges_rgb = cv2.cvtColor(edges, cv2.COLOR_GRAY2RGB)
+    return Image.fromarray(edges_rgb)
 
+def get_depth_midas(image_pil):
+    '''음영 정보 추출'''
+    import torch.hub
+    image_np = cv2.cvtColor(np.array(image_pil), cv2.COLOR_RGB2BGR)
+    midas = torch.hub.load("intel-isl/MiDaS", "DPT_Large").to("cuda").eval()
+    transform = torch.hub.load("intel-isl/MiDaS", "transforms").dpt_transform
+    input_tensor = transform(image_np).to("cuda")
+    with torch.no_grad():
+        prediction = midas(input_tensor)
+        prediction = torch.nn.functional.interpolate(
+            prediction.unsqueeze(1), size=image_np.shape[:2], mode="bicubic", align_corners=False
+        ).squeeze()
+    depth_np = prediction.cpu().numpy()
+    depth_norm = cv2.normalize(depth_np, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+    return Image.fromarray(depth_norm).convert("L")

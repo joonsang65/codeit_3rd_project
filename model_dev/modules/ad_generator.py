@@ -20,7 +20,7 @@ def run_inpainting(pipe, original_image: Image.Image, product_mask: Image.Image,
         guidance_scale=config["generation"]["guidance_scale"],
         height=config['canvas_size'][1],
         width=config['canvas_size'][0],
-        num_images_per_prompt=2
+        num_images_per_prompt=config['generation']['num_image']
     ).images
 
 @log_execution_time(label="Background image generating...")
@@ -36,18 +36,12 @@ def generate_background(pipe, prompt: str, config: Dict) -> Image.Image:
         guidance_scale=config["generation"]["guidance_scale"],
         height=config['canvas_size'][1],
         width=config['canvas_size'][0],
-        num_images_per_prompt=2
+        num_images_per_prompt=config['generation']['num_image']
     ).images
-    if len(result) > 1:
-        for i, image in enumerate(result):
-            image.save(f"{config['paths']['output_dir']}/debug_output{i}.png")
-    else:
-        image.save(f"{config['paths']['output_dir']}/debug_output.png")
-    logger.debug("Saved debug background: debug_output.png")
-    return image
+    return result
 
 @log_execution_time(label="Inference from IP-Adapter...")
-def ip_adapter_inference(ip_adapter, config: Dict, prompt: str, background_image: Image.Image, input_image: Image.Image) -> Image.Image:
+def ip_adapter_inference(ip_adapter, config: Dict, prompt: str, ref_image: Image.Image, input_image: Image.Image) -> Image.Image:
     """
     IP-Adapter를 활용해 배경과 제품 이미지를 조화롭게 합성합니다.
     
@@ -65,7 +59,7 @@ def ip_adapter_inference(ip_adapter, config: Dict, prompt: str, background_image
 
     ip_images = ip_adapter.generate(
         pil_image=input_image,
-        image=background_image,
+        image=ref_image,
         prompt=prompt,
         negative_prompt=config["generation"]["negative_prompt"],
         scale=0.7,
@@ -73,5 +67,22 @@ def ip_adapter_inference(ip_adapter, config: Dict, prompt: str, background_image
         guidance_scale=config["generation"]["guidance_scale"],
         height=config['canvas_size'][1],
         width=config['canvas_size'][0],
+        num_images_per_prompt=config['generation']['num_image']
     )
     return ip_images
+
+@log_execution_time(label="Inference from Controlnet Inpaint...")
+def control_inpaint(pipe, config:Dict, prompt:str, target_image, mask, control_image: list[Image.Image]):
+    '''control_inpaint inference 모듈'''
+    return pipe(
+    prompt=prompt,
+    image=[target_image.convert("RGB")],
+    mask_image=[ImageOps.invert(mask)],
+    control_image= control_image if isinstance(control_image, list) else [control_image],
+    height=config['canvas_size'][1],
+    width=config['canvas_size'][0],
+    num_inference_steps=config['generation']['inference_steps'],
+    guidance_scale=config['generation']['guidance_scale'],
+    controlnet_conditioning_scale=1.5,
+    num_images_per_prompt=config['generation']['num_image']
+    ).images
