@@ -31,3 +31,9 @@ pip install -r requirements.txt
 ```bash
 streamlit run app.py
 ```
+
+### 실행 예시
+<img width="1207" height="537" alt="image" src="https://github.com/user-attachments/assets/5057abcd-c524-49cf-954f-11712610cd6d" />
+<img width="946" height="976" alt="image" src="https://github.com/user-attachments/assets/f3567352-e363-48f5-8122-e8e538a3cdc5" />
+<img width="960" height="160" alt="image" src="https://github.com/user-attachments/assets/df9ff136-7c8b-45a5-938b-4f0c39c453d4" />
+
