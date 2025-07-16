@@ -1,7 +1,8 @@
 # backend/app/routers/cache.py
 from fastapi import APIRouter, HTTPException, Header
 from fastapi.responses import JSONResponse
-from app.cache import clear_session_cache, get_session_cache
+from app.cache import clear_session_cache, get_session_cache, update_session_cache
+from pydantic import BaseModel
 import logging
 import uuid
 
@@ -18,6 +19,19 @@ def init_session(session_id: str = Header(..., alias="session-id")):
         return {"message": f"세션 {session_id} 초기화 완료"}
     except Exception as e:
         logger.error(f"세션 초기화 실패: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+class UpdateRequest(BaseModel):
+    session_id: str
+    key: str
+    value: str
+
+@router.post("/update")
+async def update_session_data(req: UpdateRequest):
+    try:
+        update_session_cache(req.session_id, req.key, req.value)
+        return {"message": "세션 업데이트 성공"}
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/session/{session_id}")

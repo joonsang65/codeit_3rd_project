@@ -3,8 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 import Home from './pages/Home';
 import Gallery from './pages/Gallery';
+import SelectPlatform from './pages/Editor/steps/SelectPlatform';
 import Editor from './pages/Editor/Editor';
 import Sidebar from './components/Sidebar';
 import './App.css';
@@ -13,6 +15,7 @@ function App() {
   const [message, setMessage] = useState('');
   const [sessionId, setSessionId] = useState('');
   const [error, setError] = useState('');
+  const [platform, setPlatform] = useState('');
 
   useEffect(() => {
     let id = localStorage.getItem('sessionId');
@@ -49,10 +52,23 @@ function App() {
           {message && <div className="success-message">{message}</div>}
           <Routes>
             <Route path="/" element={<Home />} />
+
             <Route path="/gallery" element={<Gallery />} />
-            <Route
-              path="/editor"
-              element={sessionId ? <Editor sessionId={sessionId} /> : <div>Loading...</div>}
+
+            <Route path="/select-platform" 
+              element={
+                <SelectPlatform 
+                  setPlatform={setPlatform}
+                  sessionId={sessionId} />}/>
+                  
+            <Route path="/editor"
+              element={
+                sessionId && platform ? (
+                  <Editor sessionId={sessionId} platform={platform} />
+                ) : (
+                  <div>광고 플랫폼을 먼저 선택하세요.</div>
+                )
+              }
             />
           </Routes>
         </div>
