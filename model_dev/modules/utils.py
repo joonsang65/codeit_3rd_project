@@ -9,6 +9,7 @@ from functools import wraps
 from PIL import Image, ImageFilter
 from rembg import remove
 import cv2
+import numpy as np
 
 def load_config(path: str = "config.yaml") -> Dict[str, Any]:
     '''
@@ -220,7 +221,6 @@ def overlay_product(background: Image.Image, product: Image.Image, position: Tup
     except Exception as e:
         logger.error(f"Overlay failed: {e}")
         raise
-
 
 def ensure_dir(path: str) -> None:
     '''폴더 존재 확인'''
