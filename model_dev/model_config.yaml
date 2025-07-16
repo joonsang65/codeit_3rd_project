@@ -43,7 +43,7 @@ generation:
   inference_steps: 35
   guidance_scale: 7
   negative_prompt: logo, text, watermark, blurry, extra fingers, human
-  num_image: 2
+  num_image: 4
 
 paths:
   product_image: images/perfume.jfif

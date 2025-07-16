@@ -1,10 +1,6 @@
 from openai import OpenAI
 from typing import List, Dict, Optional, Any
-from modules.utils import log_execution_time, setup_logger
-
-import logging
-
-logger = setup_logger(__name__, logging.DEBUG)
+from modules.utils import log_execution_time, logger
 
 class GPTClient:
     """

@@ -61,10 +61,6 @@ def setup_logger(name: str, level: int = logging.INFO, log_to_file: Optional[str
 
     return logger
 
-
-logger = setup_logger(__name__, logging.DEBUG)
-
-
 def log_execution_time(label=None):
     '''각 기능의 추론시간 파악을 위한 데코레이터'''
     def decorator(func):
@@ -127,39 +123,43 @@ def encode_image(
 @log_execution_time(label="Remove Background...")
 def remove_background(image: Union[str, Image.Image]) -> Tuple[Image.Image, Image.Image]:
     """
-    이미지의 rembg라이브러리의 remove 모듈을 활용하여 배경을 제거한다.
+    이미지에서 배경을 제거하고 RGBA로 반환합니다.
     
     Args:
-        - image: 원본 이미지
-    
+        image (str or PIL.Image.Image): 파일 경로 또는 PIL 이미지 객체
+
     Returns:
-        - (원본이미지, 배경제거된 이미지)
+        Tuple[Image.Image, Image.Image]: (원본 RGBA 이미지, 배경제거된 RGBA 이미지)
     """
     try:
+        # 1. 이미지 로딩 및 바이트 변환
         if isinstance(image, str):
-            logger.info(f"Removing background from image path: {image}")
+            logger.info(f"🔍 Removing background from image path: {image}")
             with open(image, "rb") as f:
                 input_data = f.read()
-            original_image = Image.open(image).convert("RGBA")
+            original_image = Image.open(io.BytesIO(input_data)).convert("RGBA")
+
         elif isinstance(image, Image.Image):
-            logger.info("Removing background from PIL.Image object")
+            logger.info("🔍 Removing background from PIL.Image object")
             buffered = io.BytesIO()
-            image.save(buffered, format="PNG")
+            image.convert("RGBA").save(buffered, format="PNG")
             input_data = buffered.getvalue()
             original_image = image.convert("RGBA")
         else:
-            raise TypeError(f"Unsupported image type: {type(image)}")
+            raise TypeError(f"❌ Unsupported image type: {type(image)}")
 
+        # 2. rembg 처리
         output_data = remove(input_data)
         transparent_image = Image.open(io.BytesIO(output_data)).convert("RGBA")
 
+        # 3. 사이즈 불일치 로그
         if original_image.size != transparent_image.size:
-            logger.warning("Image size mismatch after background removal")
+            logger.warning(f"⚠️ Image size mismatch: original={original_image.size}, result={transparent_image.size}")
 
         return original_image, transparent_image
 
     except Exception as e:
-        logger.error(f"Background removal failed: {e}")
+        logger.error(f"❌ Background removal failed: {str(e)}")
         raise
 
 
@@ -254,3 +254,5 @@ def get_depth_midas(image_pil):
     depth_np = prediction.cpu().numpy()
     depth_norm = cv2.normalize(depth_np, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
     return Image.fromarray(depth_norm).convert("L")
+
+logger = setup_logger(__name__, logging.INFO)

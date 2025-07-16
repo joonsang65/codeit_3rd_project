@@ -8,9 +8,7 @@ from diffusers import (
 )
 from typing import Dict, Literal
 import logging
-from modules.utils import log_execution_time, setup_logger
-
-logger = setup_logger(__name__, logging.INFO)
+from modules.utils import log_execution_time, logger
 
 # Mapping 정의
 PIPELINE_CLASSES = {

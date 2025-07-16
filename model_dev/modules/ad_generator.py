@@ -1,10 +1,8 @@
 
 from PIL import Image, ImageOps
 from typing import Dict
-from modules.utils import log_execution_time, setup_logger
+from modules.utils import log_execution_time, logger
 import logging
-
-logger = setup_logger(__name__, logging.DEBUG)
 
 @log_execution_time(label="Inpainting process...")
 def run_inpainting(pipe, original_image: Image.Image, product_mask: Image.Image, prompt: str, config: Dict) -> Image.Image:
