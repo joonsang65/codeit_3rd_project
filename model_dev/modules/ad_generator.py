@@ -1,4 +1,3 @@
-
 from PIL import Image, ImageOps
 from typing import Dict
 from modules.utils import log_execution_time, logger

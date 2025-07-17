@@ -103,6 +103,7 @@ def apply_loras(pipe, config, category=None):
         logger.warning("No LoRA category specified. Using base model only.")
         return pipe
 
+    logger.debug(f"Category: {category}")
     lora_dir = config['paths']['lora_dir']
     category_map = config['lora']['category_map']
     lora_items = category_map.get(category, 'furniture')

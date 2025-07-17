@@ -76,7 +76,6 @@ def log_execution_time(label=None):
         return wrapper
     return decorator
 
-
 @log_execution_time(label="Encode image to base64...")
 def encode_image(
     image: Union[str, Image.Image], 
@@ -255,4 +254,4 @@ def get_depth_midas(image_pil):
     depth_norm = cv2.normalize(depth_np, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
     return Image.fromarray(depth_norm).convert("L")
 
-logger = setup_logger(__name__, logging.INFO)
+logger = setup_logger(__name__, logging.DEBUG)
