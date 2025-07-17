@@ -20,6 +20,13 @@ from image_modules.utils import logger
 
 class AdImageGenerator:
     def __init__(self, config: dict, category: str = "cosmetics"):
+        '''
+        설정값을 입력으로 받아 generator를 초기화 합니다.
+
+        note: 
+            - client: OpenAI GPT 4.1 mini
+            - evaluator: 생성 이미지 평가 모듈 (Clip, Aesthetic, Caption -> 현재는 CLIP score만 고려합니다.)
+        '''
         self.cfg = config
         self._category = category
         self.canvas_size = config.get('canvas_size', (512, 512))
@@ -39,6 +46,7 @@ class AdImageGenerator:
 
     @category.setter
     def category(self, value):
+        '''카테고리 변경 감지 및 적용 setter'''
         if self._category != value:
             logger.info(f"카테고리를 '{value}'로 변경합니다.")
             self._category = value
@@ -47,9 +55,27 @@ class AdImageGenerator:
                 self.prepare_pipeline(self.current_mode) 
 
     def update_config(self, new_cfg: dict):
+        '''Canvas_size 및 포지션 정보를 반영하기 위해 설정값을 업데이트'''
         self.cfg.update(new_cfg)
 
     def generate_prompt(self, pipe, canvas:Image.Image=None, ref_image:Image.Image=None) -> str:
+        '''
+        프롬프트 생성 모듈
+        모드에 따라 자동 생성된 파이프라인을 기준으로 배경을 생성하기 위한 프롬프트 제작 방식이 나뉜다.
+            1. 텍스트 기반 프롬프트 생성 (text2img)
+            2. 이미지 기반 프롬프트 생성 (text2img, inpaint) + input_image
+            3. Controlnet 구도조정 (Backend 미구현)
+            4. IP-Adapter 스타일 반영 (Backend 미구현)
+        우선적으로 광고전략을 생성 후 prompt로 conver한다.
+
+        input:
+            - pipe: 파이프라인
+            - canvas: 전처리 과정에서 사이즈, 위치정보가 반영된 canvas
+            - ref_image: 참조할 배경 이미지 (있다면)
+        
+        return:
+            - prompt: 이미지 생성에 사용할 프롬프트
+        '''
         if isinstance(pipe, StableDiffusionPipeline) and canvas is None:
             logger.info("홍보 전략을 구성합니다. (텍스트 기반)")
             messages = [
@@ -82,6 +108,11 @@ class AdImageGenerator:
         return prompt
 
     def prepare_pipeline(self, mode: str):
+        '''
+        모드 입력에 맞게 파이프라인을 설정합니다.
+        예: ['text2img', 'inpaint'] +  ['controlnet', 'controlnet_inpaint'] (현재 서버에 기능 반영은 안된 상태, 추후 업데이트)
+        또한, 내부적으로 모드 변경을 감지하여 필요한 경우 원래있던 파이프라인을 내리고 다시 로드합니다.
+        '''
         if self.current_mode != mode:
             self._unload_pipeline()
             logger.info(f"{mode} 파이프라인을 새로 로드합니다.")
@@ -98,6 +129,11 @@ class AdImageGenerator:
         return self.pipe
 
     def image_process(self, canvas_input:Image.Image=None):
+        '''
+        이미지 전처리 단계.
+        입력이미지의 배경을 제거하고 사용자 설정을 반영하여 크기를 변경하고 위치를 조정하여 캔버스에 붙이는 작업.
+        이후 작업을 위해 추가적으로 만들어진 canvas의 배경을 제거한 이미지와 마스킹 이미지를 만들어 반환합니다.
+        '''
         self.img = self.cfg['paths']['product_image']
         _, back_rm = utils.remove_background(self.img)
         resized = utils.resize_to_ratio(back_rm, self.cfg['image_config']['resize_info'])
@@ -108,6 +144,12 @@ class AdImageGenerator:
         return canvas, back_rm_canv, mask
 
     def run_text2img(self, canvas:Image.Image=None, ref_image:Image.Image=None):
+        '''
+        텍스트 기반 이미지 생성.
+        - 입력 이미지를 감지 하여, 프롬프트를 생성할때 이미지정보를 고려하는 기능.
+        - 입력 이미지가 없을 경우, category를 기반으로 자동 프롬프트 생성.
+        이후 생성된 프롬프트를 기반으로 배경이미지를 생성합니다.
+        '''
         if self.pipe is None or not isinstance(self.pipe, StableDiffusionPipeline):
             self._unload_pipeline()
             self.pipe = self.prepare_pipeline("text2img")
@@ -117,6 +159,11 @@ class AdImageGenerator:
         return top_image
 
     def run_inpaint(self, canvas:Image.Image, mask:Image.Image, ref_image:Image.Image=None):
+        '''
+        Inpaint를 진행.
+        모드는 inpaint이나, 사실은 outpaint를 진행.
+        mask 이미지를 invert 시켜 제품이미지를 제외한 배경을 프롬프트 기반으로 재생성한다.
+        '''
         if self.pipe is None or not isinstance(self.pipe, StableDiffusionInpaintPipeline):
             self._unload_pipeline()
             self.pipe = self.prepare_pipeline("inpaint")
@@ -126,6 +173,9 @@ class AdImageGenerator:
         return top_image
 
     def evaluate_and_save(self, images: List[Image.Image], prompt: str):
+        '''
+        여러개의 생성된 이미지 중 Clip score 기반으로 정렬 후 최상위(top_1) 이미지를 선택 후 반환
+        '''
         
         eval_logs = [self.evaluator.evaluate_image(img, prompt) for img in images]
 
@@ -138,9 +188,11 @@ class AdImageGenerator:
         return clip_sorted[0][0]
 
     def cleanup(self):
+        '''파이프라인 정리'''
         self._unload_pipeline()
     
     def _unload_pipeline(self):
+        '''파이프라인을 정리 내부 호출 함수'''
         try:
             if self.pipe:
                 self.pipe.to("cpu")
@@ -188,6 +240,7 @@ def step1():
     Step1: 입력 이미지를 전처리 및 배경제거
     최종 목적은 크기와 위치정보를 반영한 이미지를 만드는 것을 목적으로 하며,
     다음 단계를 위해, 배경제거한 최종 이미지와 마스킹이미지를 같이 반환합니다.
+
     input:
         - image (Image.Image): 제품 원본 이미지 혹은 경로
 
@@ -200,6 +253,18 @@ def step1():
     return generator.image_process()
 
 def step2(mode: str, canvas:Image.Image=None, mask:Image.Image=None, ref_image:Image.Image=None):
+    '''
+    step2: 입력 정보를 기반으로 프롬프트 생성 + 이미지 생성을 진행합니다.
+    내부적으로 평가 함수가 존재하며, 평가를 기반으로 top_1 이미지를 반환합니다.
+
+    input:
+        - mode: 생성 모드
+        - canvas: 전처리된 전체 이미지 (배경 + 제품)
+        - mask: 제품부분이 마스킹된 이미지 (invert 됩니다.)
+    
+    output:
+        - result: 내부 평가 함수를 통과한 top_1 이미지
+    '''
     if mode == 'text2img':
         return generator.run_text2img(canvas, ref_image)
     elif mode == 'inpaint':
