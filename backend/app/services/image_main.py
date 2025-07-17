@@ -15,211 +15,196 @@ import logging
 import torch
 from diffusers import StableDiffusionInpaintPipeline, StableDiffusionPipeline
 
-from image_modules import utils, pipeline_utils, gpt_module, ad_generator
+from image_modules import utils, pipeline_utils, gpt_module, ad_generator, evaluation
+from image_modules.utils import logger
 
-logger = utils.setup_logger(__name__, logging.DEBUG)
-base_dir = os.path.dirname(os.path.abspath(__file__))
-try:
-    config_path = os.path.join(base_dir, "model_config.yaml")
-    config = utils.load_config(config_path)
-    logger.info(config)
-except Exception as e:
-    logger.warning(f"경로를 찾지 못했습니다: {e}")
+class AdImageGenerator:
+    def __init__(self, config: dict, category: str = "cosmetics"):
+        self.cfg = config
+        self._category = category
+        self.canvas_size = config.get('canvas_size', (512, 512))
+        self.api_key = os.getenv(config['openai']['api_key_env'])
+        self.client = gpt_module.GPTClient(
+            api_key=self.api_key,
+            model_name=config['openai']['gpt_model']
+        )
+        self.pipe = None
+        self.evaluator = evaluation.ImageEvaluator()
+        self.current_mode = None
+        self.current_category = None
 
-# try:
-#     if os.path.exists("./model_config.yaml"):
-#         config = utils.load_config("model_config.yaml")
-#     else:
-#         config = utils.load_config("backend/services/model_config.yaml")
+    @property
+    def category(self):
+        return self._category
 
-#     logger.info(config)
-# except Exception as e:
-#     logger.warning(f"경로를 찾지 못했습니다: {e}")
+    @category.setter
+    def category(self, value):
+        if self._category != value:
+            logger.info(f"카테고리를 '{value}'로 변경합니다.")
+            self._category = value
+            if self.pipe:
+                # 동일한 mode로 pipeline 재적용
+                self.prepare_pipeline(self.current_mode) 
+
+    def update_config(self, new_cfg: dict):
+        self.cfg.update(new_cfg)
+
+    def generate_prompt(self, pipe, canvas:Image.Image=None, ref_image:Image.Image=None) -> str:
+        if isinstance(pipe, StableDiffusionPipeline) and canvas is None:
+            logger.info("홍보 전략을 구성합니다. (텍스트 기반)")
+            messages = [
+                {"role": "system", "content": (
+                    "You are an advertisement planner. Plan the advertisement background for a product. "
+                    "Do NOT mention the product, human, or text. Only describe mood, color, and background design."
+                )},
+                {"role": "user", "content": f"{self._category} 광고에 맞는 배경 생성"}
+            ]
+            ad_plan = self.client.chat(messages, max_tokens=200)
     
-def resolve_path(path):
-    if not os.path.isabs(path):
-        return os.path.abspath(os.path.join(os.path.dirname(__file__), path))
-    return path
-
-for key in config['paths']:
-    config['paths'][key] = resolve_path(config['paths'][key])
-
-class ImageProcessor:
-    def __init__(self):
-        self.config = config
-        self.inpaint_pipeline = None
-        self.text2img_pipeline = None
-        self.ip_adapter = None
-
-    def load_pipelines(self, mode: str):
-        try:
-            if mode == "inpaint" and not self.inpaint_pipeline:
-                self.inpaint_pipeline = StableDiffusionInpaintPipeline.from_pretrained(
-                    self.config["sd_pipeline"]["inpaint"]["model_id"],
-                    torch_dtype=self.config["sd_pipeline"]["torch_dtype"],
-                ).to(self.config["sd_pipeline"]["device"])
-                logger.info("Inpaint 파이프라인 로드 완료")
-            elif mode == "text2img" and not self.text2img_pipeline:
-                self.text2img_pipeline = StableDiffusionPipeline.from_pretrained(
-                    self.config["sd_pipeline"]["text2img"]["model_id"],
-                    torch_dtype=self.config["sd_pipeline"]["torch_dtype"],
-                ).to(self.config["sd_pipeline"]["device"])
-                logger.info("Text2Img 파이프라인 로드 완료")
-        except Exception as e:
-            logger.error(f"파이프라인 로드 실패: {str(e)}")
-            raise
-
-    def step1(self, img: Image.Image) -> tuple[Image.Image, Image.Image]:
-        """
-        Step 1: 이미지 전처리 및 배경 제거
-        - 입력된 이미지의 배경을 제거하고, 지정된 크기로 리사이즈합니다.
-        - 최종적으로 빈 캔버스에 리사이즈된 이미지를 오버레이합니다.
-
-        input:
-        - img_path (str): 배경 제거할 이미지의 경로
-        output:
-        - back_rm_canv (PIL.Image.Image): 배경이 제거된 캔버스 이미지
-        """
-        try:
-            utils.ensure_dir(self.config['paths']['output_dir'])
-            self.config['product_type'] = "food"
-            self.config['canvas_size'] = (512, 512)
-
-            logger.info("이미지 배경 제거 중...")
-            orig_img, back_rm_img = utils.remove_background(img)
-
-            logger.info("이미지 사이즈 변경 중...")
-            resized_img = utils.resize_to_ratio(back_rm_img, (128, 128))
-
-            canvas = Image.new("RGBA", self.config['canvas_size'], (255, 255, 255, 255))
-            canvas = utils.overlay_product(canvas, resized_img, (300, 220))
-            canv_img, back_rm_canv = utils.remove_background(canvas)
-
-            return resized_img, back_rm_canv
-        except Exception as e:
-            logger.error(f"Step1 처리 실패: {str(e)}")
-            raise
-
-    def step2(self, mode: Literal['inpaint', 'text2img'], resized_img: Image.Image, back_rm_canv: Image.Image) -> Union[Image.Image, List[Image.Image]]:
-        """
-        Step 2: 광고 전략 생성 및 이미지 생성
-        - OpenAI API를 사용하여 광고 전략을 생성합니다.
-        - 생성된 광고 전략을 기반으로 Stable Diffusion 파이프라인을 통해 이미지를 생성합니다.
-        - 생성된 PIL 이미지 객체 또는 이미지 리스트를 반환합니다.
-        
-        Args:
-            mode (str): 'inpaint' 또는 'text2img' 생성 모드 선택
-            resized_img (PIL.Image.Image): 리사이즈된 상품 이미지
-            back_rm_canv (PIL.Image.Image): 배경 제거된 캔버스 이미지
-        
-        Returns:
-            PIL.Image.Image 또는 리스트: 생성된 이미지 또는 이미지 리스트
-        """
-        try:
-            self.load_pipelines(mode)
-            api_key = os.getenv(self.config['openai']['api_key_env'])
-            if not api_key:
-                raise RuntimeError(f"{self.config['openai']['api_key_env']} 환경 변수가 설정되어 있지 않습니다.")
-            client = gpt_module.GPTClient(
-                api_key=api_key,
-                model_name=self.config['openai']['gpt_model']
-            )
-
-            if mode == 'inpaint':
-                logger.info(f"{mode.upper()} 설정 확인!")
-                logger.info("이미지 마스킹 생성 중...")
-                mask = utils.create_mask(back_rm_canv)
-
-                logger.info("이미지 인코딩 -> base64...")
-                img_base64 = utils.encode_image(back_rm_canv)
-                ref_base64 = None
-
-                logger.info("광고 전략 생성 중...")
-                ad_plan = client.analyze_ad_plan(
-                    product_b64=img_base64,
-                    ref_b64=ref_base64,
-                    product_type=self.config['product_type'],
-                    marketing_type="인풋 이미지를 마스킹한 상태에서 배경 생성하기"
+        elif (
+        (isinstance(pipe, StableDiffusionPipeline) or isinstance(pipe, StableDiffusionInpaintPipeline))
+        and canvas is not None
+    ):
+            logger.info("이미지를 정보로 홍보 전략을 구성합니다.")
+            if canvas is None:
+                raise ValueError("base64로 변환할 이미지를 입력하지 않았습니다.")
+            ad_plan = self.client.analyze_ad_plan(
+                    product_b64=utils.encode_image(canvas),
+                    ref_b64=utils.encode_image(ref_image) if ref_image is not None else None,
+                    product_type=self.category,
+                    marketing_type=f"{self._category} 광고에 맞는 배경 생성"
                 )
-                logger.debug(ad_plan)
+        else:
+            raise TypeError(f"지원하지 않는 파이프라인 입니다. TYPE: {type(pipe)}")
+        logger.debug(f"광고 전략: {ad_plan}")
+        prompt = self.client.convert_to_sd_prompt(ad_plan)
+        logger.debug(f"생성된 프롬프트: {prompt}")
+        return prompt
 
-                logger.info("광고 전략 -> 프롬프트 변경 진행 중...")
-                prompt = client.convert_to_sd_prompt(ad_plan)
-                logger.debug(prompt)
+    def prepare_pipeline(self, mode: str):
+        if self.current_mode != mode:
+            self._unload_pipeline()
+            logger.info(f"{mode} 파이프라인을 새로 로드합니다.")
+            self.pipe = pipeline_utils.load_pipeline_by_type(self.cfg, mode)
+            self.current_mode = mode
 
-                logger.info("파이프라인 불러오기...")
-                base_pipe = self.inpaint_pipeline
-                pipe = pipeline_utils.apply_loras(base_pipe, self.config, category="cosmetics")
+        if self.current_category != self._category:
+            if hasattr(self.pipe, "unload_lora_weights"):
+                self.pipe.unload_lora_weights()
+            self.pipe = pipeline_utils.apply_loras(self.pipe, self.cfg, category=self._category)
+            self.current_category = self._category
+            logger.debug(f"LoRA 적용 상태: {self.pipe.get_active_adapters()}")
 
-                logger.info("Inference 진행 중...")
-                images = ad_generator.run_inpainting(pipe, back_rm_canv, mask, prompt, self.config)
-                return images
+        return self.pipe
 
-            else:  # mode == 'text2img'
-                logger.info(f"{mode.upper()} 설정 확인!")
-                message = [
-                    {
-                        "role": "system",
-                        "content": (
-                            "You are an advertisement planner, How would you plan given the advertisement with for the product? "
-                            "You are only allow to describe background which fits to the product.\n"
-                            "Do NOT mention about product, human, or text in the background, only the mood, color, design."
-                        )
-                    },
-                    {
-                        "role": "user",
-                        "content": "화장품 광고에 맞는 배경"
-                    }
-                ]
-                logger.info("광고 전략 생성 중...")
-                ad_plan = client.chat(messages=message, max_tokens=200)
-                logger.debug(ad_plan)
+    def image_process(self, canvas_input:Image.Image=None):
+        self.img = self.cfg['paths']['product_image']
+        _, back_rm = utils.remove_background(self.img)
+        resized = utils.resize_to_ratio(back_rm, self.cfg['image_config']['resize_info'])
+        canvas = Image.new("RGBA", self.canvas_size, (255, 255, 255, 255)) if canvas_input is None else canvas_input
+        canvas = utils.overlay_product(canvas, resized, self.cfg['image_config']['position'])
+        canvas, back_rm_canv = utils.remove_background(canvas)
+        mask = utils.create_mask(back_rm_canv)
+        return canvas, back_rm_canv, mask
 
-                logger.info("광고 전략 -> 프롬프트 변경 진행 중...")
-                prompt = client.convert_to_sd_prompt(ad_plan)
-                logger.debug(prompt)
+    def run_text2img(self, canvas:Image.Image=None, ref_image:Image.Image=None):
+        if self.pipe is None or not isinstance(self.pipe, StableDiffusionPipeline):
+            self._unload_pipeline()
+            self.pipe = self.prepare_pipeline("text2img")
+        prompt = self.generate_prompt(self.pipe, canvas, ref_image)
+        images = ad_generator.generate_background(self.pipe, prompt, self.cfg)
+        top_image = self.evaluate_and_save(images, prompt)
+        return top_image
 
-                logger.info("파이프라인 불러오기...")
-                base_pipe = self.text2img_pipeline
-                pipe_t2i = pipeline_utils.apply_loras(base_pipe, self.config, category='cosmetics')
+    def run_inpaint(self, canvas:Image.Image, mask:Image.Image, ref_image:Image.Image=None):
+        if self.pipe is None or not isinstance(self.pipe, StableDiffusionInpaintPipeline):
+            self._unload_pipeline()
+            self.pipe = self.prepare_pipeline("inpaint")
+        prompt = self.generate_prompt(self.pipe, canvas, ref_image)
+        images = ad_generator.run_inpainting(self.pipe, canvas, mask, prompt, self.cfg)
+        top_image = self.evaluate_and_save(images, prompt)
+        return top_image
 
-                logger.info("배경 이미지 생성 중...")
-                gen_backs = ad_generator.generate_background(pipe_t2i, prompt, self.config)
+    def evaluate_and_save(self, images: List[Image.Image], prompt: str):
+        
+        eval_logs = [self.evaluator.evaluate_image(img, prompt) for img in images]
 
-                logger.info("IP-Adapter 설정하기...")
-                self.ip_adapter = pipeline_utils.load_ip_adapter(base_pipe, self.config)
+        clip_sorted = sorted(
+            zip(images, eval_logs),
+            key=lambda x: x[1].get("clip_score", 0),
+            reverse=True
+        )
 
-                logger.info("IP-Adapter Inference 진행 중...")
-                ip_gen = ad_generator.ip_adapter_inference(self.ip_adapter, self.config, prompt, gen_backs, resized_img)
-                return ip_gen
-
-        except Exception as e:
-            logger.error(f"Step2 처리 실패: {str(e)}")
-            raise
+        return clip_sorted[0][0]
 
     def cleanup(self):
+        self._unload_pipeline()
+    
+    def _unload_pipeline(self):
         try:
-            if self.inpaint_pipeline:
-                self.inpaint_pipeline.to("cpu")
-                del self.inpaint_pipeline
-                self.inpaint_pipeline = None
-            if self.text2img_pipeline:
-                self.text2img_pipeline.to("cpu")
-                del self.text2img_pipeline
-                self.text2img_pipeline = None
-            if self.ip_adapter:
-                del self.ip_adapter
-                self.ip_adapter = None
-            torch.cuda.empty_cache()
-            logger.info("ImageProcessor 리소스 정리 완료")
+            if self.pipe:
+                self.pipe.to("cpu")
+                del self.pipe
+                self.pipe = None
         except Exception as e:
             logger.error(f"리소스 정리 실패: {str(e)}")
 
-image_processor = ImageProcessor()
 
-def step1(img: Image.Image):
-    return image_processor.step1(img)
+CANVAS_SIZE = (512, 512) # 사용자 설정 반영
+CATEGORY = "cosmetics"   # 사용자 설정 반영
+SIZE_INFO = (128, 128)   # 사용자 설정 반영
+POSITION = (300, 220)    # 사용자 설정 반영
+base_dir = os.path.abspath("./backend/app/services")
+print(base_dir)
+# base_dir = os.path.join(base_dir, 'model_dev')
+try:
+    config_path = os.path.join(base_dir, "model_config.yaml")
+    cfg = utils.load_config(config_path)
+except Exception as e:
+    print(f"경로를 찾지 못했습니다: {e}")
 
-def step2(mode: str, resized_img: Image.Image, back_rm_canv: Image.Image):
-    return image_processor.step2(mode, resized_img, back_rm_canv)
+IMAGE = Image.open(cfg['paths']['product_image'])
 
+generator = AdImageGenerator(cfg, CATEGORY)
+
+config_update = {
+    'canvas_size': CANVAS_SIZE,
+    'product_type': CATEGORY,
+    'image_config': {
+            'resize_info': SIZE_INFO,
+            'position': POSITION
+        },
+    }
+generator.cfg['paths']['product_image'] = IMAGE
+generator.update_config(config_update)
+
+if not os.path.exists(cfg['paths']['lora_dir']):
+    print(os.path.abspath('./'))
+    lora_dir = os.path.join(os.path.abspath('../'), cfg['paths']['lora_dir'])
+    cfg['paths']['lora_dir'] = lora_dir
+
+def step1():
+    '''
+    Step1: 입력 이미지를 전처리 및 배경제거
+    최종 목적은 크기와 위치정보를 반영한 이미지를 만드는 것을 목적으로 하며,
+    다음 단계를 위해, 배경제거한 최종 이미지와 마스킹이미지를 같이 반환합니다.
+    input:
+        - image (Image.Image): 제품 원본 이미지 혹은 경로
+
+    output:
+        - canvas (Image.Image): 크기와 위치정보를 반영하여 빈 캔버스에 제품을 붙여넣은 이미지
+        - back_rm_canv (Image.Image): 캔버스 배경이 제거된 이미지
+        - mask (Image.Image): back_rm_canv의 제품 마스킹
+    
+    '''
+    return generator.image_process()
+
+def step2(mode: str, canvas:Image.Image=None, mask:Image.Image=None, ref_image:Image.Image=None):
+    if mode == 'text2img':
+        return generator.run_text2img(canvas, ref_image)
+    elif mode == 'inpaint':
+        if canvas is None and mask is None:
+            raise ValueError(f"입력 정보가 잘못되었습니다. canvas: {type(canvas)}, mask: {type(mask)} 필수 정보를 확인하고 다시 입력해 주세요.")
+        return generator.run_inpaint(canvas, mask, ref_image)
+    else:
+        raise TypeError(f"{mode} is not supported")

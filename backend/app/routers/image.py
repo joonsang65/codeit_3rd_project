@@ -15,20 +15,24 @@ router = APIRouter()
 async def preprocess_image(
     file: UploadFile = File(...),
     session_id: str = Header(..., alias="session-id"),
+    category: str = Header(...)
 ):
     try:
         image_bytes = await file.read()
         image = Image.open(io.BytesIO(image_bytes)).convert("RGBA")
         logger.info(f"세션 {session_id}: 이미지 전처리 시작")
+        image_main.generator.cfg['paths']['product_image'] = image
 
-        resized_img, back_rm_canv = image_main.step1(img=image)
+        canvas, back_rm_canv, mask = image_main.step1()
 
-        update_session_cache(session_id, "resized_img", resized_img)
+        update_session_cache(session_id, "category", category)
+        update_session_cache(session_id, "canvas", canvas)
         update_session_cache(session_id, "back_rm_canv", back_rm_canv)
+        update_session_cache(session_id, "mask", mask)
         logger.info(f"세션 {session_id}: 캐시에 이미지 저장")
 
         buffer = io.BytesIO()
-        resized_img.save(buffer, format="PNG")
+        back_rm_canv.save(buffer, format="PNG")
         buffer.seek(0)
         return StreamingResponse(buffer, media_type="image/png")
 
@@ -43,15 +47,15 @@ async def generate_background(
 ):
     try:
         cache = get_session_cache(session_id)
-        if not cache or "resized_img" not in cache or "back_rm_canv" not in cache:
+        if not cache or "canvas" not in cache or "back_rm_canv" not in cache:
             logger.error(f"세션 {session_id}: 캐시에 필요한 이미지 없음")
             raise HTTPException(status_code=400, detail="세션에 해당하는 이미지가 없습니다. /preprocess 먼저 호출해주세요.")
+        
+        image_main.generator.category = cache["category"]
 
-        resized_img = cache["resized_img"]
-        back_rm_canv = cache["back_rm_canv"]
         logger.info(f"세션 {session_id}: 배경 생성 시작, 모드: {mode}")
-
-        result = image_main.step2(mode=mode, resized_img=resized_img, back_rm_canv=back_rm_canv)
+        
+        result = image_main.step2(mode=mode, canvas=cache["canvas"], mask=cache["mask"])
 
         if isinstance(result, list) and result:
             update_session_cache(session_id, "generated_background", result[0])
@@ -80,6 +84,7 @@ async def get_generated_background(session_id: str = Header(..., alias="session-
         img_bytes = io.BytesIO()
         image.save(img_bytes, format="PNG")
         img_bytes.seek(0)
+
         logger.info(f"세션 {session_id}: 배경 이미지 반환")
         return StreamingResponse(img_bytes, media_type="image/png")
 

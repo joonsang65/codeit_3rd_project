@@ -5,7 +5,8 @@ import os
 import sys
 from dotenv import load_dotenv
 load_dotenv()
-
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.abspath('./backend'))
 import signal
 import asyncio
 from fastapi import FastAPI
@@ -13,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.routers import image, text, cache
 from app.cache import clear_session_cache, get_all_session_ids
-from app.services.image_main import image_processor
+from app.services.image_main import generator
 
 app = FastAPI()
 
@@ -40,7 +41,7 @@ async def shutdown_event():
     for session_id in get_all_session_ids():
         clear_session_cache(session_id)
     print("세션 캐시 정리 완료")
-    image_processor.cleanup()
+    generator.cleanup()
 
 @app.get("/")
 async def root():
