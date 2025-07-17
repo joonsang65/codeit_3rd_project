@@ -16,6 +16,7 @@ const Step1Upload = ({
     const file = e.target.files[0];
     if (file) {
       setLoading(true);
+      setMessage(''); // 경고문 회피용
       // setMessage('이미지 전처리 중...');
 
       try {

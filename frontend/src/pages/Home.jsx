@@ -1,6 +1,5 @@
 import React from "react";
 import "./Home.css";
-import Card from "../components/Card";
 import { useNavigate } from "react-router-dom";
 
 function Home() {

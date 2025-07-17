@@ -33,6 +33,7 @@ function App() {
         headers: { 'session-id': id },
       })
       .then((response) => {
+        setMessage(""); // 경고문 회피용
         // setMessage(response.data.message);
         console.log('세션 초기화 성공:', response.data.message);
       })
