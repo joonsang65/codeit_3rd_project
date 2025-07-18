@@ -127,6 +127,10 @@ class AdImageGenerator:
             logger.debug(f"LoRA 적용 상태: {self.pipe.get_active_adapters()}")
 
         return self.pipe
+    def image_append(self):
+        self.img = self.cfg['paths']['product_image']
+        _, self.back_rm = utils.remove_background(self.img)
+        return self.back_rm
 
     def image_process(self, canvas_input:Image.Image=None):
         '''
@@ -134,9 +138,7 @@ class AdImageGenerator:
         입력이미지의 배경을 제거하고 사용자 설정을 반영하여 크기를 변경하고 위치를 조정하여 캔버스에 붙이는 작업.
         이후 작업을 위해 추가적으로 만들어진 canvas의 배경을 제거한 이미지와 마스킹 이미지를 만들어 반환합니다.
         '''
-        self.img = self.cfg['paths']['product_image']
-        _, back_rm = utils.remove_background(self.img)
-        resized = utils.resize_to_ratio(back_rm, self.cfg['image_config']['resize_info'])
+        resized = utils.resize_to_ratio(self.back_rm, self.cfg['image_config']['resize_info'])
         canvas = Image.new("RGBA", self.canvas_size, (255, 255, 255, 255)) if canvas_input is None else canvas_input
         canvas = utils.overlay_product(canvas, resized, self.cfg['image_config']['position'])
         canvas, back_rm_canv = utils.remove_background(canvas)
@@ -236,6 +238,9 @@ if not os.path.exists(cfg['paths']['lora_dir']):
     cfg['paths']['lora_dir'] = lora_dir
 
 def step1():
+    return generator.image_append()
+
+def step1_5():
     '''
     Step1: 입력 이미지를 전처리 및 배경제거
     최종 목적은 크기와 위치정보를 반영한 이미지를 만드는 것을 목적으로 하며,
