@@ -1,4 +1,5 @@
 // src/pages/Editor/steps/Step4TextAdjust.jsx
+
 import React from 'react';
 import { Rnd } from 'react-rnd';
 import './Step4TextAdjust.css';

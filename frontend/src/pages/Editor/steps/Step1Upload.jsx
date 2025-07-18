@@ -1,3 +1,5 @@
+// frontend/src/pages/Editor/steps/Step1Upload.jsx
+
 import React, { useRef, useState } from 'react';
 import './Step1Upload.css';
 import { preprocessImage } from '../../../api/imageAPI';

@@ -1,4 +1,5 @@
 // src/pages/Editor/steps/Step3TextInput.jsx
+
 import React, { useState } from 'react';
 import { generateAdText } from "../../../api/textAPI";
 import './Step3TextInput.css';

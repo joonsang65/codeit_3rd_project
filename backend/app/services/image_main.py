@@ -206,7 +206,7 @@ CANVAS_SIZE = (512, 512) # 사용자 설정 반영
 CATEGORY = "cosmetics"   # 사용자 설정 반영
 SIZE_INFO = (128, 128)   # 사용자 설정 반영
 POSITION = (300, 220)    # 사용자 설정 반영
-base_dir = os.path.abspath("./backend/app/services")
+base_dir = os.path.abspath("./app/services")
 print(base_dir)
 # base_dir = os.path.join(base_dir, 'model_dev')
 try:

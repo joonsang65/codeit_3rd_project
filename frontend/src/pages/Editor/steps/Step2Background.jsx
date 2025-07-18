@@ -1,4 +1,5 @@
 // src/pages/Editor/steps/Step2Background.jsx
+
 import React, { useState } from 'react';
 import './Step2Background.css';
 import { generateBackground, getGeneratedBackground } from '../../../api/imageAPI';
