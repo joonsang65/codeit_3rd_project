@@ -8,6 +8,8 @@ const Step2Background = ({
   bgPrompt,
   setBgPrompt,
   sessionId,
+  imagePosition,
+  imageSize,
   setBgImage,
 }) => {
   const [localPrompt, setLocalPrompt] = useState(bgPrompt || '');
@@ -15,11 +17,33 @@ const Step2Background = ({
   const [message, setMessage] = useState('');
 
   const handleGenerate = async () => {
+    // 입력값 검증
+    if (!localPrompt.trim()) {
+      setMessage("❗ 프롬프트를 입력해 주세요.");
+      return;
+    }
     setBgPrompt(localPrompt);
     setLoading(true);
     setMessage('배경 이미지 생성 중...');
+
+  const productBox = {
+    x: parseFloat(imagePosition.x),
+    y: parseFloat(imagePosition.y),
+    width: parseFloat(imageSize.width),
+    height: parseFloat(imageSize.height),
+  };
+
+  console.log("🟡 보낼 productBox 값:", productBox);
+  console.log("🟡 sessionId:", sessionId);
+  console.log("🟡 prompt:", localPrompt);
+  
     try {
-      await generateBackground('inpaint', sessionId); // 배경 생성 요청
+      await generateBackground({
+        mode: 'inpaint',
+        sessionId,
+        prompt: localPrompt,
+        productBox: productBox, 
+      });
       const imageUrl = await getGeneratedBackground(sessionId); // 이미지 URL 얻기
       setBgImage(imageUrl); // 부모(Editor.jsx)로 전달
       setMessage('✅ 배경 이미지 생성 완료');

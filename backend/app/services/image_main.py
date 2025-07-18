@@ -215,7 +215,7 @@ try:
 except Exception as e:
     print(f"경로를 찾지 못했습니다: {e}")
 
-IMAGE = Image.open(cfg['paths']['product_image'])
+# IMAGE = Image.open(cfg['paths']['product_image'])
 
 generator = AdImageGenerator(cfg, CATEGORY)
 
@@ -227,7 +227,7 @@ config_update = {
             'position': POSITION
         },
     }
-generator.cfg['paths']['product_image'] = IMAGE
+# generator.cfg['paths']['product_image'] = IMAGE
 generator.update_config(config_update)
 
 if not os.path.exists(cfg['paths']['lora_dir']):

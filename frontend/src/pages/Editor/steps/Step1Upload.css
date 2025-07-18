@@ -57,3 +57,26 @@
   border-radius: 12px;
   position: relative;
 }
+
+/* .category-selector {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+} */
+
+.category-selector {
+  margin-bottom: 16px;
+}
+
+.category-selector label {
+  margin-right: 8px;
+  font-weight: 600;
+}
+
+.category-selector select {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}

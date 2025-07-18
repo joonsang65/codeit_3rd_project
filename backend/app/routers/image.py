@@ -1,6 +1,8 @@
 # backend/app/routers/image.py
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Header
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Header, Body
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+from typing import Literal
 import io
 from PIL import Image
 from app.services import image_main
@@ -40,9 +42,21 @@ async def preprocess_image(
         logger.error(f"세션 {session_id}: 이미지 전처리 실패: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# generate-background용 모델 정의
+class ProductBox(BaseModel):
+    x: float
+    y: float
+    width: float
+    height: float
+
+class BackgroundRequest(BaseModel):
+    mode: Literal["inpaint"]
+    prompt: str
+    product_box: ProductBox
+
 @router.post("/generate-background")
 async def generate_background(
-    mode: str = Form(...),
+    request: BackgroundRequest = Body(...),
     session_id: str = Header(..., alias="session-id"),
 ):
     try:
@@ -52,10 +66,24 @@ async def generate_background(
             raise HTTPException(status_code=400, detail="세션에 해당하는 이미지가 없습니다. /preprocess 먼저 호출해주세요.")
         
         image_main.generator.category = cache["category"]
+        image_main.generator.prompt = request.prompt
+        image_main.generator.cfg['product_box'] = {
+            "x": request.product_box.x,
+            "y": request.product_box.y,
+            "width": request.product_box.width,
+            "height": request.product_box.height,
+        }
 
-        logger.info(f"세션 {session_id}: 배경 생성 시작, 모드: {mode}")
-        
-        result = image_main.step2(mode=mode, canvas=cache["canvas"], mask=cache["mask"])
+        logger.info(f"세션 {session_id}: 배경 생성 시작, 모드: {request.mode}")
+        logger.info(f"세션 {session_id}: 프롬프트: {request.prompt}")
+        logger.info(f"세션 {session_id}: 제품 박스: {request.product_box}")
+
+
+        result = image_main.step2(
+            mode=request.mode,
+            canvas=cache["canvas"],
+            mask=cache["mask"]
+        )
 
         if isinstance(result, list) and result:
             update_session_cache(session_id, "generated_background", result[0])

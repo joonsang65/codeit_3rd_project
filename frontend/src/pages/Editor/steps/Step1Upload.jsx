@@ -13,6 +13,7 @@ const Step1Upload = ({
   const inputRef = useRef();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [category, setCategory] = useState('food'); // 기본 카테고리 설정
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
@@ -22,7 +23,7 @@ const Step1Upload = ({
       // setMessage('이미지 전처리 중...');
 
       try {
-        const response = await preprocessImage(file, sessionId);
+        const response = await preprocessImage(file, sessionId, category);
         const blob = response.data;
         const processedImageUrl = URL.createObjectURL(blob);
         setUploadedImage(processedImageUrl);
@@ -38,6 +39,20 @@ const Step1Upload = ({
 
   return (
     <div className="step1-container">
+      <div className="category-selector">
+        <label htmlFor="category">카테고리 선택:</label>
+        <select
+          id="category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          disabled={loading}
+        >
+          <option value="food">음식 (food)</option>
+          <option value="cosmetics">화장품 (cosmetics)</option>
+          <option value="furniture">가구 (furniture)</option>
+        </select>
+      </div> 
+
       <div className="upload-controls">
         <input
           type="file"

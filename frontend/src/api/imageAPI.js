@@ -11,27 +11,35 @@ export const initSession = async (sessionId) => {
   });
 };
 
-export const preprocessImage = async (file, sessionId) => {
+export const preprocessImage = async (file, sessionId, category) => {
   const formData = new FormData();
   formData.append("file", file);
 
   return axios.post(`${IMAGE_API}/preprocess`, formData, {
     headers: {
-      "session-id": sessionId,
       // "Content-Type": "multipart/form-data", // 자동 처리
+      "session-id": sessionId,
+      "category": category,
     },
     responseType: "blob",
   });
 };
 
-export const generateBackground = async (mode, sessionId) => {
-  const formData = new FormData();
-  formData.append("mode", mode);
-
-  return axios.post(`${IMAGE_API}/generate-background`, formData, {
-    headers: { "session-id": sessionId },
-    // responseType: 'blob', // 백엔드 응답 타입에 따라 추가
-  });
+export const generateBackground = async ({ mode, sessionId, prompt, productBox }) => {
+  return axios.post(
+    `${IMAGE_API}/generate-background`,
+    {
+      mode,
+      prompt,
+      product_box: productBox,
+    },
+    {
+      headers: {
+        "session-id": sessionId,
+        "Content-Type": "application/json",
+      },
+    }
+  );
 };
 
 export async function getGeneratedBackground(sessionId) {
