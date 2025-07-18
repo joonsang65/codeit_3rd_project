@@ -46,3 +46,9 @@ node_modules/
 
 # VSCode 에디터 설정
 .vscode/
+
+
+# lora 정보
+images/
+*.bin
+lora/
