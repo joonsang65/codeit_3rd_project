@@ -18,7 +18,6 @@ const Step3TextInput = ({ productInfo, setProductInfo, adText, setAdText, sessio
     
     console.log("✅ 광고 문구 요청 데이터:", {
       ad_type: platform,
-      model_type: "mini",
       user_prompt: productInfo.trim(),
       session_id: sessionId,
     });
@@ -27,7 +26,6 @@ const Step3TextInput = ({ productInfo, setProductInfo, adText, setAdText, sessio
     try {
       const result = await generateAdText({
         ad_type: platform,
-        model_type: "mini",
         user_prompt: productInfo.trim(),
         session_id: sessionId,
       });

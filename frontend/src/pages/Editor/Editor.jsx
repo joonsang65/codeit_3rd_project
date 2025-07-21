@@ -19,6 +19,9 @@ const Editor = ({ sessionId, platform }) => {
   const [textImage, setTextImage] = useState(null);
   const [productInfo, setProductInfo] = useState('');
 
+  const [adTitle, setAdTitle] = useState('');
+  const [adDescription, setAdDescription] = useState('');
+
   const nextStep = () => setStep((s) => Math.min(s + 1, 5));
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
@@ -53,6 +56,7 @@ const Editor = ({ sessionId, platform }) => {
               setImagePosition={setImagePosition}
               imageSize={imageSize}
               setImageSize={setImageSize}
+              platform={platform}
             />
           )}
           {step === 2 && (
@@ -65,6 +69,10 @@ const Editor = ({ sessionId, platform }) => {
               setBgPrompt={setBgPrompt}
               bgImage={bgImage}
               setBgImage={setBgImage}
+              adTitle={adTitle}
+              setAdTitle={setAdTitle}
+              adDescription={adDescription}
+              setAdDescription={setAdDescription}
             />
           )}
           {step === 3 && (

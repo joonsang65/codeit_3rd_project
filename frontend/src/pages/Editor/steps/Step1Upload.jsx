@@ -6,6 +6,7 @@ const Step1Upload = ({
   sessionId,
   uploadedImage,
   setUploadedImage,
+  platform,
 }) => {
 
   const inputRef = useRef();
@@ -20,14 +21,15 @@ const Step1Upload = ({
       // setMessage('이미지 전처리 중...');
 
       try {
-        const response = await preprocessImage(file, sessionId);
+        const response = await preprocessImage(file, sessionId, platform);
         const blob = response.data;
         const processedImageUrl = URL.createObjectURL(blob);
         setUploadedImage(processedImageUrl);
         // setMessage('✅ 이미지 전처리 완료');
       } catch (error) {
-        console.error(error);
-        // setMessage('❌ 전처리 실패');
+        console.error('❌ 전처리 실패', error);
+        const errorMessage = error.response?.data?.detail || '이미지 전처리 실패';
+        setMessage(`❌ ${errorMessage}`);
       } finally {
         setLoading(false);
       }

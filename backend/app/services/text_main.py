@@ -25,11 +25,6 @@ async def main():
         
         system_prompt, few_shot_examples = PROMPT_CONFIGS[ad_type]
         
-        model_type = select_option(
-            "모델 유형 선택 (mini / nano): ", 
-            ["mini", "nano"]
-        )
-        
         user_prompt = input(
             "\n🎯 생성할 광고와 제품에 대해 설명해주세요.\n"
             "요구사항이 자세할수록 좋은 결과를 얻을 수 있습니다:\n"
@@ -37,7 +32,7 @@ async def main():
         
         # 광고 생성 실행
         await openai_client.run_generation(
-            model_type, user_prompt, system_prompt, few_shot_examples
+            user_prompt, system_prompt, few_shot_examples
         )
         
     except Exception as e:

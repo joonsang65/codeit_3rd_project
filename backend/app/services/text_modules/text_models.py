@@ -5,6 +5,8 @@ import hashlib
 import json
 from openai import AsyncOpenAI
 
+OPENAI_MODEL = "gpt-4.1-mini"  # 기본 모델 설정
+
 class OpenAIClient:
     def __init__(self):  # .env 파일로 api key 관리해서 유포되지 않게 하기
         # main.py에서 한번만 로드되도록 수정됨
@@ -28,8 +30,8 @@ class OpenAIClient:
         }
         raw = json.dumps(payload, sort_keys=True).encode()
         return hashlib.sha256(raw).hexdigest()  # 각 결과에 대해 hash 키 값으로 저장해둠
-    
-    async def fetch_response(self, system_prompt, user_prompt, temperature, model="gpt-4.1-mini", few_shot_examples=None):
+
+    async def fetch_response(self, system_prompt, user_prompt, temperature, few_shot_examples=None):
         """단일 응답 생성"""
         cache_key = self.make_cache_key(system_prompt, user_prompt, temperature, few_shot_examples)
         
@@ -43,7 +45,7 @@ class OpenAIClient:
         
         start = time.time()  # 응답시간 로깅용  -> 추후에는 삭제 가능
         response = await self.client.chat.completions.create(
-            model=model,
+            model=OPENAI_MODEL,
             messages=messages,
             temperature=temperature
         )  # 비동기 처리
@@ -53,26 +55,25 @@ class OpenAIClient:
         self.response_cache[cache_key] = {"content": content, "elapsed": elapsed}
         
         return temperature, content, elapsed
-    
-    async def generate_multiple_responses(self, system_prompt, user_prompt, model="gpt-4.1-mini", few_shot_examples=None, temperatures=None):
+
+    async def generate_multiple_responses(self, system_prompt, user_prompt, few_shot_examples=None, temperatures=None):
         """여러 온도 설정으로 응답 생성"""
         if temperatures is None:
             temperatures = [0.2, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
         
         tasks = [
-            self.fetch_response(system_prompt, user_prompt, temp, model, few_shot_examples)
+            self.fetch_response(system_prompt, user_prompt, temp, few_shot_examples)
             for temp in temperatures
         ]
         results = await asyncio.gather(*tasks)  # 비동기 처리
         return results
     
-    async def run_generation(self, model_type: str, user_prompt: str, system_prompt: str, few_shot_examples=None):
+    async def run_generation(self, user_prompt: str, system_prompt: str, few_shot_examples=None):
         """전체 생성 과정 실행"""
         zero_set = time.time()  # 사용자 입력 완료 시간
-        model_name = "gpt-4.1-mini" if model_type == "mini" else "gpt-4.1-nano"
         
         results = await self.generate_multiple_responses(
-            system_prompt, user_prompt, model=model_name, few_shot_examples=few_shot_examples
+            system_prompt, user_prompt, few_shot_examples=few_shot_examples
         )
         
         print("\n▶ 응답 결과:")

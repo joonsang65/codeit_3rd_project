@@ -3,23 +3,11 @@ from fastapi import APIRouter, HTTPException, Header
 from fastapi.responses import JSONResponse
 from app.cache import clear_session_cache, get_session_cache, update_session_cache
 from pydantic import BaseModel
-import logging
-import uuid
+import logging, uuid
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-
-@router.post("/init-session")
-def init_session(session_id: str = Header(..., alias="session-id")):
-    try:
-        validate_session_id(session_id)
-        clear_session_cache(session_id)
-        logger.info(f"세션 {session_id} 초기화 완료")
-        return {"message": f"세션 {session_id} 초기화 완료"}
-    except Exception as e:
-        logger.error(f"세션 초기화 실패: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
     
 class UpdateRequest(BaseModel):
     session_id: str
