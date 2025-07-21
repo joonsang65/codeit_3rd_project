@@ -93,6 +93,14 @@ def train_lora(module_path, image_id, csv_dir, train_epochs=10, base_model="../s
         - 
     '''
     output_dir = os.path.join(os.path.dirname(base_model), f"output_models/{image_id}")
+
+    warm_steps = estimate_warmup_steps(
+            csv_path='model_dev/aug/captions.csv',
+            batch_size=2, 
+            accumulation_steps=accumulation_steps or 1,
+            num_epochs=train_epochs if not resume else 20
+            )
+    
     command = [
         "accelerate", "launch", module_path,
         "--pretrained_model_name_or_path", base_model,
@@ -102,26 +110,26 @@ def train_lora(module_path, image_id, csv_dir, train_epochs=10, base_model="../s
         "--caption_column", "caption",
         "--instance_prompt", f"a photo of {image_id}_0 {image_id}_1 perfume bottle",  # category 토큰 넣기
         "--resolution", "512",
-        "--train_batch_size", "4",
+        "--train_batch_size", "2",
         "--num_train_epochs", str(train_epochs),
         "--output_dir", output_dir,
         "--validation_prompt", f"a photo of {image_id}_0 {image_id}_1 perfume bottle",
         "--rank", "2",
-        "--lora_dropout", "0.2",
-        "--learning_rate", "0.000025",
-        "--lr_scheduler", "constant",
+        "--lora_dropout", "0.3",
+        "--learning_rate", "2e-5",
+        "--lr_scheduler", "cosine_with_restarts",
+        "--warmup_steps", str(warm_steps),
         "--checkpointing_steps", "100",
         "--validation_epochs", "5",
-        "--mixed_precision", "fp16",
+        "--mixed_precision", "fp16" if not resume else "no",
         "--max_grad_norm", "1.0",
         "--report_to", "wandb",
     ]
+
     if resume:
-        command.append("--resume_from_checkpoint")
-        command.append("latest")
+        command += ["--resume_from_checkpoint", "latest"]
     if accumulation_steps:
-        command.append("--gradient_accumulation_steps")
-        command.append(str(accumulation_steps))
+        command += ["--gradient_accumulation_steps", str(accumulation_steps)]
 
     print("[🚀] 학습 시작...")
     result = subprocess.run(command)
@@ -130,6 +138,13 @@ def train_lora(module_path, image_id, csv_dir, train_epochs=10, base_model="../s
     else:
         print("[❌] 학습 실패")
     return result
+
+def estimate_warmup_steps(csv_path, batch_size, accumulation_steps, num_epochs, ratio=0.03, min_warmup=10):
+    with open(csv_path) as f:
+        num_images = sum(1 for _ in f) - 1
+    total_steps = int((num_images / batch_size / accumulation_steps) * num_epochs)
+    return max(min_warmup, int(total_steps * ratio))
+
 
 # 6. 필요 시 BLIP 모델 및 processor 초기화 함수
 def load_blip_model(device="cuda"):
@@ -190,8 +205,8 @@ def main():
         module_path=module_path,
         image_id=category_token, 
         csv_dir=csv_path, 
-        train_epochs=100, 
-        base_model=base_model, 
+        train_epochs=50, 
+        base_model=base_model,
         accumulation_steps=4,
         resume=False
         )
