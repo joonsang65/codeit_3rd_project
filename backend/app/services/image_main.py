@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import os
-os.environ["HF_HOME"] = "D:/huggingface"
+# os.environ["HF_HOME"] = "D:/huggingface"
 
 import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))

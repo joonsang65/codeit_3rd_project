@@ -12,7 +12,7 @@ import asyncio
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import image, text, cache
+from app.routers import image, text, cache, TI
 from app.cache import clear_session_cache, get_all_session_ids
 from app.services.image_main import generator
 
@@ -29,6 +29,7 @@ app.add_middleware(
 app.include_router(image.router, prefix="/image")
 app.include_router(text.router, prefix="/text")
 app.include_router(cache.router, prefix="/cache")
+app.include_router(TI.router, prefix="/text-image")
 
 @app.on_event("startup")
 async def startup_event():
