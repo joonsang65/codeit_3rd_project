@@ -1,5 +1,3 @@
-// src/pages/Editor/steps/Step3TextInput.jsx
-
 import React, { useState } from 'react';
 import { generateAdText } from "../../../api/textAPI";
 import './Step3TextInput.css';
@@ -7,6 +5,30 @@ import './Step3TextInput.css';
 const Step3TextInput = ({ productInfo, setProductInfo, adText, setAdText, sessionId, platform }) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [adTexts, setAdTexts] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // rawResult는 2차원 배열 [ [number, string, number], ... ] 형태
+  const parseGeneratedResult = (rawResult, chunkCount = 8) => {
+    console.log("Raw result received:", rawResult);
+
+    if (!Array.isArray(rawResult)) return [];
+
+    const result = [];
+
+    for (const entry of rawResult) {
+      if (
+        Array.isArray(entry) &&
+        entry.length >= 2 &&
+        typeof entry[1] === "string"
+      ) {
+        result.push(entry[1].trim());
+        if (result.length >= chunkCount) break;
+      }
+    }
+
+    return result;
+  };
 
   const handleGenerateText = async () => {
     if (!productInfo.trim()) {
@@ -16,24 +38,24 @@ const Step3TextInput = ({ productInfo, setProductInfo, adText, setAdText, sessio
 
     setLoading(true);
     setMessage('광고 문구 생성 중...');
-    
-    console.log("✅ 광고 문구 요청 데이터:", {
-      ad_type: platform,
-      model_type: "mini",
-      user_prompt: productInfo.trim(),
-      session_id: sessionId,
-    });
-
 
     try {
-      const result = await generateAdText({
+      const rawResult = await generateAdText({
         ad_type: platform,
         model_type: "mini",
         user_prompt: productInfo.trim(),
         session_id: sessionId,
       });
 
-      setAdText(result);
+      const parsedTexts = parseGeneratedResult(rawResult, 8);
+
+      if (parsedTexts.length === 0) {
+        throw new Error("문구를 파싱할 수 없습니다.");
+      }
+
+      setAdTexts(parsedTexts);
+      setCurrentIndex(0);
+      setAdText(parsedTexts[0]);
       setMessage('✅ 광고 문구가 성공적으로 생성되었습니다!');
     } catch (err) {
       console.error('텍스트 생성 오류:', err);
@@ -44,9 +66,39 @@ const Step3TextInput = ({ productInfo, setProductInfo, adText, setAdText, sessio
     }
   };
 
+  const handleTextChange = (e) => {
+    const newText = e.target.value;
+    const updatedTexts = [...adTexts];
+    updatedTexts[currentIndex] = newText;
+    setAdTexts(updatedTexts);
+    setAdText(newText);
+  };
+
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      const newIndex = currentIndex - 1;
+      setCurrentIndex(newIndex);
+      // 안전하게 adTexts[newIndex]가 존재하는지 확인 후 setAdText
+      if (adTexts[newIndex]) {
+        setAdText(adTexts[newIndex]);
+      }
+    }
+  };
+
+  const handleNext = () => {
+    if (currentIndex < adTexts.length - 1) {
+      const newIndex = currentIndex + 1;
+      setCurrentIndex(newIndex);
+      if (adTexts[newIndex]) {
+        setAdText(adTexts[newIndex]);
+      }
+    }
+  };
+
   return (
     <div className="step3-container">
       <h2>광고 문구 생성</h2>
+
       <label htmlFor="productInfo">상품 세부 정보 입력:</label>
       <textarea
         id="productInfo"
@@ -66,16 +118,27 @@ const Step3TextInput = ({ productInfo, setProductInfo, adText, setAdText, sessio
         {loading ? '생성 중...' : '🖋️ AI로 광고 문구 생성'}
       </button>
 
-      <label htmlFor="adText">생성된 광고 문구:</label>
+      <label htmlFor="adText">
+        생성된 광고 문구 ({adTexts.length > 0 ? currentIndex + 1 : 0} / {adTexts.length})
+      </label>
       <textarea
         id="adText"
         value={adText}
-        onChange={(e) => setAdText(e.target.value)}
+        onChange={handleTextChange}
         placeholder="AI가 생성한 문구가 여기에 표시됩니다. 필요하면 직접 수정 가능."
         aria-label="광고 문구 출력"
         rows="4"
         disabled={loading}
       />
+
+      <div className="nav-buttons">
+        <button onClick={handlePrev} disabled={currentIndex === 0 || loading}>
+          ◀ 이전
+        </button>
+        <button onClick={handleNext} disabled={currentIndex >= adTexts.length - 1 || loading}>
+          다음 ▶
+        </button>
+      </div>
 
       {message && <p className="message">{message}</p>}
     </div>
