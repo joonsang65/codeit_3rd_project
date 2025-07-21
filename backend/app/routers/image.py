@@ -25,16 +25,16 @@ async def preprocess_image(
         logger.info(f"세션 {session_id}: 이미지 전처리 시작")
         image_main.generator.cfg['paths']['product_image'] = image
 
-        canvas, back_rm_canv, mask = image_main.step1()
+        back_rm = image_main.step1()
 
         update_session_cache(session_id, "category", category)
-        update_session_cache(session_id, "canvas", canvas)
-        update_session_cache(session_id, "back_rm_canv", back_rm_canv)
-        update_session_cache(session_id, "mask", mask)
+        update_session_cache(session_id, "back_rm", back_rm)
+        # update_session_cache(session_id, "back_rm_canv", back_rm_canv)
+        # update_session_cache(session_id, "mask", mask)
         logger.info(f"세션 {session_id}: 캐시에 이미지 저장")
 
         buffer = io.BytesIO()
-        back_rm_canv.save(buffer, format="PNG")
+        back_rm.save(buffer, format="PNG")
         buffer.seek(0)
         return StreamingResponse(buffer, media_type="image/png")
 
@@ -61,28 +61,32 @@ async def generate_background(
 ):
     try:
         cache = get_session_cache(session_id)
-        if not cache or "canvas" not in cache or "back_rm_canv" not in cache:
+        if not cache or "back_rm" not in cache:
             logger.error(f"세션 {session_id}: 캐시에 필요한 이미지 없음")
             raise HTTPException(status_code=400, detail="세션에 해당하는 이미지가 없습니다. /preprocess 먼저 호출해주세요.")
         
         image_main.generator.category = cache["category"]
-        image_main.generator.prompt = request.prompt
-        image_main.generator.cfg['product_box'] = {
-            "x": request.product_box.x,
-            "y": request.product_box.y,
-            "width": request.product_box.width,
-            "height": request.product_box.height,
-        }
+        if request:
+            image_main.generator.prompt = request.prompt
+            size_info = (int(request.product_box.width), int(request.product_box.height))
+            position = (int(request.product_box.x), int(request.product_box.y))
+        else:
+            logger.info("request가 없습니다.")
+            size_info = (128, 128)
+            position = (300, 220)
+        image_main.generator.cfg['image_config']['resize_info'] = size_info
+        image_main.generator.cfg['image_config']['position'] = position
+        
 
         logger.info(f"세션 {session_id}: 배경 생성 시작, 모드: {request.mode}")
         logger.info(f"세션 {session_id}: 프롬프트: {request.prompt}")
         logger.info(f"세션 {session_id}: 제품 박스: {request.product_box}")
 
-
+        canv, back_rm_canv, mask = image_main.step1_5()
         result = image_main.step2(
             mode=request.mode,
-            canvas=cache["canvas"],
-            mask=cache["mask"]
+            canvas=canv,
+            mask=mask
         )
 
         if isinstance(result, list) and result:
