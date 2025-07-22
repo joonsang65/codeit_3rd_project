@@ -42,7 +42,7 @@ const Step2Background = ({
     const designCanvas = getCanvasSize(platform);
     const targetSD = sdCanvType[platform];
     
-    const scaleRenderToDesignX = designCanvas.width / (renderedWidth-70);
+    const scaleRenderToDesignX = designCanvas.width / (renderedWidth);
     const scaleRenderToDesignY = designCanvas.height / renderedHeight;
 
     const scaleDesignToSDX = targetSD.width / designCanvas.width;
