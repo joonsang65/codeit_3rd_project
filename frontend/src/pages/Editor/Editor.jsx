@@ -15,8 +15,8 @@ const Editor = ({ sessionId, platform }) => {
   const [imageSize, setImageSize] = useState({ width: 300, height: 300 });
   const [bgPrompt, setBgPrompt] = useState('');
   const [bgImage, setBgImage] = useState(null);
-  const [adText, setAdText] = useState('');  // step3 광고 문구
-  const [adTexts, setAdTexts] = useState([]);  // step4 텍스트 이미지용 문구
+  const [adText, setAdText] = useState('');
+  const [adTexts, setAdTexts] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [fontName, setFontName] = useState('본고딕_BOLD');
   const [fontSize, setFontSize] = useState(50);
@@ -26,11 +26,33 @@ const Editor = ({ sessionId, platform }) => {
   const [textImage, setTextImage] = useState(null);
   const [textImagePosition, setTextImagePosition] = useState({ x: 150, y: 150 });
   const [textImageSize, setTextImageSize] = useState({ width: 300, height: 100 });
-
   const [productInfo, setProductInfo] = useState('');
 
   const nextStep = () => setStep((s) => Math.min(s + 1, 5));
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
+
+  // CanvasStage에 넘길 props 구성
+  const canvasProps = {
+    bgImage,
+    textImage,
+    textImagePosition,
+    setTextImagePosition,
+    textImageSize,
+    setTextImageSize,
+    platform,
+    isEditable: step !== 5,
+  };
+
+  // step < 3이면 uploadedImage 관련 props도 추가
+  if (step < 3) {
+    Object.assign(canvasProps, {
+      uploadedImage,
+      imagePosition,
+      setImagePosition,
+      imageSize,
+      setImageSize,
+    });
+  }
 
   return (
     <div className="editor-container">
@@ -41,21 +63,7 @@ const Editor = ({ sessionId, platform }) => {
       </div>
 
       <div className="step-content">
-        <CanvasStage
-          uploadedImage={uploadedImage}
-          imagePosition={imagePosition}
-          setImagePosition={setImagePosition}
-          imageSize={imageSize}
-          setImageSize={setImageSize}
-          bgImage={bgImage}
-          textImage={textImage}
-          textImagePosition={textImagePosition}
-          setTextImagePosition={setTextImagePosition}
-          textImageSize={textImageSize}
-          setTextImageSize={setTextImageSize}
-          platform={platform}
-          isEditable={step !== 5}
-        />
+        <CanvasStage {...canvasProps} />
 
         <div className="step-panel">
           {step === 1 && (
@@ -90,7 +98,6 @@ const Editor = ({ sessionId, platform }) => {
               adText={adText}
               setAdText={setAdText}
               setBgImage={setBgImage}
-
             />
           )}
           {step === 4 && (
@@ -115,7 +122,6 @@ const Editor = ({ sessionId, platform }) => {
               setStrokeColor={setStrokeColor}
               strokeWidth={strokeWidth}
               setStrokeWidth={setStrokeWidth}
-              
             />
           )}
           {step === 5 && (
