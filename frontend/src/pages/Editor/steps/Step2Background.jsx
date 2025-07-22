@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './Step2Background.css';
 import { generateBackground, getGeneratedBackground } from '../../../api/imageAPI';
 import ProgressOverlay from '../../../components/ProgressOverlay';
+import { getCanvasSize } from '../../../components/CanvasStage';
 
 const Step2Background = ({
   bgPrompt,
@@ -10,6 +11,8 @@ const Step2Background = ({
   imagePosition,
   imageSize,
   setBgImage,
+  platform,
+  canvas
 }) => {
   const [localPrompt, setLocalPrompt] = useState(bgPrompt || '');
   const [loading, setLoading] = useState(false);
@@ -28,13 +31,42 @@ const Step2Background = ({
     setLoading(true);
     setShowProgress(true);
 
-    const productBox = {
-      x: parseFloat(imagePosition.x),
-      y: parseFloat(imagePosition.y),
-      width: parseFloat(imageSize.width),
-      height: parseFloat(imageSize.height),
+    const sdCanvType = {
+        instagram: { width: 512, height: 512 },
+        poster: { width: 512, height: 768 },
+        blog: { width: 768, height: 448 },
     };
 
+    const renderedWidth = canvas?.canvasSize?.width;
+    const renderedHeight = canvas?.canvasSize?.height;
+    const designCanvas = getCanvasSize(platform);
+    const targetSD = sdCanvType[platform];
+    
+    const scaleRenderToDesignX = designCanvas.width / (renderedWidth-70);
+    const scaleRenderToDesignY = designCanvas.height / renderedHeight;
+
+    const scaleDesignToSDX = targetSD.width / designCanvas.width;
+    const scaleDesignToSDY = targetSD.height / designCanvas.height;
+
+    const scaleX = scaleRenderToDesignX * scaleDesignToSDX;
+    const scaleY = scaleRenderToDesignY * scaleDesignToSDY;
+
+    const productBox = {
+      canvas_type: platform,
+      x: Math.round(imagePosition.x * scaleX),
+      y: Math.round(imagePosition.y * scaleY),
+      width: Math.round(imageSize.width * scaleX),
+      height: Math.round(imageSize.height * scaleY),
+    };
+
+    console.log("🟡 선택된 플랫폼:", platform);
+    console.log("🟡 사이즈:", renderedWidth, renderedHeight);
+    console.log("🟡 X:", scaleX);
+    console.log("🟡 Y:", scaleY);
+    console.log("🟡 보낼 productBox 값:", productBox);
+    console.log("🟡 sessionId:", sessionId);
+    console.log("🟡 prompt:", localPrompt);
+    
     try {
       await generateBackground({
         mode: 'inpaint',
