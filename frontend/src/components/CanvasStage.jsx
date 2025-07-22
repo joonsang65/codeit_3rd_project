@@ -1,5 +1,5 @@
 // components/CanvasStage.jsx
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import './CanvasStage.css';
 
 const useWindowSize = () => {
@@ -12,7 +12,7 @@ const useWindowSize = () => {
   return windowSize;
 };
 
-const CanvasStage = ({
+const CanvasStage = forwardRef(({
   uploadedImage,
   imagePosition,
   setImagePosition,
@@ -26,7 +26,8 @@ const CanvasStage = ({
   setTextImageSize,
   platform,
   isEditable = true,
-}) => {
+  onImagesReady,
+}, ref) => {
   const canvasRef = useRef(null);
   const [dragging, setDragging] = useState(false);
   const [resizing, setResizing] = useState(false);
@@ -56,6 +57,10 @@ const CanvasStage = ({
   const { width: defaultWidth, height: defaultHeight } = getCanvasSize(platform);
   const canvasWidth = Math.min(defaultWidth, windowSize.width * 0.9);
   const canvasHeight = Math.min(defaultHeight, windowSize.height * 0.7);
+
+  useImperativeHandle(ref, () => ({
+    getStage: () => canvasRef.current,
+  }));
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -142,11 +147,15 @@ const CanvasStage = ({
           });
         }
       }
+
+      if (onImagesReady) {
+        onImagesReady();
+      }
     });
   }, [
     uploadedImage, imagePosition, imageSize,
     bgImage, textImage, textImagePosition, textImageSize,
-    canvasWidth, canvasHeight, isEditable,
+    canvasWidth, canvasHeight, isEditable, onImagesReady,
   ]);
 
   const getRelativePosition = (e, isTouch = false) => {
@@ -263,6 +272,6 @@ const CanvasStage = ({
       />
     </div>
   );
-};
+});
 
 export default CanvasStage;

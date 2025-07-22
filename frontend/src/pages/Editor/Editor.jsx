@@ -1,5 +1,5 @@
 // frontend/src/pages/Editor/Editor.jsx
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import CanvasStage from '../../components/CanvasStage';
 import Step1Upload from './steps/Step1Upload';
 import Step2Background from './steps/Step2Background';
@@ -26,6 +26,8 @@ const Editor = ({ sessionId, platform }) => {
   const [textImage, setTextImage] = useState(null);
   const [textImagePosition, setTextImagePosition] = useState({ x: 150, y: 150 });
   const [textImageSize, setTextImageSize] = useState({ width: 300, height: 100 });
+  const [finalImage, setFinalImage] = useState(null);
+  const canvasStageRef = useRef(null);
 
   const [productInfo, setProductInfo] = useState('');
 
@@ -50,7 +52,17 @@ const Editor = ({ sessionId, platform }) => {
     setTextImage(null);
     setTextImagePosition({ x: 150, y: 150 });
     setTextImageSize({ width: 300, height: 100 });
+    setFinalImage(null);
     setProductInfo('');
+  };
+
+  const handleImagesReady = () => {
+    if (canvasStageRef.current) {
+      const stage = canvasStageRef.current.getStage();
+      if (stage) {
+        setFinalImage(stage.toDataURL());
+      }
+    }
   };
 
   return (
@@ -63,6 +75,7 @@ const Editor = ({ sessionId, platform }) => {
 
       <div className="step-content">
         <CanvasStage
+          ref={canvasStageRef}
           uploadedImage={uploadedImage}
           imagePosition={imagePosition}
           setImagePosition={setImagePosition}
@@ -76,6 +89,7 @@ const Editor = ({ sessionId, platform }) => {
           setTextImageSize={setTextImageSize}
           platform={platform}
           isEditable={step !== 5}
+          onImagesReady={step === 5 ? handleImagesReady : null}
         />
 
         <div className="step-panel">
@@ -141,9 +155,9 @@ const Editor = ({ sessionId, platform }) => {
           )}
           {step === 5 && (
             <Step5FinalOutput
-              generatedImageUrl={textImage} // Assuming textImage is the final combined image URL
+              generatedImageUrl={finalImage}
               generatedAdCopy={adText}
-              isLoading={false} // You might want to manage loading state here if needed
+              isLoading={!finalImage}
               onGenerateNew={handleGenerateNew}
             />
           )}
