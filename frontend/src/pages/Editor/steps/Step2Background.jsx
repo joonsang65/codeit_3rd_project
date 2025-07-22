@@ -15,7 +15,7 @@ const Step2Background = ({
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [showProgress, setShowProgress] = useState(false);
-  const DURATION = 20000;
+  const DURATION = 25000;
 
   const handleGenerate = async () => {
     if (!localPrompt.trim()) {
