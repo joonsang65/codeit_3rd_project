@@ -204,7 +204,11 @@ class AdImageGenerator:
             logger.error(f"리소스 정리 실패: {str(e)}")
 
 
-CANVAS_SIZE = (512, 512) # 사용자 설정 반영
+CANVAS_SIZE = {
+        "instagram": (512, 512),
+        "poster": (512, 768),
+        "blog": (768, 448),
+    } # 사용자 설정 반영
 CATEGORY = "cosmetics"   # 사용자 설정 반영
 SIZE_INFO = (128, 128)   # 사용자 설정 반영
 POSITION = (300, 220)    # 사용자 설정 반영
