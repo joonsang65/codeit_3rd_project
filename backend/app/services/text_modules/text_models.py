@@ -74,13 +74,9 @@ class OpenAIClient:
         results = await self.generate_multiple_responses(
             system_prompt, user_prompt, model=model_name, few_shot_examples=few_shot_examples
         )
-        
+ 
+        last_time = time.time()  # 결과 출력 완료 시간
+        print(f"\n📊 전체 인퍼런스 시간: {(last_time - zero_set):.2f}초")        
+
         print("\n▶ 응답 결과:")
         return results
-        # for temp, output, elapsed in results:
-        #     print(f"\n🌡 Temperature {temp} (⏱ {elapsed:.2f}초):\n{output}")
-        #     print("-" * 50)
-        #     return f"\n🌡 Temperature {temp} (⏱ {elapsed:.2f}초):\n{output}"
-        
-        # last_time = time.time()  # 결과 출력 완료 시간
-        # print(f"\n📊 전체 인퍼런스 시간: {(last_time - zero_set):.2f}초")

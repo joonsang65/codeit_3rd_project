@@ -1,15 +1,18 @@
 // src/pages/Editor/steps/Step3Textinput.jsx
 
-
 import React, { useState } from 'react';
 import { generateAdText } from "../../../api/textAPI";
 import './Step3TextInput.css';
+import ProgressOverlay from '../../../components/ProgressOverlay';
 
 const Step3TextInput = ({ productInfo, setProductInfo, adText, setAdText, sessionId, platform }) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [adTexts, setAdTexts] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [showProgress, setShowProgress] = useState(false);
+  const [isProcessDone, setIsProcessDone] = useState(false);
+  const DURATION = platform === 'poster' ? 2000 : 4000;
 
   // rawResult는 2차원 배열 [ [number, string, number], ... ] 형태
   const parseGeneratedResult = (rawResult, chunkCount = 8) => {
@@ -40,6 +43,8 @@ const Step3TextInput = ({ productInfo, setProductInfo, adText, setAdText, sessio
     }
 
     setLoading(true);
+    setShowProgress(true);
+    setIsProcessDone(false);
     setMessage('광고 문구 생성 중...');
 
     try {
@@ -65,6 +70,8 @@ const Step3TextInput = ({ productInfo, setProductInfo, adText, setAdText, sessio
       const errorMessage = err.response?.data?.detail || err.message || '알 수 없는 오류';
       setMessage(`❌ 오류: ${errorMessage}`);
     } finally {
+      setIsProcessDone(true);
+      setTimeout(() => setShowProgress(false), 300);
       setLoading(false);
     }
   };
@@ -100,6 +107,13 @@ const Step3TextInput = ({ productInfo, setProductInfo, adText, setAdText, sessio
 
   return (
     <div className="step3-container">
+      {showProgress && (
+        <ProgressOverlay
+          duration={DURATION}
+          processDone={isProcessDone}
+          customMessage= "💡 브랜드에 딱 맞는 문구를 신중하게 생성 중입니다..."
+        />
+      )}
       <h2>광고 문구 생성</h2>
 
       <label htmlFor="productInfo">상품 세부 정보 입력:</label>

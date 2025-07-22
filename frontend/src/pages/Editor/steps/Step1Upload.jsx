@@ -1,44 +1,48 @@
-// frontend/src/pages/Editor/steps/Step1Upload.jsx
-
 import React, { useRef, useState } from 'react';
 import './Step1Upload.css';
 import { preprocessImage } from '../../../api/imageAPI';
+import ProgressOverlay from '../../../components/ProgressOverlay';
 
 const Step1Upload = ({
   sessionId,
   uploadedImage,
   setUploadedImage,
 }) => {
-
   const inputRef = useRef();
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [category, setCategory] = useState('food'); // 기본 카테고리 설정
+  const [showProgress, setShowProgress] = useState(false);
+  const [category, setCategory] = useState('food');
+  const DURATION = 1500;
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setLoading(true);
-      setMessage(''); // 경고문 회피용
-      // setMessage('이미지 전처리 중...');
+    if (!file) return;
 
-      try {
-        const response = await preprocessImage(file, sessionId, category);
-        const blob = response.data;
-        const processedImageUrl = URL.createObjectURL(blob);
-        setUploadedImage(processedImageUrl);
-        // setMessage('✅ 이미지 전처리 완료');
-      } catch (error) {
-        console.error(error);
-        // setMessage('❌ 전처리 실패');
-      } finally {
-        setLoading(false);
-      }
+    setLoading(true);
+    setShowProgress(true);
+
+    try {
+      const response = await preprocessImage(file, sessionId, category);
+      const blob = response.data;
+      const processedImageUrl = URL.createObjectURL(blob);
+      setUploadedImage(processedImageUrl);
+    } catch (error) {
+      console.error('이미지 전처리 실패:', error);
+    } finally {
+      setShowProgress(false);
+      setLoading(false);
     }
   };
 
   return (
     <div className="step1-container">
+      {showProgress && <ProgressOverlay 
+        duration={DURATION}
+        customMessage="✂️ 상품 이미지를 깔끔하게 다듬고 있어요..."
+ 
+      />
+      }
+
       <div className="category-selector">
         <label htmlFor="category">카테고리 선택:</label>
         <select
@@ -51,7 +55,7 @@ const Step1Upload = ({
           <option value="cosmetics">화장품 (cosmetics)</option>
           <option value="furniture">가구 (furniture)</option>
         </select>
-      </div> 
+      </div>
 
       <div className="upload-controls">
         <input
@@ -68,7 +72,6 @@ const Step1Upload = ({
         >
           상품 이미지 업로드
         </button>
-        {message && <p>{message}</p>}
       </div>
     </div>
   );

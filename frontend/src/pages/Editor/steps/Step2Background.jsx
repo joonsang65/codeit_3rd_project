@@ -1,8 +1,7 @@
-// src/pages/Editor/steps/Step2Background.jsx
-
 import React, { useState } from 'react';
 import './Step2Background.css';
 import { generateBackground, getGeneratedBackground } from '../../../api/imageAPI';
+import ProgressOverlay from '../../../components/ProgressOverlay';
 
 const Step2Background = ({
   bgPrompt,
@@ -15,48 +14,56 @@ const Step2Background = ({
   const [localPrompt, setLocalPrompt] = useState(bgPrompt || '');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [showProgress, setShowProgress] = useState(false);
+  const DURATION = 20000;
 
   const handleGenerate = async () => {
-    // 입력값 검증
     if (!localPrompt.trim()) {
-      setMessage("❗ 프롬프트를 입력해 주세요.");
+      setMessage('❗ 프롬프트를 입력해 주세요.');
       return;
     }
+
     setBgPrompt(localPrompt);
+    setMessage('');
     setLoading(true);
-    setMessage('배경 이미지 생성 중...');
+    setShowProgress(true);
 
-  const productBox = {
-    x: parseFloat(imagePosition.x),
-    y: parseFloat(imagePosition.y),
-    width: parseFloat(imageSize.width),
-    height: parseFloat(imageSize.height),
-  };
+    const productBox = {
+      x: parseFloat(imagePosition.x),
+      y: parseFloat(imagePosition.y),
+      width: parseFloat(imageSize.width),
+      height: parseFloat(imageSize.height),
+    };
 
-  console.log("🟡 보낼 productBox 값:", productBox);
-  console.log("🟡 sessionId:", sessionId);
-  console.log("🟡 prompt:", localPrompt);
-  
     try {
       await generateBackground({
         mode: 'inpaint',
         sessionId,
         prompt: localPrompt,
-        productBox: productBox, 
+        productBox,
       });
-      const imageUrl = await getGeneratedBackground(sessionId); // 이미지 URL 얻기
-      setBgImage(imageUrl); // 부모(Editor.jsx)로 전달
+
+      const imageUrl = await getGeneratedBackground(sessionId);
+      setBgImage(imageUrl);
       setMessage('✅ 배경 이미지 생성 완료');
     } catch (err) {
       console.error(err);
       setMessage('❌ 배경 생성 실패');
     } finally {
+      setShowProgress(false); // ✅ 이미지 준비 완료와 동시에 바 제거
       setLoading(false);
     }
   };
 
   return (
     <div className="step2-container">
+      {showProgress && <ProgressOverlay 
+        duration={DURATION} 
+        customMessage="🌄 배경 이미지를 자연스럽게 만들어내고 있어요..."
+
+      />
+      }
+
       <label htmlFor="bgPrompt">배경 이미지 프롬프트 입력:</label>
       <input
         id="bgPrompt"

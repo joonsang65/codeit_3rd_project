@@ -1,0 +1,33 @@
+/* frontend/src/components/ProgressOverlay.css */
+
+.progress-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 5px;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.05);
+  z-index: 9999;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #4caf50;
+  transition: width 0.1s linear;
+}
+
+.progress-time {
+  position: fixed;
+  top: 8px;
+  right: 16px;
+  font-size: 15px;
+  color: #ffffff;
+  z-index: 10000;
+}
+
+.waiting-message {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #666;
+  animation: fadeIn 0.3s ease-in-out;
+}
