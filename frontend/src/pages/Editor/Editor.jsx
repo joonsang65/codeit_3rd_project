@@ -32,6 +32,27 @@ const Editor = ({ sessionId, platform }) => {
   const nextStep = () => setStep((s) => Math.min(s + 1, 5));
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
+  const handleGenerateNew = () => {
+    setStep(1);
+    setUploadedImage(null);
+    setImagePosition({ x: 100, y: 100 });
+    setImageSize({ width: 300, height: 300 });
+    setBgPrompt('');
+    setBgImage(null);
+    setAdText('');
+    setAdTexts([]);
+    setCurrentIndex(0);
+    setFontName('본고딕_BOLD');
+    setFontSize(50);
+    setTextColor('#000000');
+    setStrokeColor('#FFFFFF');
+    setStrokeWidth(0);
+    setTextImage(null);
+    setTextImagePosition({ x: 150, y: 150 });
+    setTextImageSize({ width: 300, height: 100 });
+    setProductInfo('');
+  };
+
   return (
     <div className="editor-container">
       <div className="step-navigation">
@@ -120,10 +141,10 @@ const Editor = ({ sessionId, platform }) => {
           )}
           {step === 5 && (
             <Step5FinalOutput
-              sessionId={sessionId}
-              uploadedImage={uploadedImage}
-              bgImage={bgImage}
-              textImage={textImage}
+              generatedImageUrl={textImage} // Assuming textImage is the final combined image URL
+              generatedAdCopy={adText}
+              isLoading={false} // You might want to manage loading state here if needed
+              onGenerateNew={handleGenerateNew}
             />
           )}
         </div>

@@ -1,29 +1,67 @@
-// src/pages/Editor/steps/Step5FinalOutput.jsx
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './Step5FinalOutput.css';
+import { useNavigate } from 'react-router-dom';
+import ProgressOverlay from '../../../components/ProgressOverlay';
 
-const Step5FinalOutput = ({ finalImageUrl }) => {
-  if (!finalImageUrl) {
-    return <p>최종 이미지가 생성되어야 합니다.</p>;
-  }
+function Step5FinalOutput({
+  generatedImageUrl,
+  generatedAdCopy, // Add this new prop
+  isLoading,
+  onReset,
+  onGenerateNew,
+}) {
+  const navigate = useNavigate();
 
   const handleDownload = () => {
-    const link = document.createElement('a');
-    link.href = finalImageUrl;
-    link.download = 'final_ad_image.png';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    if (generatedImageUrl) {
+      const link = document.createElement('a');
+      link.href = generatedImageUrl;
+      link.download = 'generated_ad.png'; // You can make this dynamic if needed
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  const handleCopyText = () => {
+    if (generatedAdCopy) {
+      navigator.clipboard.writeText(generatedAdCopy)
+        .then(() => {
+          alert('광고 문구가 복사되었습니다!');
+        })
+        .catch(err => {
+          console.error('텍스트 복사 실패:', err);
+          alert('텍스트 복사에 실패했습니다.');
+        });
+    } else {
+      alert('복사할 광고 문구가 없습니다.');
+    }
   };
 
   return (
     <div className="step5-container">
-      <h3>최종 광고 이미지</h3>
-      <img src={finalImageUrl} alt="최종 광고" className="final-image" />
-      <button onClick={handleDownload}>💾 이미지 다운로드</button>
+      {isLoading && <ProgressOverlay />}
+      <h2>최종 결과물</h2>
+      <div className="image-display-area">
+        {generatedImageUrl ? (
+          <img src={generatedImageUrl} alt="Generated Ad" className="generated-image" />
+        ) : (
+          <p>이미지가 생성되지 않았습니다.</p>
+        )}
+      </div>
+      <div className="button-group">
+        <button onClick={handleDownload} className="download-button">
+          이미지 다운로드
+        </button>
+        <button onClick={handleCopyText} className="copy-text-button">
+          글 복사하기
+        </button>
+        <button onClick={onGenerateNew} className="generate-new-button">
+          새로운 이미지 생성
+        </button>
+      </div>
     </div>
   );
-};
+}
 
 export default Step5FinalOutput;

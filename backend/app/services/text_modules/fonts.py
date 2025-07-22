@@ -1,0 +1,18 @@
+FONTS = {
+    "본고딕_BOLD": "https://github.com/adobe-fonts/source-han-sans/raw/release/SubsetOTF/KR/SourceHanSansKR-Bold.otf",
+    "본고딕_EXTRALIGHT": "https://github.com/adobe-fonts/source-han-sans/raw/release/SubsetOTF/KR/SourceHanSansKR-ExtraLight.otf",
+    "본고딕_HEAVY": "https://github.com/adobe-fonts/source-han-sans/raw/release/SubsetOTF/KR/SourceHanSansKR-Heavy.otf",
+    "본고딕_LIGHT": "https://github.com/adobe-fonts/source-han-sans/raw/release/SubsetOTF/KR/SourceHanSansKR-Light.otf",
+    "본고딕_MEDIUM": "https://github.com/adobe-fonts/source-han-sans/raw/release/SubsetOTF/KR/SourceHanSansKR-Medium.otf",
+    "본고딕_NORMAL": "https://github.com/adobe-fonts/source-han-sans/raw/release/SubsetOTF/KR/SourceHanSansKR-Normal.otf",
+    "본고딕_REGULAR": "https://github.com/adobe-fonts/source-han-sans/raw/release/SubsetOTF/KR/SourceHanSansKR-Regular.otf",
+    "나눔손글씨 고딕 아니고 고딩": "https://github.com/naver/nanumfont/raw/master/handwriting/Gothic_A_Go_Ding/NanumGothicAGoDing.ttf",
+    "나눔손글씨 갈맷글": "https://github.com/naver/nanumfont/raw/master/handwriting/Galmetgeul/NanumGalmetgeul.ttf",
+    "나눔손글씨 강인한 위로": "https://github.com/naver/nanumfont/raw/master/handwriting/GangInHanWiRo/NanumGangInHanWiRo.ttf",
+    "파셜산스": "https://github.com/google/fonts/raw/main/ofl/partialsanskr/PartialSansKR-Regular.otf",
+    "날씨": "https://github.com/google/fonts/raw/main/ofl/climatecrisis/ClimateCrisis-Regular-VariableFont_YEAR.ttf",
+    "베이글": "https://github.com/google/fonts/raw/main/ofl/bagelfatone/BagelFatOne-Regular.ttf",
+    "쿠키런 블랙": "https://github.com/google/fonts/raw/main/ofl/cookierun/CookieRun-Black.ttf",
+    "쿠키런 볼드": "https://github.com/google/fonts/raw/main/ofl/cookierun/CookieRun-Bold.ttf",
+    "쿠키런 레귤러": "https://github.com/google/fonts/raw/main/ofl/cookierun/CookieRun-Regular.ttf",
+}

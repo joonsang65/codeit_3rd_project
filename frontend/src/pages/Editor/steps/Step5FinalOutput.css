@@ -24,3 +24,55 @@
 .step5-container button:hover {
   background-color: #357abd;
 }
+
+/* 추가된 스타일 */
+.image-display-area {
+  min-height: 300px; /* 이미지가 로드되기 전 공간 확보 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.generated-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 15px; /* 버튼 사이의 간격 */
+  margin-top: 20px;
+}
+
+.download-button {
+  background-color: #28a745; /* 다운로드 버튼 색상 */
+}
+
+.download-button:hover {
+  background-color: #218838;
+}
+
+.copy-text-button {
+  background-color: #ffc107; /* 글 복사하기 버튼 색상 */
+  color: #333; /* 텍스트 색상 */
+}
+
+.copy-text-button:hover {
+  background-color: #e0a800;
+}
+
+.generate-new-button {
+  background-color: #007bff; /* 새로운 이미지 생성 버튼 색상 */
+}
+
+.generate-new-button:hover {
+  background-color: #0056b3;
+}
