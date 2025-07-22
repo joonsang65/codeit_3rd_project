@@ -23,5 +23,13 @@ const TEXTIMAGES_API = `${BASE_URL}/text-image`;
 
 export const generateTextImage = async (params) => {
   const response = await axios.post(`${TEXTIMAGES_API}/generate`, params);
-  return response.data; // image_base64를 포함한 객체 반환
+  const { image_base64, format } = response.data;
+
+  // base64를 binary로 디코딩
+  const byteCharacters = atob(image_base64);
+  const byteNumbers = new Array(byteCharacters.length).fill().map((_, i) => byteCharacters.charCodeAt(i));
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: `image/${format.toLowerCase()}` });
+
+  return URL.createObjectURL(blob);  // Blob URL 반환
 };

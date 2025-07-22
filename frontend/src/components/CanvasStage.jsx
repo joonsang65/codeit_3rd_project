@@ -20,6 +20,10 @@ const CanvasStage = ({
   setImageSize,
   bgImage,
   textImage,
+  textImagePosition,
+  setTextImagePosition,
+  textImageSize,
+  setTextImageSize,
   platform,
   isEditable = true,
 }) => {
@@ -27,6 +31,12 @@ const CanvasStage = ({
   const [dragging, setDragging] = useState(false);
   const [resizing, setResizing] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
+
+  // 텍스트 이미지용 상태
+  const [draggingText, setDraggingText] = useState(false);
+  const [resizingText, setResizingText] = useState(false);
+  const [offsetText, setOffsetText] = useState({ x: 0, y: 0 });
+
   const windowSize = useWindowSize();
 
   const HANDLE_SIZE = 12;
@@ -71,6 +81,7 @@ const CanvasStage = ({
     ]).then(([bgImg, uploadedImg, textImg]) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (bgImg) ctx.drawImage(bgImg, 0, 0, canvas.width, canvasHeight);
+
       if (uploadedImg) {
         ctx.drawImage(uploadedImg, imagePosition.x, imagePosition.y, imageSize.width, imageSize.height);
 
@@ -104,10 +115,39 @@ const CanvasStage = ({
       }
 
       if (textImg) {
-        ctx.drawImage(textImg, 100, 500, 600, 100);
+        ctx.drawImage(textImg, textImagePosition.x, textImagePosition.y, textImageSize.width, textImageSize.height);
+
+        if (isEditable) {
+          ctx.strokeStyle = '#f47c7c';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([6, 4]);
+          ctx.strokeRect(textImagePosition.x, textImagePosition.y, textImageSize.width, textImageSize.height);
+          ctx.setLineDash([]);
+
+          const textHandlePositions = [
+            { x: textImagePosition.x, y: textImagePosition.y },
+            { x: textImagePosition.x + textImageSize.width, y: textImagePosition.y },
+            { x: textImagePosition.x, y: textImagePosition.y + textImageSize.height },
+            { x: textImagePosition.x + textImageSize.width, y: textImagePosition.y + textImageSize.height },
+          ];
+
+          ctx.fillStyle = '#f47c7c';
+          textHandlePositions.forEach(pos => {
+            ctx.fillRect(
+              pos.x - HANDLE_SIZE / 2,
+              pos.y - HANDLE_SIZE / 2,
+              HANDLE_SIZE,
+              HANDLE_SIZE
+            );
+          });
+        }
       }
     });
-  }, [uploadedImage, imagePosition, imageSize, bgImage, textImage, canvasWidth, canvasHeight, isEditable]);
+  }, [
+    uploadedImage, imagePosition, imageSize,
+    bgImage, textImage, textImagePosition, textImageSize,
+    canvasWidth, canvasHeight, isEditable,
+  ]);
 
   const getRelativePosition = (e, isTouch = false) => {
     const rect = canvasRef.current.getBoundingClientRect();
@@ -123,37 +163,42 @@ const CanvasStage = ({
     return { x, y };
   };
 
-  const isInResizeHandle = (x, y) => {
+  const isInResizeHandle = (x, y, pos, size) => {
     const handleCenters = [
-      { x: imagePosition.x, y: imagePosition.y },
-      { x: imagePosition.x + imageSize.width, y: imagePosition.y },
-      { x: imagePosition.x, y: imagePosition.y + imageSize.height },
-      { x: imagePosition.x + imageSize.width, y: imagePosition.y + imageSize.height },
+      { x: pos.x, y: pos.y },
+      { x: pos.x + size.width, y: pos.y },
+      { x: pos.x, y: pos.y + size.height },
+      { x: pos.x + size.width, y: pos.y + size.height },
     ];
-
-    return handleCenters.some(center => (
+    return handleCenters.some(center =>
       x >= center.x - HANDLE_SIZE / 2 &&
       x <= center.x + HANDLE_SIZE / 2 &&
       y >= center.y - HANDLE_SIZE / 2 &&
       y <= center.y + HANDLE_SIZE / 2
-    ));
+    );
   };
 
-  const isInImage = (x, y) => {
+  const isInBox = (x, y, pos, size) => {
     return (
-      x >= imagePosition.x &&
-      x <= imagePosition.x + imageSize.width &&
-      y >= imagePosition.y &&
-      y <= imagePosition.y + imageSize.height
+      x >= pos.x &&
+      x <= pos.x + size.width &&
+      y >= pos.y &&
+      y <= pos.y + size.height
     );
   };
 
   const handleMouseDown = (e) => {
     if (!isEditable) return;
     const { x, y } = getRelativePosition(e);
-    if (isInResizeHandle(x, y)) {
+
+    if (isInResizeHandle(x, y, textImagePosition, textImageSize)) {
+      setResizingText(true);
+    } else if (isInBox(x, y, textImagePosition, textImageSize)) {
+      setDraggingText(true);
+      setOffsetText({ x: x - textImagePosition.x, y: y - textImagePosition.y });
+    } else if (isInResizeHandle(x, y, imagePosition, imageSize)) {
       setResizing(true);
-    } else if (isInImage(x, y)) {
+    } else if (isInBox(x, y, imagePosition, imageSize)) {
       setDragging(true);
       setOffset({ x: x - imagePosition.x, y: y - imagePosition.y });
     }
@@ -162,6 +207,7 @@ const CanvasStage = ({
   const handleMouseMove = (e) => {
     if (!isEditable) return;
     const { x, y } = getRelativePosition(e);
+
     if (dragging) {
       setImagePosition({
         x: Math.max(0, Math.min(x - offset.x, canvasRef.current.width - imageSize.width)),
@@ -172,12 +218,24 @@ const CanvasStage = ({
         width: Math.max(50, Math.min(x - imagePosition.x, canvasRef.current.width - imagePosition.x)),
         height: Math.max(50, Math.min(y - imagePosition.y, canvasRef.current.height - imagePosition.y)),
       });
+    } else if (draggingText) {
+      setTextImagePosition({
+        x: Math.max(0, Math.min(x - offsetText.x, canvasRef.current.width - textImageSize.width)),
+        y: Math.max(0, Math.min(y - offsetText.y, canvasRef.current.height - textImageSize.height)),
+      });
+    } else if (resizingText) {
+      setTextImageSize({
+        width: Math.max(50, Math.min(x - textImagePosition.x, canvasRef.current.width - textImagePosition.x)),
+        height: Math.max(50, Math.min(y - textImagePosition.y, canvasRef.current.height - textImagePosition.y)),
+      });
     }
   };
 
   const handleMouseUp = () => {
     setDragging(false);
     setResizing(false);
+    setDraggingText(false);
+    setResizingText(false);
   };
 
   return (
@@ -192,7 +250,11 @@ const CanvasStage = ({
         onMouseLeave={handleMouseUp}
         className="canvas"
         style={{
-          cursor: isEditable ? (resizing ? 'nwse-resize' : dragging ? 'grabbing' : 'default') : 'default',
+          cursor: isEditable
+            ? (resizing || resizingText
+                ? 'nwse-resize'
+                : (dragging || draggingText ? 'grabbing' : 'default'))
+            : 'default',
           display: 'block',
           width: '100%',
           height: '100%',

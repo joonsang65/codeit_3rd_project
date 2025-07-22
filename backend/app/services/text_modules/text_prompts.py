@@ -200,7 +200,7 @@ system_prompt_poster = """
 
 3. **상품/서비스의 특징, 혜택, 한정성**을 반영해서 설득력 있게 써줘.
 
-4. **이모지**를 적절히 사용해도 좋아 (예: 🍜✨🛍️🔥) — 시각적 강조용으로만 간결하게 사용해.
+4. **이모지**는 사용하지 마.
 
 최종 출력 형식:
 🎯 {포스터 광고 문구}
@@ -213,7 +213,7 @@ few_shot_examples_poster = [
     },
     {
         "role": "assistant",
-        "content": "🎯 한입이면 빠져든다, 행궁동의 감성 한 그릇 🍝"
+        "content": "한입이면 빠져든다, 행궁동의 감성 한 그릇"
     },
     {
         "role": "user",
@@ -221,7 +221,7 @@ few_shot_examples_poster = [
     },
     {
         "role": "assistant",
-        "content": "🎯 카페인이 없어도, 취향은 가득하게 ☕🌙"
+        "content": "카페인이 없어도, 취향은 가득하게"
     },
     {
         "role": "user",
@@ -229,7 +229,7 @@ few_shot_examples_poster = [
     },
     {
         "role": "assistant",
-        "content": "🎯 이 여름, 물속에서 미소가 터진다! 💦"
+        "content": "이 여름, 물속에서 미소가 터진다!"
     }
 ]
 
