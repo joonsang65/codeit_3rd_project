@@ -26,6 +26,8 @@ const Editor = ({ sessionId, platform }) => {
   const [textImage, setTextImage] = useState(null);
   const [textImagePosition, setTextImagePosition] = useState({ x: 150, y: 150 });
   const [textImageSize, setTextImageSize] = useState({ width: 300, height: 100 });
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
+
   const [productInfo, setProductInfo] = useState('');
 
   const nextStep = () => setStep((s) => Math.min(s + 1, 5));
@@ -63,7 +65,22 @@ const Editor = ({ sessionId, platform }) => {
       </div>
 
       <div className="step-content">
-        <CanvasStage {...canvasProps} />
+        <CanvasStage
+          uploadedImage={uploadedImage}
+          imagePosition={imagePosition}
+          setImagePosition={setImagePosition}
+          imageSize={imageSize}
+          setImageSize={setImageSize}
+          bgImage={bgImage}
+          textImage={textImage}
+          textImagePosition={textImagePosition}
+          setTextImagePosition={setTextImagePosition}
+          textImageSize={textImageSize}
+          setTextImageSize={setTextImageSize}
+          platform={platform}
+          onResizeCanvas={setCanvasSize}
+          isEditable={step !== 5}
+        />
 
         <div className="step-panel">
           {step === 1 && (
@@ -75,6 +92,7 @@ const Editor = ({ sessionId, platform }) => {
               setImagePosition={setImagePosition}
               imageSize={imageSize}
               setImageSize={setImageSize}
+              platform={platform}
             />
           )}
           {step === 2 && (
@@ -87,6 +105,8 @@ const Editor = ({ sessionId, platform }) => {
               setBgPrompt={setBgPrompt}
               bgImage={bgImage}
               setBgImage={setBgImage}
+              platform={platform}
+              canvas={{canvasSize}}
             />
           )}
           {step === 3 && (
