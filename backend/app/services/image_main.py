@@ -139,11 +139,13 @@ class AdImageGenerator:
         입력이미지의 배경을 제거하고 사용자 설정을 반영하여 크기를 변경하고 위치를 조정하여 캔버스에 붙이는 작업.
         이후 작업을 위해 추가적으로 만들어진 canvas의 배경을 제거한 이미지와 마스킹 이미지를 만들어 반환합니다.
         '''
+        logger.debug(f"  - 이미지 사이즈: {self.cfg['image_config']['resize_info']}")
+        logger.debug(f"  - 포지션 사이즈: {self.cfg['image_config']['position']}")
         resized = utils.resize_to_ratio(self.back_rm, self.cfg['image_config']['resize_info'])
-        canvas = Image.new("RGBA", self.canvas_size, (255, 255, 255, 255)) if canvas_input is None else canvas_input
+        canvas = Image.new("RGBA", self.canvas_size, (0, 0, 0, 0)) if canvas_input is None else canvas_input
         canvas = utils.overlay_product(canvas, resized, self.cfg['image_config']['position'])
         canvas, back_rm_canv = utils.remove_background(canvas)
-        mask = utils.create_mask(back_rm_canv)
+        mask = utils.create_mask(back_rm_canv, 10, 10)
         return canvas, back_rm_canv, mask
 
     def run_text2img(self, canvas:Image.Image=None, ref_image:Image.Image=None):
@@ -153,6 +155,7 @@ class AdImageGenerator:
         - 입력 이미지가 없을 경우, category를 기반으로 자동 프롬프트 생성.
         이후 생성된 프롬프트를 기반으로 배경이미지를 생성합니다.
         '''
+        logger.debug(f"  - 캔버스 타입: {self.cfg['canvas_type']}")
         if self.pipe is None or not isinstance(self.pipe, StableDiffusionPipeline):
             self._unload_pipeline()
             self.pipe = self.prepare_pipeline("text2img")
@@ -167,6 +170,7 @@ class AdImageGenerator:
         모드는 inpaint이나, 사실은 outpaint를 진행.
         mask 이미지를 invert 시켜 제품이미지를 제외한 배경을 프롬프트 기반으로 재생성한다.
         '''
+        logger.debug(f"  - 캔버스 타입: {self.cfg['canvas_type']}")
         if self.pipe is None or not isinstance(self.pipe, StableDiffusionInpaintPipeline):
             self._unload_pipeline()
             self.pipe = self.prepare_pipeline("inpaint")
@@ -208,7 +212,7 @@ class AdImageGenerator:
 CANVAS_SIZE = {
         "instagram": (512, 512),
         "poster": (512, 768),
-        "blog": (768, 448),
+        "blog": (768, 470),
     } # 사용자 설정 반영
 CATEGORY = "cosmetics"   # 사용자 설정 반영
 SIZE_INFO = (128, 128)   # 사용자 설정 반영

@@ -55,8 +55,8 @@
 
 .step-panel {
   width: 100%;
-  max-width: 400px;
-  padding: 30px;
+  max-width: 360px;
+  padding: 20px;
   background: #2a2c36;
   border-radius: 8px;
   overflow-y: auto; /* 긴 콘텐츠 처리 */

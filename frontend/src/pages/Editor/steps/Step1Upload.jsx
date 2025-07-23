@@ -2,18 +2,20 @@ import React, { useRef, useState } from 'react';
 import './Step1Upload.css';
 import { preprocessImage } from '../../../api/imageAPI';
 import ProgressOverlay from '../../../components/ProgressOverlay';
+// import { getCanvasSize } from '../../../components/CanvasStage';
 
 const Step1Upload = ({
   sessionId,
   uploadedImage,
   setUploadedImage,
+  platform
 }) => {
   const inputRef = useRef();
   const [loading, setLoading] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
   const [category, setCategory] = useState('food');
   const DURATION = 1500;
-
+    
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;

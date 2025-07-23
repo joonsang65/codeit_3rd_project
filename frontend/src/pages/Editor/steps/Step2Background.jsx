@@ -41,29 +41,18 @@ const Step2Background = ({
     const renderedHeight = canvas?.canvasSize?.height;
     const designCanvas = getCanvasSize(platform);
     const targetSD = sdCanvType[platform];
-    
-    const scaleRenderToDesignX = designCanvas.width / (renderedWidth);
-    const scaleRenderToDesignY = designCanvas.height / renderedHeight;
-
-    const scaleDesignToSDX = targetSD.width / designCanvas.width;
-    const scaleDesignToSDY = targetSD.height / designCanvas.height;
-
-    const scaleX = scaleRenderToDesignX * scaleDesignToSDX;
-    const scaleY = scaleRenderToDesignY * scaleDesignToSDY;
 
     const productBox = {
       canvas_type: platform,
-      x: Math.round(imagePosition.x * scaleX),
-      y: Math.round(imagePosition.y * scaleY),
-      width: Math.round(imageSize.width * scaleX),
-      height: Math.round(imageSize.height * scaleY),
+      x: Math.round(imagePosition.x * (targetSD.width / designCanvas.width)),
+      y: Math.round(imagePosition.y * (targetSD.height / designCanvas.height)),
+      width: Math.round(imageSize.width * (targetSD.width / designCanvas.width)),
+      height: Math.round(imageSize.height * (targetSD.height / designCanvas.height)),
     };
 
     console.log("🟡 선택된 플랫폼:", platform);
     console.log("🟡 반응형 캔버스 사이즈:", renderedWidth, renderedHeight);
     console.log("🟡 사용자 변경 x, y 포지션:", imagePosition.x, imagePosition.y);
-    console.log("🟡 scaleX:", scaleX);
-    console.log("🟡 scaleY:", scaleY);
     console.log("🟡 보낼 productBox 값:", productBox);
     console.log("🟡 sessionId:", sessionId);
     console.log("🟡 prompt:", localPrompt);

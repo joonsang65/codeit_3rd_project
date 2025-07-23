@@ -2,8 +2,8 @@
 .canvas-container {
   position: relative;
   flex: 1;
-  max-width: 1000px; /* editor-container(1500px)에서 step-panel(400px)과 gap(24px) 고려 */
-  max-height: 1000px; /* editor-container의 max-height(1200px)에 맞춤 */
+  width: auto; /* editor-container(1500px)에서 step-panel(400px)과 gap(24px) 고려 */
+  max-height: 772px; /* editor-container의 max-height(1200px)에 맞춤 */
   display: flex;
   justify-content: center;
   align-items: center;
