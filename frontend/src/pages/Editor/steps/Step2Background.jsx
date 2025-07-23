@@ -103,7 +103,7 @@ const Step2Background = ({
         type="text"
         value={localPrompt}
         onChange={(e) => setLocalPrompt(e.target.value)}
-        placeholder="예: 여름 바닷가, 도시 야경"
+        placeholder="예: 화려한, 자연의 풍경"
       />
       <button onClick={handleGenerate} disabled={loading}>
         🖼️ 배경 이미지 AI 생성
