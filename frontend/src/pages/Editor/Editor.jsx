@@ -15,8 +15,8 @@ const Editor = ({ sessionId, platform }) => {
   const [imageSize, setImageSize] = useState({ width: 300, height: 300 });
   const [bgPrompt, setBgPrompt] = useState('');
   const [bgImage, setBgImage] = useState(null);
-  const [adText, setAdText] = useState('');  // step3 광고 문구
-  const [adTexts, setAdTexts] = useState([]);  // step4 텍스트 이미지용 문구
+  const [adText, setAdText] = useState('');
+  const [adTexts, setAdTexts] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [fontName, setFontName] = useState('본고딕_BOLD');
   const [fontSize, setFontSize] = useState(50);
@@ -28,6 +28,7 @@ const Editor = ({ sessionId, platform }) => {
   const [textImageSize, setTextImageSize] = useState({ width: 300, height: 100 });
   const [finalImage, setFinalImage] = useState(null);
   const canvasStageRef = useRef(null);
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
 
   const [productInfo, setProductInfo] = useState('');
 
@@ -65,33 +66,51 @@ const Editor = ({ sessionId, platform }) => {
     }
   };
 
+  // CanvasStage에 넘길 props 구성
+  const canvasProps = {
+    bgImage,
+    textImage,
+    textImagePosition,
+    setTextImagePosition,
+    textImageSize,
+    setTextImageSize,
+    platform,
+    isEditable: step !== 5,
+  };
+
+  const headerTexts = {
+  1: { title: '상품 이미지 업로드', subtitle: '광고할 제품을 업로드 해주세요 !' },
+  2: { title: '배경 생성', subtitle: '제품과 어울리는 배경을 생성합니다 !' },
+  3: { title: '광고 문구 생성', subtitle: '제품 정보를 바탕으로 텍스트를 만들어보세요 !' },
+  4: { title: '텍스트 이미지 조정', subtitle: '광고에 들어갈 문구 이미지를 조정하세요 !' },
+  5: { title: '최종 결과', subtitle: '최종 이미지를 확인하고 다운로드하세요' },
+  };
+
+  const { title, subtitle } = headerTexts[step];
+
+  // step < 3이면 uploadedImage 관련 props도 추가
+  if (step < 3) {
+    Object.assign(canvasProps, {
+      uploadedImage,
+      imagePosition,
+      setImagePosition,
+      imageSize,
+      setImageSize,
+      setCanvasSize,
+      onResizeCanvas: setCanvasSize
+    });
+  }
+
   return (
     <div className="editor-container">
-      <div className="step-navigation">
-        <button onClick={prevStep} disabled={step === 1}>← 이전</button>
-        <span>단계 {step} / 5</span>
-        <button onClick={nextStep} disabled={step === 5}>다음 →</button>
-      </div>
-
+      <h1 style={{ marginTop: '0px', marginBottom: '0px' }}>{title}</h1>
+      <h3 style={{ marginTop: '0px', marginBottom: '0px' }}>{subtitle}</h3>
       <div className="step-content">
         <CanvasStage
           ref={canvasStageRef}
-          uploadedImage={uploadedImage}
-          imagePosition={imagePosition}
-          setImagePosition={setImagePosition}
-          imageSize={imageSize}
-          setImageSize={setImageSize}
-          bgImage={bgImage}
-          textImage={textImage}
-          textImagePosition={textImagePosition}
-          setTextImagePosition={setTextImagePosition}
-          textImageSize={textImageSize}
-          setTextImageSize={setTextImageSize}
-          platform={platform}
-          isEditable={step !== 5}
+          {...canvasProps}
           onImagesReady={step === 5 ? handleImagesReady : null}
         />
-
         <div className="step-panel">
           {step === 1 && (
             <Step1Upload
@@ -102,6 +121,7 @@ const Editor = ({ sessionId, platform }) => {
               setImagePosition={setImagePosition}
               imageSize={imageSize}
               setImageSize={setImageSize}
+              platform={platform}
             />
           )}
           {step === 2 && (
@@ -114,6 +134,8 @@ const Editor = ({ sessionId, platform }) => {
               setBgPrompt={setBgPrompt}
               bgImage={bgImage}
               setBgImage={setBgImage}
+              platform={platform}
+              canvas={{canvasSize}}
             />
           )}
           {step === 3 && (
@@ -125,7 +147,6 @@ const Editor = ({ sessionId, platform }) => {
               adText={adText}
               setAdText={setAdText}
               setBgImage={setBgImage}
-
             />
           )}
           {step === 4 && (
@@ -150,7 +171,6 @@ const Editor = ({ sessionId, platform }) => {
               setStrokeColor={setStrokeColor}
               strokeWidth={strokeWidth}
               setStrokeWidth={setStrokeWidth}
-              
             />
           )}
           {step === 5 && (
@@ -162,6 +182,11 @@ const Editor = ({ sessionId, platform }) => {
             />
           )}
         </div>
+      </div>
+      <div className="step-navigation">
+        <button onClick={prevStep} disabled={step === 1}>← 이전</button>
+        <span>단계 {step} / 5</span>
+        <button onClick={nextStep} disabled={step === 5}>다음 →</button>
       </div>
     </div>
   );

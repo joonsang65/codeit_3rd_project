@@ -52,3 +52,4 @@ node_modules/
 images/
 *.bin
 lora/
+lora_dir/

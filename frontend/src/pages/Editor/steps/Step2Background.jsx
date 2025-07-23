@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './Step2Background.css';
 import { generateBackground, getGeneratedBackground } from '../../../api/imageAPI';
 import ProgressOverlay from '../../../components/ProgressOverlay';
+import { getCanvasSize } from '../../../components/CanvasStage';
 
 const Step2Background = ({
   bgPrompt,
@@ -10,6 +11,8 @@ const Step2Background = ({
   imagePosition,
   imageSize,
   setBgImage,
+  platform,
+  canvas
 }) => {
   const [localPrompt, setLocalPrompt] = useState(bgPrompt || '');
   const [loading, setLoading] = useState(false);
@@ -28,13 +31,43 @@ const Step2Background = ({
     setLoading(true);
     setShowProgress(true);
 
-    const productBox = {
-      x: parseFloat(imagePosition.x),
-      y: parseFloat(imagePosition.y),
-      width: parseFloat(imageSize.width),
-      height: parseFloat(imageSize.height),
+    const sdCanvType = {
+        instagram: { width: 512, height: 512 },
+        poster: { width: 512, height: 768 },
+        blog: { width: 768, height: 448 },
     };
 
+    const renderedWidth = canvas?.canvasSize?.width;
+    const renderedHeight = canvas?.canvasSize?.height;
+    const designCanvas = getCanvasSize(platform);
+    const targetSD = sdCanvType[platform];
+    
+    const scaleRenderToDesignX = designCanvas.width / (renderedWidth);
+    const scaleRenderToDesignY = designCanvas.height / renderedHeight;
+
+    const scaleDesignToSDX = targetSD.width / designCanvas.width;
+    const scaleDesignToSDY = targetSD.height / designCanvas.height;
+
+    const scaleX = scaleRenderToDesignX * scaleDesignToSDX;
+    const scaleY = scaleRenderToDesignY * scaleDesignToSDY;
+
+    const productBox = {
+      canvas_type: platform,
+      x: Math.round(imagePosition.x * scaleX),
+      y: Math.round(imagePosition.y * scaleY),
+      width: Math.round(imageSize.width * scaleX),
+      height: Math.round(imageSize.height * scaleY),
+    };
+
+    console.log("🟡 선택된 플랫폼:", platform);
+    console.log("🟡 반응형 캔버스 사이즈:", renderedWidth, renderedHeight);
+    console.log("🟡 사용자 변경 x, y 포지션:", imagePosition.x, imagePosition.y);
+    console.log("🟡 scaleX:", scaleX);
+    console.log("🟡 scaleY:", scaleY);
+    console.log("🟡 보낼 productBox 값:", productBox);
+    console.log("🟡 sessionId:", sessionId);
+    console.log("🟡 prompt:", localPrompt);
+    
     try {
       await generateBackground({
         mode: 'inpaint',
@@ -64,13 +97,13 @@ const Step2Background = ({
       />
       }
 
-      <label htmlFor="bgPrompt">배경 이미지 프롬프트 입력:</label>
+      <label htmlFor="bgPrompt">어떤 느낌의 배경 이미지를 만들어 볼까요 ?</label>
       <input
         id="bgPrompt"
         type="text"
         value={localPrompt}
         onChange={(e) => setLocalPrompt(e.target.value)}
-        placeholder="예: 여름 바닷가, 도시 야경"
+        placeholder="예: 화려한, 자연의 풍경"
       />
       <button onClick={handleGenerate} disabled={loading}>
         🖼️ 배경 이미지 AI 생성

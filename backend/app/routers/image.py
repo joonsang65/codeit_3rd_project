@@ -44,6 +44,7 @@ async def preprocess_image(
 
 # generate-background용 모델 정의
 class ProductBox(BaseModel):
+    canvas_type: str
     x: float
     y: float
     width: float
@@ -67,7 +68,7 @@ async def generate_background(
         
         image_main.generator.category = cache["category"]
         if request:
-            image_main.generator.prompt = request.prompt
+            image_main.generator.marketing_type = request.prompt
             size_info = (int(request.product_box.width), int(request.product_box.height))
             position = (int(request.product_box.x), int(request.product_box.y))
         else:
@@ -76,8 +77,9 @@ async def generate_background(
             position = (300, 220)
         image_main.generator.cfg['image_config']['resize_info'] = size_info
         image_main.generator.cfg['image_config']['position'] = position
-        
-
+        image_main.generator.cfg['canvas_type'] = request.product_box.canvas_type
+                
+        print(f"***************캔버스 타입: {image_main.generator.cfg['canvas_type']}")
         logger.info(f"세션 {session_id}: 배경 생성 시작, 모드: {request.mode}")
         logger.info(f"세션 {session_id}: 프롬프트: {request.prompt}")
         logger.info(f"세션 {session_id}: 제품 박스: {request.product_box}")

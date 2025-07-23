@@ -39,10 +39,8 @@ const Step1Upload = ({
       {showProgress && <ProgressOverlay 
         duration={DURATION}
         customMessage="✂️ 상품 이미지를 깔끔하게 다듬고 있어요..."
- 
-      />
+        />
       }
-
       <div className="category-selector">
         <label htmlFor="category">카테고리 선택:</label>
         <select

@@ -138,7 +138,7 @@ const Step4TextAdjust = ({
     <div className="step4-container">
       <div className="controls-area">
         <label>
-          상품 세부 정보 입력:
+          상품의 세부 정보를 입력해주세요 !
           <textarea
             value={productInfo}
             onChange={(e) => setProductInfo(e.target.value)}

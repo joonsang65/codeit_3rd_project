@@ -12,6 +12,18 @@ const useWindowSize = () => {
   return windowSize;
 };
 
+export const getCanvasSize = (platform) => {
+    switch (platform) {
+      case 'instagram':
+        return { width: 1024, height: 1024 };
+      case 'poster':
+        return { width: 768, height: 1152 };
+      case 'blog':
+      default:
+        return { width: 1152, height: 704 };
+    }
+  };
+
 const CanvasStage = forwardRef(({
   uploadedImage,
   imagePosition,
@@ -25,6 +37,7 @@ const CanvasStage = forwardRef(({
   textImageSize,
   setTextImageSize,
   platform,
+  onResizeCanvas,
   isEditable = true,
   onImagesReady,
 }, ref) => {
@@ -42,18 +55,6 @@ const CanvasStage = forwardRef(({
 
   const HANDLE_SIZE = 12;
 
-  const getCanvasSize = (platform) => {
-    switch (platform) {
-      case 'instagram':
-        return { width: 1080, height: 1080 };
-      case 'poster':
-        return { width: 794, height: 1123 };
-      case 'blog':
-      default:
-        return { width: 1200, height: 700 };
-    }
-  };
-
   const { width: defaultWidth, height: defaultHeight } = getCanvasSize(platform);
   const canvasWidth = Math.min(defaultWidth, windowSize.width * 0.9);
   const canvasHeight = Math.min(defaultHeight, windowSize.height * 0.7);
@@ -64,6 +65,9 @@ const CanvasStage = forwardRef(({
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    const rect = canvasRef.current.getBoundingClientRect();
+    onResizeCanvas?.({ width: rect.width, height: rect.height });
+
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
     const ctx = canvas.getContext('2d');
@@ -155,7 +159,8 @@ const CanvasStage = forwardRef(({
   }, [
     uploadedImage, imagePosition, imageSize,
     bgImage, textImage, textImagePosition, textImageSize,
-    canvasWidth, canvasHeight, isEditable, onImagesReady,
+    onImagesReady, canvasWidth, canvasHeight,
+    onResizeCanvas, isEditable,
   ]);
 
   const getRelativePosition = (e, isTouch = false) => {

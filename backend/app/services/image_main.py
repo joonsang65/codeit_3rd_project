@@ -39,6 +39,7 @@ class AdImageGenerator:
         self.evaluator = evaluation.ImageEvaluator()
         self.current_mode = None
         self.current_category = None
+        self.marketing_type = None
 
     @property
     def category(self):
@@ -66,7 +67,7 @@ class AdImageGenerator:
             2. 이미지 기반 프롬프트 생성 (text2img, inpaint) + input_image
             3. Controlnet 구도조정 (Backend 미구현)
             4. IP-Adapter 스타일 반영 (Backend 미구현)
-        우선적으로 광고전략을 생성 후 prompt로 conver한다.
+        우선적으로 광고전략을 생성 후 prompt로 convert한다.
 
         input:
             - pipe: 파이프라인
@@ -97,8 +98,8 @@ class AdImageGenerator:
             ad_plan = self.client.analyze_ad_plan(
                     product_b64=utils.encode_image(canvas),
                     ref_b64=utils.encode_image(ref_image) if ref_image is not None else None,
-                    product_type=self.category,
-                    marketing_type=f"{self._category} 광고에 맞는 배경 생성"
+                    product_type=self._category,
+                    marketing_type=f"{self.marketing_type}의 분위기에 맞는 배경 생성"
                 )
         else:
             raise TypeError(f"지원하지 않는 파이프라인 입니다. TYPE: {type(pipe)}")
@@ -106,7 +107,7 @@ class AdImageGenerator:
         prompt = self.client.convert_to_sd_prompt(ad_plan)
         logger.debug(f"생성된 프롬프트: {prompt}")
         return prompt
-
+        
     def prepare_pipeline(self, mode: str):
         '''
         모드 입력에 맞게 파이프라인을 설정합니다.
@@ -204,7 +205,11 @@ class AdImageGenerator:
             logger.error(f"리소스 정리 실패: {str(e)}")
 
 
-CANVAS_SIZE = (512, 512) # 사용자 설정 반영
+CANVAS_SIZE = {
+        "instagram": (512, 512),
+        "poster": (512, 768),
+        "blog": (768, 448),
+    } # 사용자 설정 반영
 CATEGORY = "cosmetics"   # 사용자 설정 반영
 SIZE_INFO = (128, 128)   # 사용자 설정 반영
 POSITION = (300, 220)    # 사용자 설정 반영

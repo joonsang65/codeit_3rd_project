@@ -15,8 +15,8 @@ def run_inpainting(pipe, original_image: Image.Image, product_mask: Image.Image,
         prompt=prompt,
         num_inference_steps=config["generation"]["inference_steps"],
         guidance_scale=config["generation"]["guidance_scale"],
-        height=config['canvas_size'][1],
-        width=config['canvas_size'][0],
+        height=config['canvas_size'][config['canvas_type']][1],
+        width=config['canvas_size'][config['canvas_type']][0],
         num_images_per_prompt=config['generation']['num_image']
     ).images
 
@@ -31,8 +31,8 @@ def generate_background(pipe, prompt: str, config: Dict) -> Image.Image:
         negative_prompt=config["generation"]["negative_prompt"],
         num_inference_steps=config["generation"]["inference_steps"],
         guidance_scale=config["generation"]["guidance_scale"],
-        height=config['canvas_size'][1],
-        width=config['canvas_size'][0],
+        height=config['canvas_size'][config['canvas_type']][1],
+        width=config['canvas_size'][config['canvas_type']][0],
         num_images_per_prompt=config['generation']['num_image']
     ).images
     return result
@@ -62,8 +62,8 @@ def ip_adapter_inference(ip_adapter, config: Dict, prompt: str, ref_image: Image
         scale=0.7,
         num_inference_steps=config["generation"]["inference_steps"],
         guidance_scale=config["generation"]["guidance_scale"],
-        height=config['canvas_size'][1],
-        width=config['canvas_size'][0],
+        height=config['canvas_size'][config['canvas_type']][1],
+        width=config['canvas_size'][config['canvas_type']][0],
         num_images_per_prompt=config['generation']['num_image']
     )
     return ip_images
@@ -76,8 +76,8 @@ def control_inpaint(pipe, config:Dict, prompt:str, target_image, mask, control_i
     image=[target_image.convert("RGB")],
     mask_image=[ImageOps.invert(mask)],
     control_image= control_image if isinstance(control_image, list) else [control_image],
-    height=config['canvas_size'][1],
-    width=config['canvas_size'][0],
+    height=config['canvas_size'][config['canvas_type']][1],
+    width=config['canvas_size'][config['canvas_type']][0],
     num_inference_steps=config['generation']['inference_steps'],
     guidance_scale=config['generation']['guidance_scale'],
     controlnet_conditioning_scale=1.5,
