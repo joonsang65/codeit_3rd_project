@@ -116,13 +116,13 @@ const Step3TextInput = ({ productInfo, setProductInfo, adText, setAdText, sessio
       )}
       <h2>광고 문구 생성</h2>
 
-      <label htmlFor="productInfo">상품 세부 정보 입력:</label>
+      <label htmlFor="productInfo">상품의 세부 정보를 입력해주세요 !</label>
       <textarea
         id="productInfo"
         value={productInfo}
         onChange={(e) => setProductInfo(e.target.value)}
         placeholder="예: 수제 양초, 100% 천연 왁스, 부드러운 라벤더 향, 20,000원"
-        aria-label="상품 세부 정보 입력"
+        aria-label="상품의 세부 정보를 입력해주세요"
         rows="4"
         disabled={loading}
       />

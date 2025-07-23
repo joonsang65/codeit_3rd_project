@@ -64,7 +64,7 @@ const Step2Background = ({
       />
       }
 
-      <label htmlFor="bgPrompt">배경 이미지 프롬프트 입력:</label>
+      <label htmlFor="bgPrompt">어떤 느낌의 배경 이미지를 만들어 볼까요 ?</label>
       <input
         id="bgPrompt"
         type="text"
