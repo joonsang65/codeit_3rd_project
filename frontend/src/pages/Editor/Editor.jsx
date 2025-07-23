@@ -53,6 +53,7 @@ const Editor = ({ sessionId, platform }) => {
       setImagePosition,
       imageSize,
       setImageSize,
+      setCanvasSize
     });
   }
 
@@ -65,22 +66,7 @@ const Editor = ({ sessionId, platform }) => {
       </div>
 
       <div className="step-content">
-        <CanvasStage
-          uploadedImage={uploadedImage}
-          imagePosition={imagePosition}
-          setImagePosition={setImagePosition}
-          imageSize={imageSize}
-          setImageSize={setImageSize}
-          bgImage={bgImage}
-          textImage={textImage}
-          textImagePosition={textImagePosition}
-          setTextImagePosition={setTextImagePosition}
-          textImageSize={textImageSize}
-          setTextImageSize={setTextImageSize}
-          platform={platform}
-          onResizeCanvas={setCanvasSize}
-          isEditable={step !== 5}
-        />
+        <CanvasStage {...canvasProps} />
 
         <div className="step-panel">
           {step === 1 && (

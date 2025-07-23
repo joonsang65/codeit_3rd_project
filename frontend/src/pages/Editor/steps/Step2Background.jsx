@@ -60,9 +60,10 @@ const Step2Background = ({
     };
 
     console.log("🟡 선택된 플랫폼:", platform);
-    console.log("🟡 사이즈:", renderedWidth, renderedHeight);
-    console.log("🟡 X:", scaleX);
-    console.log("🟡 Y:", scaleY);
+    console.log("🟡 반응형 캔버스 사이즈:", renderedWidth, renderedHeight);
+    console.log("🟡 사용자 변경 x, y 포지션:", imagePosition.x, imagePosition.y);
+    console.log("🟡 scaleX:", scaleX);
+    console.log("🟡 scaleY:", scaleY);
     console.log("🟡 보낼 productBox 값:", productBox);
     console.log("🟡 sessionId:", sessionId);
     console.log("🟡 prompt:", localPrompt);
