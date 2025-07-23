@@ -68,7 +68,7 @@ async def generate_background(
         
         image_main.generator.category = cache["category"]
         if request:
-            image_main.generator.prompt = request.prompt
+            image_main.generator.marketing_type = request.prompt
             size_info = (int(request.product_box.width), int(request.product_box.height))
             position = (int(request.product_box.x), int(request.product_box.y))
         else:
