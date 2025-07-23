@@ -166,11 +166,32 @@ def remove_background(image: Union[str, Image.Image]) -> Tuple[Image.Image, Imag
 def resize_to_ratio(image: Image.Image, target_size: Tuple[int, int]) -> Image.Image:
     '''이미지의 크기를 resample 기법으로 변환한다.'''
     try:
-        return image.resize(target_size, Image.Resampling.LANCZOS)
+        image = image.convert("RGB")
+        original_width, original_height = image.size
+        target_width, target_height = target_size
+
+        ratio = min(target_width / original_width, target_height / original_height)
+        new_width = int(original_width * ratio)
+        new_height = int(original_height * ratio)
+
+        return image.resize((new_width, new_height), Image.LANCZOS)
     except Exception as e:
         logger.error(f"Resize failed: {e}")
         raise
 
+@log_execution_time(label="Resize with padding")
+def resize_with_padding(image, size=(512,512), fill_color=(255,255,255)):
+    '''
+    입력 이미지의 비율을 가로형, 세로형, 사각형으로 변환시킬 때 중점이 되는 제품 이미지의
+    비율이 망가지지 않도록 padding으로 조정.
+    '''
+    image = image.convert("RGB")
+    image.thumbnail(size, Image.LANCZOS)
+    new_img = Image.new("RGB", size, fill_color)
+    paste_x = (size[0] - image.size[0]) // 2
+    paste_y = (size[1] - image.size[1]) // 2
+    new_img.paste(image, (paste_x, paste_y))
+    return new_img
 
 @log_execution_time(label="Create Masking image...")
 def create_mask(product_image: Image.Image, threshold: int = 250, blur_radius: int = 5) -> Image.Image:
