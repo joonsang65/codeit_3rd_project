@@ -2,7 +2,7 @@
 
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8501"; // FastAPI 주소, gcp 에서는 34.135.93.123
+const BASE_URL = "http://localhost:8000"; // FastAPI 주소, gcp 에서는 34.135.93.123
 const IMAGE_API = `${BASE_URL}/image`;
 
 export const initSession = async (sessionId) => {
