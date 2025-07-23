@@ -3,7 +3,8 @@ from PIL import Image
 import torch
 import torchvision.transforms as T
 from transformers import BlipProcessor, BlipForConditionalGeneration
-# from modules.utils import
+import argparse
+from modules.utils import resize_with_padding
 
 # 1. 폴더 초기화 함수
 def delete_folder(folder):
@@ -11,20 +12,6 @@ def delete_folder(folder):
     if os.path.exists(folder):
         shutil.rmtree(folder)
  
-# 2. 이미지 전처리 유틸 함수
-def resize_with_padding(image, size=(512,512), fill_color=(255,255,255)):
-    '''
-    입력 이미지의 비율을 가로형, 세로형, 사각형으로 변환시킬 때 중점이 되는 제품 이미지의
-    비율이 망가지지 않도록 padding으로 조정.
-    '''
-    image = image.convert("RGB")
-    image.thumbnail(size, Image.LANCZOS)
-    new_img = Image.new("RGB", size, fill_color)
-    paste_x = (size[0] - image.size[0]) // 2
-    paste_y = (size[1] - image.size[1]) // 2
-    new_img.paste(image, (paste_x, paste_y))
-    return new_img
-
 def get_images(dir_path, prefix=None):
     '''경로 내부 탐색, prefix로 해당 이미지만 가져온다.'''
     return [f for f in os.listdir(dir_path)
@@ -92,8 +79,13 @@ def train_lora(module_path, image_id, csv_dir, train_epochs=10, base_model="../s
     Args:
         - 
     '''
-    output_dir = os.path.join(os.path.dirname(base_model), f"output_models/{image_id}")
+    
+    # inpaint 모델의 경우 checkpoint 저장 경로 변경
+    save_dir = f"inp_{image_id}" if "inp" in base_model else image_id
+    output_dir = os.path.join(os.path.dirname(base_model), f"output_models/{save_dir}")
 
+    # warm_up step, epoch에 따라 동적 계산, resume의 경우 0부터 시작이 아닌 멈췄던 step 부터 시작이므로, 
+    # 추가 학습의 경우 기본 20 epochs으로 설정
     warm_steps = estimate_warmup_steps(
             csv_path='model_dev/aug/captions.csv',
             batch_size=2, 
@@ -108,7 +100,7 @@ def train_lora(module_path, image_id, csv_dir, train_epochs=10, base_model="../s
         "--dataset_config_name", csv_dir,
         "--image_column", "file_name",
         "--caption_column", "caption",
-        "--instance_prompt", f"a photo of {image_id}_0 {image_id}_1 perfume bottle",  # category 토큰 넣기
+        "--instance_prompt", f"a photo of {image_id}_0 {image_id}_1 perfume bottle",  # 학습된 특수 토큰 방식으로 넣기 (단, 기본 프롬프트는 json 의 형태로 학습되며 이건 특)
         "--resolution", "512",
         "--train_batch_size", "2",
         "--num_train_epochs", str(train_epochs),
@@ -213,5 +205,17 @@ def main():
     if result.returncode == 0:
         delete_folder(augmented_dir)
 
+# def parse_args(input_args=None):
+#     parser = argparse.ArgumentParser(description="Training Script")
+#     parser.add_argument(
+#         "--category_token",
+#         type=str,
+#         default=None,
+#         required=False,
+#         help=(
+#             'The choose between trained speical tokens, ["CDP_FOOD", "CDP_COS", "CDP_FUR"],'
+#             'to optimize the generated image from text2img or inpaint with our fine-tuned dreambooth-lora'
+#         )
+#     )
 if __name__ == "__main__":
     main()

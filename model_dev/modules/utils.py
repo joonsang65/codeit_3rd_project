@@ -166,14 +166,35 @@ def remove_background(image: Union[str, Image.Image]) -> Tuple[Image.Image, Imag
 def resize_to_ratio(image: Image.Image, target_size: Tuple[int, int]) -> Image.Image:
     '''이미지의 크기를 resample 기법으로 변환한다.'''
     try:
-        return image.resize(target_size, Image.Resampling.LANCZOS)
+        image = image.convert("RGB")
+        original_width, original_height = image.size
+        target_width, target_height = target_size
+
+        ratio = min(target_width / original_width, target_height / original_height)
+        new_width = int(original_width * ratio)
+        new_height = int(original_height * ratio)
+
+        return image.resize((new_width, new_height), Image.LANCZOS)
     except Exception as e:
         logger.error(f"Resize failed: {e}")
         raise
-
+    
+@log_execution_time(label="Resize with padding")
+def resize_with_padding(image, size=(512,512), fill_color=(255,255,255)):
+    '''
+    입력 이미지의 비율을 가로형, 세로형, 사각형으로 변환시킬 때 중점이 되는 제품 이미지의
+    비율이 망가지지 않도록 padding으로 조정.
+    '''
+    image = image.convert("RGB")
+    image.thumbnail(size, Image.LANCZOS)
+    new_img = Image.new("RGB", size, fill_color)
+    paste_x = (size[0] - image.size[0]) // 2
+    paste_y = (size[1] - image.size[1]) // 2
+    new_img.paste(image, (paste_x, paste_y))
+    return new_img
 
 @log_execution_time(label="Create Masking image...")
-def create_mask(product_image: Image.Image, threshold: int = 250, blur_radius: int = 5) -> Image.Image:
+def create_mask(product_image: Image.Image, threshold: int = 250, blur_radius: int = 5, rebin:bool = False) -> Image.Image:
     '''
     이미지의 마스크를 생성한다. Gaussian Blur를 추가하여 이미지 경계에 대한 정보를 흐릿하게 만들었다.
 
@@ -193,11 +214,15 @@ def create_mask(product_image: Image.Image, threshold: int = 250, blur_radius: i
 
     try:
         alpha = product_image.getchannel("A")
-        mask = Image.eval(alpha, lambda a: 255 if a > threshold else 0).convert("L")
+        mask = alpha.point(lambda a: 255 if a > threshold else 0).convert("L")
 
         if blur_radius > 0:
             logger.info(f"Applying GaussianBlur with radius {blur_radius}")
             mask = mask.filter(ImageFilter.GaussianBlur(radius=blur_radius))
+
+        if rebin:
+            logger.info("Re-binarizing blurred mask")
+            mask = mask.point(lambda p: 255 if p > 128 else 0)
 
         return mask
     except Exception as e:

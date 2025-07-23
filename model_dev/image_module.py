@@ -138,6 +138,7 @@ class AdImageGenerator:
         canvas, back_rm_canv = utils.remove_background(canvas)
         mask = utils.create_mask(back_rm_canv)
         return canvas, back_rm_canv, mask
+    
     def run_text2img(self, canvas:Image.Image=None, ref_image:Image.Image=None):
         '''
         텍스트 기반 이미지 생성.
