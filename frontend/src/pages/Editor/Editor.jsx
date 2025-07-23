@@ -63,7 +63,8 @@ const Editor = ({ sessionId, platform }) => {
       setImagePosition,
       imageSize,
       setImageSize,
-      setCanvasSize
+      setCanvasSize,
+      onResizeCanvas: setCanvasSize
     });
   }
 
