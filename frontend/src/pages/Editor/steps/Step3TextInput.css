@@ -27,6 +27,10 @@
   resize: vertical;
 }
 
+.step3-container textarea#adText{
+  min-height: 250px;
+}
+
 .step3-container textarea::placeholder {
   color: #999;
 }
