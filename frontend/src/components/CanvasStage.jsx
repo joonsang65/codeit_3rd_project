@@ -1,5 +1,5 @@
 // components/CanvasStage.jsx
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import './CanvasStage.css';
 
 const useWindowSize = () => {
@@ -24,7 +24,7 @@ export const getCanvasSize = (platform) => {
     }
   };
 
-const CanvasStage = ({
+const CanvasStage = forwardRef(({
   uploadedImage,
   imagePosition,
   setImagePosition,
@@ -39,8 +39,15 @@ const CanvasStage = ({
   platform,
   onResizeCanvas,
   isEditable = true,
-}) => {
+  onDrawComplete,
+}, ref) => {
   const canvasRef = useRef(null);
+
+  useImperativeHandle(ref, () => ({
+    getStage: () => {
+      return canvasRef.current;
+    },
+  }));
   const [dragging, setDragging] = useState(false);
   const [resizing, setResizing] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -146,6 +153,7 @@ const CanvasStage = ({
           });
         }
       }
+      onDrawComplete?.();
     });
   }, [
     uploadedImage, imagePosition, imageSize,
@@ -279,6 +287,6 @@ const CanvasStage = ({
       />
     </div>
   );
-};
+});
 
 export default CanvasStage;
