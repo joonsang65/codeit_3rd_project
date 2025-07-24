@@ -1,5 +1,5 @@
 // components/CanvasStage.jsx
-import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import './CanvasStage.css';
 
 const useWindowSize = () => {
@@ -24,7 +24,7 @@ export const getCanvasSize = (platform) => {
     }
   };
 
-const CanvasStage = forwardRef(({
+const CanvasStage = ({
   uploadedImage,
   imagePosition,
   setImagePosition,
@@ -39,8 +39,7 @@ const CanvasStage = forwardRef(({
   platform,
   onResizeCanvas,
   isEditable = true,
-  onImagesReady,
-}, ref) => {
+}) => {
   const canvasRef = useRef(null);
   const [dragging, setDragging] = useState(false);
   const [resizing, setResizing] = useState(false);
@@ -56,27 +55,8 @@ const CanvasStage = forwardRef(({
   const HANDLE_SIZE = 12;
 
   const { width: defaultWidth, height: defaultHeight } = getCanvasSize(platform);
-  const ratio = defaultHeight / defaultWidth;
-
-  const stepPanelWidth = 360;
-  const layoutGap = 20 * 2;
-  const availableWidth = windowSize.width - stepPanelWidth - layoutGap;
-  const availableHeight = windowSize.height; // 상단 타이틀/여백 고려
-
-  let canvasWidth = Math.min(defaultWidth, availableWidth);
-  let canvasHeight = canvasWidth * ratio;
-
-  if (canvasHeight > availableHeight) {
-    canvasHeight = Math.min(defaultHeight, availableHeight);
-    canvasWidth = canvasHeight / ratio;
-  }
-  
-  // const canvasWidth = Math.min(defaultWidth, windowSize.width - panelWidth);
-  // const canvasHeight = Math.min(defaultHeight, windowSize.height * 0.7);
-
-  useImperativeHandle(ref, () => ({
-    getStage: () => canvasRef.current,
-  }));
+  const canvasWidth = Math.min(defaultWidth, windowSize.width * 0.9);
+  const canvasHeight = Math.min(defaultHeight, windowSize.height * 0.7);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -166,16 +146,11 @@ const CanvasStage = forwardRef(({
           });
         }
       }
-
-      if (onImagesReady) {
-        onImagesReady();
-      }
     });
   }, [
     uploadedImage, imagePosition, imageSize,
     bgImage, textImage, textImagePosition, textImageSize,
-    onImagesReady, canvasWidth, canvasHeight,
-    onResizeCanvas, isEditable,
+    canvasWidth, canvasHeight, onResizeCanvas, isEditable,
   ]);
 
   const getRelativePosition = (e, isTouch = false) => {
@@ -193,6 +168,7 @@ const CanvasStage = forwardRef(({
   };
 
   const isInResizeHandle = (x, y, pos, size) => {
+    if (!pos || !size) return false; // 추가된 null/undefined 체크
     const handleCenters = [
       { x: pos.x, y: pos.y },
       { x: pos.x + size.width, y: pos.y },
@@ -208,6 +184,7 @@ const CanvasStage = forwardRef(({
   };
 
   const isInBox = (x, y, pos, size) => {
+    if (!pos || !size) return false; // 추가된 null/undefined 체크
     return (
       x >= pos.x &&
       x <= pos.x + size.width &&
@@ -220,16 +197,26 @@ const CanvasStage = forwardRef(({
     if (!isEditable) return;
     const { x, y } = getRelativePosition(e);
 
-    if (isInResizeHandle(x, y, textImagePosition, textImageSize)) {
-      setResizingText(true);
-    } else if (isInBox(x, y, textImagePosition, textImageSize)) {
-      setDraggingText(true);
-      setOffsetText({ x: x - textImagePosition.x, y: y - textImagePosition.y });
-    } else if (isInResizeHandle(x, y, imagePosition, imageSize)) {
-      setResizing(true);
-    } else if (isInBox(x, y, imagePosition, imageSize)) {
-      setDragging(true);
-      setOffset({ x: x - imagePosition.x, y: y - imagePosition.y });
+    // 텍스트 이미지 클릭 감지 (textImage가 존재할 때만)
+    if (textImage && textImagePosition && textImageSize) {
+      if (isInResizeHandle(x, y, textImagePosition, textImageSize)) {
+        setResizingText(true);
+        return; // 텍스트 이미지 핸들을 잡았으면 다른 객체 확인 불필요
+      } else if (isInBox(x, y, textImagePosition, textImageSize)) {
+        setDraggingText(true);
+        setOffsetText({ x: x - textImagePosition.x, y: y - textImagePosition.y });
+        return; // 텍스트 이미지를 잡았으면 다른 객체 확인 불필요
+      }
+    }
+
+    // 업로드된 이미지 클릭 감지 (uploadedImage가 존재할 때만)
+    if (uploadedImage && imagePosition && imageSize) {
+      if (isInResizeHandle(x, y, imagePosition, imageSize)) {
+        setResizing(true);
+      } else if (isInBox(x, y, imagePosition, imageSize)) {
+        setDragging(true);
+        setOffset({ x: x - imagePosition.x, y: y - imagePosition.y });
+      }
     }
   };
 
@@ -268,7 +255,7 @@ const CanvasStage = forwardRef(({
   };
 
   return (
-    <div className="canvas-container" style={{ aspectRatio: defaultWidth / defaultHeight }}>
+    <div className="canvas-container" style={{ width: canvasWidth, height: canvasHeight }}>
       <canvas
         ref={canvasRef}
         width={canvasWidth}
@@ -292,6 +279,6 @@ const CanvasStage = forwardRef(({
       />
     </div>
   );
-});
+};
 
 export default CanvasStage;
