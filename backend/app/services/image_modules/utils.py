@@ -164,7 +164,7 @@ def remove_background(image: Union[str, Image.Image]) -> Tuple[Image.Image, Imag
 
 @log_execution_time(label="Resize to Ratio")
 def resize_to_ratio(image: Image.Image, target_size: Tuple[int, int]) -> Image.Image:
-    '''이미지의 크기를 resample 기법으로 변환한다.'''
+    '''이미지의 크기를 변환하되 비율은 유지 할수있도록 한다.'''
     try:
         image = image.convert("RGB")
         original_width, original_height = image.size
