@@ -62,9 +62,23 @@ const CanvasStage = forwardRef(({
   const HANDLE_SIZE = 12;
 
   const { width: defaultWidth, height: defaultHeight } = getCanvasSize(platform);
-  const canvasWidth = Math.min(defaultWidth, windowSize.width * 0.9);
-  const canvasHeight = Math.min(defaultHeight, windowSize.height * 0.7);
+  const ratio = defaultHeight / defaultWidth;
 
+  const stepPanelWidth = 360;
+  const layoutGap = 20 * 2;
+  const availableWidth = windowSize.width - stepPanelWidth - layoutGap;
+  const availableHeight = windowSize.height; // 상단 타이틀/여백 고려
+
+  let canvasWidth = Math.min(defaultWidth, availableWidth);
+  let canvasHeight = canvasWidth * ratio;
+
+  if (canvasHeight > availableHeight) {
+    canvasHeight = Math.min(defaultHeight, availableHeight);
+    canvasWidth = canvasHeight / ratio;
+  }
+  
+  // const canvasWidth = Math.min(defaultWidth, windowSize.width - panelWidth);
+  // const canvasHeight = Math.min(defaultHeight, windowSize.height * 0.7);
   useEffect(() => {
     const canvas = canvasRef.current;
     const rect = canvasRef.current.getBoundingClientRect();
@@ -153,7 +167,7 @@ const CanvasStage = forwardRef(({
           });
         }
       }
-      onDrawComplete?.();
+      // onDrawComplete?.();
     });
   }, [
     uploadedImage, imagePosition, imageSize,
@@ -263,7 +277,7 @@ const CanvasStage = forwardRef(({
   };
 
   return (
-    <div className="canvas-container" style={{ width: canvasWidth, height: canvasHeight }}>
+    <div className="canvas-container" style={{ aspectRatio: defaultWidth / defaultHeight }}>
       <canvas
         ref={canvasRef}
         width={canvasWidth}

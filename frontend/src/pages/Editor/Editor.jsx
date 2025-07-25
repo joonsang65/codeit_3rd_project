@@ -1,5 +1,5 @@
 // frontend/src/pages/Editor/Editor.jsx
-import React, { useState, useRef, useEffect} from 'react';
+import React, { useState, useRef} from 'react';
 import CanvasStage from '../../components/CanvasStage';
 import Step1Upload from './steps/Step1Upload';
 import Step2Background from './steps/Step2Background';
