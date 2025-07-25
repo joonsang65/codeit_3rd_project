@@ -25,7 +25,7 @@ function Home() {
       {/* ✅ 버튼 그룹 */}
       <div className="button-group">
         <button className="start-button" onClick={() => navigate("/select-platform")}>시작하기</button>
-        <button className="plan-button" onClick={() => navigate("/pricing")}>플랜 선택</button>
+        <button className="plan-button" onClick={() => navigate("/pricing")}>로그인</button>
       </div>
 
     </div>

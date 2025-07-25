@@ -5,7 +5,7 @@
   margin: 30px auto;
   padding: 30px 24px;
   font-family: 'Noto Sans KR', sans-serif;
-  color: #ffffff;
+  color: var(--editor-text-color);
   background: #00000000;
   border-radius: 16px;
   box-shadow: 0 0 36px rgba(0, 0, 0, 0.8);
@@ -47,7 +47,7 @@
   display: flex;
   gap: 0px;
   flex: 1;
-  background-color: #20222a;
+  background-color: var(--editor-step-content-bg-color);
   border-radius: 16px;
   overflow: hidden;
   max-height: 800px; /* editor-container의 max-height에서 navigation과 padding을 고려 */
@@ -57,7 +57,7 @@
   width: 100%;
   max-width: 360px;
   padding: 20px;
-  background: #2a2c36;
+  background: var(--editor-step-panel-color);
   border-radius: 8px;
   overflow-y: auto; /* 긴 콘텐츠 처리 */
 }

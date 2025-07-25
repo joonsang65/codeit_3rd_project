@@ -1,28 +1,29 @@
 .home-container {
   text-align: center;
   padding: 60px 40px;
-  background-color: #0e0e0e;
-  color: #f0f0f0;
+  background-color: var(--home-bg-color);
+  color: var(--home-text-color);
   min-height: 100vh;
 }
 
 .home-container h1 {
   font-size: 2.4rem;
   margin-bottom: 10px;
+  color: var(--home-h1-color);
 }
 
 .home-container h3 {
   font-size: 1.2rem;
   margin-bottom: 40px;
-  color: #ccc;
+  color: var(--home-h3-color);
 }
 
 .circular-card {
   width: 700px;
   height: 700px;
   border-radius: 50%;
-  background-color: white;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  background-color: #ffffff;
+  box-shadow: 0 15px 30px var(--home-circular-card-shadow);
   display: flex;
   align-items: center;
   justify-content: center;

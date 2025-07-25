@@ -10,12 +10,15 @@ import SelectPlatform from './pages/Editor/steps/SelectPlatform';
 import Editor from './pages/Editor/Editor';
 import Sidebar from './components/Sidebar';
 import './App.css';
+import './Theme.css';  /* 하위 파일에 전부 import 시켜줌*/
+
 
 function App() {
   const [message, setMessage] = useState('');
   const [sessionId, setSessionId] = useState('');
   const [error, setError] = useState('');
   const [platform, setPlatform] = useState('');
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     let id = localStorage.getItem('sessionId');
@@ -44,9 +47,18 @@ function App() {
       });
   }, []);
 
+  const toggleTheme = () => {
+    const html = document.documentElement;
+    const isDark = html.classList.toggle('dark');
+    setIsDarkMode(isDark);
+  };
+
   return (
     <Router>
       <div className="app-container">
+        <button className="theme-toggle-button" onClick={toggleTheme}>
+          {isDarkMode ? '☀️ Light' : '🌙 Dark'}
+        </button>
         <Sidebar />
         <div className="main-content">
           {error && <div className="error-message">{error}</div>}

@@ -154,10 +154,13 @@ const Step4TextAdjust = ({
 
         {message && (
           <p
-            style={{
-              color: message.includes('✅') ? '#4ade80' : message.includes('❌') ? '#f87171' : '#eee',
-              marginBottom: '1rem'
-            }}
+            className={`message ${
+              message.includes('✅')
+                ? 'message-success'
+                : message.includes('❌')
+                ? 'message-error'
+                : 'message-neutral'
+            }`}
           >
             {message}
           </p>

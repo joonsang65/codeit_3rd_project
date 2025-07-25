@@ -1,0 +1,130 @@
+/* ./src/theme.css*/
+
+/* 화이트 모드 */
+:root {
+  /* === App.css === */
+  --app-body-bg-color: #ffffff;
+  --app-body-text-color: #b4b4b4;
+  --app-main-content-bg: #ffffff;
+  --app-h1-color: #4a68f8;
+
+  /* === Home.css === */
+  --home-bg-color: #ffffff;
+  --home-text-color: #f0f0f0;
+  --home-h1-color: #4a68f8;
+  --home-h3-color: #283783;
+  --home-circular-card-shadow: rgba(0, 0, 0, 0.3);
+
+  /* === Card.css === */
+  --card-bg-color: #f7f5f5;
+  --card-title-color: #131313;
+  --card-text-color: #2c2c2c;
+
+  /* === Editor.css === */
+  --editor-text-color: #5f5f5f;
+  --editor-step-content-bg-color: #ccd0e0;
+  --editor-step-panel-color: #c1c4d1;
+
+  /* === Step2.css === */
+  --step2-label-color: #5f5f5f;
+  --step2-input-border-color: #8f909c;
+  --step2-input-bg-color: #f4f6ff;
+  --step2-input-text-color: #000000;
+
+  /* === Step3.css === */
+  --step3-label-color: #5f5f5f;
+  --step3-textarea-border-color: #060e29;
+  --step3-adtext-color: #333333;
+  --step3-adtext-bg: #f4f6ff;
+  --step3-button-disabled-bg: #6774a0;
+
+  /* === Step4.css === */
+  --step4-label-color: #5f5f5f;
+  --step4-textarea-border-color: #060e29;
+  --step4-textarea-bg-color: #f4f6ff;
+  --step4-adtext-color: #333333;
+
+  --text-nav-bg-color: #5a7fff;
+  --text-nav-hover-bg: #4c6dff;
+  --step4-button-disabled-bg: #6774a0;
+  --step4-button-disabled-text: #f4f6ff;
+
+  --generate-btn-bg: #5a7fff;
+  --generate-btn-hover-bg: #4c6dff;
+
+  --img-setting-bg:#f4f6ff;
+  --img-setting-text: #333333;
+
+  /* === Slidebar.css === */
+  --background-color: #4c6dff;
+  --color: #ffffff;
+
+  /* === ProgressOverlay.css === */
+  --text-color: #333333;
+}
+
+/* 다크모드 */
+:root.dark {
+  /* === App.css === */
+  --app-body-bg-color: #0D0E12;
+  --app-body-text-color: #b4b4b4;
+  --app-main-content-bg: #0E0E0E;
+  --app-h1-color: #ffffff;
+
+  /* === Home.css === */
+  --home-bg-color: #0e0e0e;
+  --home-text-color: #f0f0f0;
+  --home-h1-color: #f0f0f0;
+  --home-h3-color: #ccc;
+  --home-circular-card-shadow: rgba(255, 255, 255, 0.5);
+
+  /* === Card.css === */
+  --card-bg-color: #121317;
+  --card-title-color: #f1f1f1;
+  --card-text-color: #cccccc;
+
+  /* === Editor.css === */
+  --editor-text-color: #f4f6ff;
+  --editor-step-content-bg-color: #2a2c36;
+  --editor-step-panel-color: #52545e;
+
+  /* === Step2.css === */
+  --step2-input-border-color: #666;
+  --step2-input-bg-color: #f4f6ff;
+  --step2-input-text-color: #000000;
+  --step2-label-color: #f4f6ff;
+
+  /* === Step3.css === */
+  --step3-label-color: #ffffff;
+  --step3-textarea-border-color: #d9dce6;
+  --step3-button-disabled-bg: #6774a0;
+  --step3s-input-bg-color: #222;
+
+  /* === Step4.css === */
+  --step4-label-color: #d9dce6;
+  --step4-textarea-border-color: #8f909c;
+  --step4-textarea-bg-color: #f4f6ff;
+
+  --message-success-color: #5f5f5f;
+  --message-error-color: #f87171;
+  --message-neutral-color: #eeeeee;
+
+  --step4-button-disabled-bg: #222;
+  --step4-button-disabled-text: #d9dce6;
+
+  --text-nav-bg-color: #444;
+  --text-nav-hover-bg: #6774a0;
+
+  --generate-btn-bg: #5a7fff;
+  --generate-btn-hover-bg: #4c6dff;
+
+  --img-setting-bg: #333;
+  --img-setting-text: #f4f6ff;
+
+  /* === Slidebar.css === */
+  --background-color: #0E0E0E;
+  --color: #ffffff;
+
+  /* === ProgressOverlay.css === */
+  --text-color: #ffffff;
+}
