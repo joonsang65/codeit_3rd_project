@@ -2,14 +2,9 @@
 
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8000"; // FastAPI 주소, gcp 에서는 34.135.93.123
-const IMAGE_API = `${BASE_URL}/image`;
-
-export const initSession = async (sessionId) => {
-  return axios.post(`${IMAGE_API}/init-session`, null, {
-    headers: { "session-id": sessionId },  // 일관성 맞춤
-  });
-};
+// const BASE_URL = "http://34.135.93.123:8000";
+const BASE_URL = "http://localhost:8000"; 
+const IMAGE_API = `${BASE_URL}/image`; 
 
 export const preprocessImage = async (file, sessionId, category) => {
   const formData = new FormData();
@@ -17,7 +12,6 @@ export const preprocessImage = async (file, sessionId, category) => {
 
   return axios.post(`${IMAGE_API}/preprocess`, formData, {
     headers: {
-      // "Content-Type": "multipart/form-data", // 자동 처리
       "session-id": sessionId,
       "category": category,
     },
@@ -25,18 +19,19 @@ export const preprocessImage = async (file, sessionId, category) => {
   });
 };
 
-export const generateBackground = async ({ mode, sessionId, prompt, productBox }) => {
+export const generateBackground = async ({ mode, sessionId, prompt, productBox = null }) => {
+  console.log("DEBUG: prompt before API call:", prompt);
   return axios.post(
     `${IMAGE_API}/generate-background`,
     {
-      mode,
-      prompt,
+      mode: mode,
+      prompt: prompt,
       product_box: productBox,
     },
     {
       headers: {
         "session-id": sessionId,
-        "Content-Type": "application/json",
+        "Content-Type": "application/json", 
       },
     }
   );
@@ -47,7 +42,7 @@ export async function getGeneratedBackground(sessionId) {
     headers: {
       "session-id": sessionId,
     },
-    responseType: "blob",
+    responseType: "blob", 
   });
   return URL.createObjectURL(response.data);
 }

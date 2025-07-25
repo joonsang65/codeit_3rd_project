@@ -7,24 +7,30 @@
   padding: 16px;
   background: #ffffff00; /* 밝은 테마와 조화 */
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-family: 'Noto Sans KR', sans-serif;
 }
 
 .step3-container label {
   font-size: 1rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--step3-label-color);
 }
 
 .step3-container textarea {
   padding: 8px;
-  border: 1px solid #d9dce6;
+  border: 1px solid var(--step3-textarea-border-color);
   border-radius: 4px;
   font-size: 1rem;
   color: #333;
   background: #f4f6ff;
   min-height: 100px;
   resize: vertical;
+  font-family: 'Noto Sans KR', sans-serif;
+
+}
+
+.step3-container textarea#adText{
+  min-height: 250px;
 }
 
 .step3-container textarea::placeholder {
@@ -43,11 +49,17 @@
 }
 
 .step3-container button:disabled {
-  background-color: #9067a0;
+  background-color: var(--step3-button-disabled-bg);
   cursor: not-allowed;
 }
 
 .step3-container .message {
   font-size: 0.9rem;
   color: #333;
+}
+
+.nav-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 }

@@ -1,21 +1,75 @@
 .home-container {
   text-align: center;
   padding: 60px 40px;
-  background-color: #0e0e0e;
-  color: #f0f0f0;
+  background-color: var(--home-bg-color);
+  color: var(--home-text-color);
   min-height: 100vh;
 }
 
 .home-container h1 {
   font-size: 2.4rem;
   margin-bottom: 10px;
+  color: var(--home-h1-color);
 }
 
 .home-container h3 {
   font-size: 1.2rem;
   margin-bottom: 40px;
-  color: #ccc;
+  color: var(--home-h3-color);
 }
+
+.circular-card {
+  width: 700px;
+  height: 700px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  box-shadow: 0 15px 30px var(--home-circular-card-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 50px;}
+
+
+/* 🗯️ ad-it */
+.logo-text {
+  font-size: 30px;
+  color: #4a68f8;
+  font-weight: bold;
+  margin-top: 30px;
+  margin-bottom: 6px;
+}
+
+/* ad generator */
+.subheading {
+  font-size: 20px;
+  color: #222;
+  font-weight: 600;
+}
+
+/* Ad-it */
+.main-title {
+  font-size: 120px;
+  font-weight: 800;
+  color: #4a68f8;
+}
+
+/* 팀원 이름 */
+.team-members {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 100px;
+}
+
+/* codeit; AI 태그 */
+.tag {
+  background-color: #4a68f8;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
 
 .card-row {
   display: flex;

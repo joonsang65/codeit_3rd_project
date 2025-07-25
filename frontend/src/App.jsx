@@ -1,23 +1,40 @@
 // react_app/src/App.jsx
 import React, { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import axios from 'axios';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { initializeSession } from './api/sessionAPI'; 
 
 import Home from './pages/Home';
 import Gallery from './pages/Gallery';
 import SelectPlatform from './pages/Editor/steps/SelectPlatform';
 import Editor from './pages/Editor/Editor';
 import Sidebar from './components/Sidebar';
+import RegisterPage from './pages/RegisterPage'; 
+import LoginPage from './pages/LoginPage';    
+import { AuthProvider, useAuth } from './context/AuthContext'; 
 import './App.css';
+import './Theme.css'; 
 
-function App() {
-  const [message, setMessage] = useState('');
+const PrivateRoute = ({ children }) => {
+  const { isAuthenticated, loadingAuth } = useAuth();
+  if (loadingAuth) {
+    return <div>로딩 중...</div>; 
+  }
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+};
+
+function AppContent() {
   const [sessionId, setSessionId] = useState('');
-  const [error, setError] = useState('');
   const [platform, setPlatform] = useState('');
+  const [isDarkMode, setIsDarkMode] = useState(false); 
+
+  const { user, isAuthenticated, loadingAuth } = useAuth();
 
   useEffect(() => {
+    if (loadingAuth) {
+      return;
+    }
+
     let id = localStorage.getItem('sessionId');
     if (!id) {
       id = uuidv4();
@@ -28,47 +45,57 @@ function App() {
     }
     setSessionId(id);
 
-    axios
-      .post('http://localhost:8000/cache/init-session', null, {
-        headers: { 'session-id': id },
-      })
+    const userIdToPass = isAuthenticated && user ? user.id : null;
+    initializeSession(id, userIdToPass)
       .then((response) => {
-        setMessage(""); // 경고문 회피용
-        // setMessage(response.data.message);
-        console.log('세션 초기화 성공:', response.data.message);
+        console.log('세션 초기화 성공:', response.data.message || '세션 데이터 수신');
       })
       .catch((error) => {
         const errorMsg = error.response?.data?.detail || '세션 초기화 실패';
-        setError(errorMsg);
-        console.error('세션 초기화 에러:', error);
+        console.error('세션 초기화 오류:', error);
       });
-  }, []);
+  }, [isAuthenticated, user, loadingAuth]);
+
+  const toggleTheme = () => {
+    const html = document.documentElement;
+    const isDark = html.classList.toggle('dark'); 
+    setIsDarkMode(isDark); 
+  };
 
   return (
     <Router>
       <div className="app-container">
+        <button className="theme-toggle-button" onClick={toggleTheme}>
+          {isDarkMode ? '☀️ Light' : '🌙 Dark'}
+        </button>
+        
         <Sidebar />
         <div className="main-content">
-          {error && <div className="error-message">{error}</div>}
-          {message && <div className="success-message">{message}</div>}
+          
           <Routes>
             <Route path="/" element={<Home />} />
 
             <Route path="/gallery" element={<Gallery />} />
 
+            <Route path="/register" element={isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage />} />
+            <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />} />
+
             <Route path="/select-platform" 
               element={
-                <SelectPlatform 
-                  setPlatform={setPlatform}
-                  sessionId={sessionId} />}/>
-                  
+                <PrivateRoute>
+                  <SelectPlatform setPlatform={setPlatform} sessionId={sessionId} />
+                </PrivateRoute>
+              }
+            />
             <Route path="/editor"
               element={
-                sessionId && platform ? (
-                  <Editor sessionId={sessionId} platform={platform} />
-                ) : (
-                  <div>광고 플랫폼을 먼저 선택하세요.</div>
-                )
+                <PrivateRoute>
+                  {sessionId && platform ? (
+                    <Editor sessionId={sessionId} platform={platform} />
+                  ) : (
+                    <Navigate to="/select-platform" replace /> 
+                  )}
+                </PrivateRoute>
               }
             />
           </Routes>
@@ -76,6 +103,14 @@ function App() {
       </div>
     </Router>
   );
+}
+
+function App() {
+    return (
+      <AuthProvider> 
+        <AppContent /> 
+      </AuthProvider>
+    );
 }
 
 export default App;

@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, status
 from services.TI_modules.TI_schemas import TextImageRequest, TextImageResponse, FontListResponse
 from services.TI_modules.TI_models import text_image_service
 
-router = APIRouter()
+router = APIRouter(prefix="/text-image", tags=["Text-Image Generation"])
 
 @router.get("/fonts", response_model=FontListResponse)
 async def get_available_fonts():

@@ -1,3 +1,207 @@
+// src/pages/Editor/steps/Step4TextAdjust.jsx
+import React, { useState, useEffect } from 'react';
+import { Rnd } from 'react-rnd'; 
+import { generateTextImage } from '../../../api/text_images_API';
+import ProgressOverlay from '../../../components/ProgressOverlay'; 
+import './Step4TextAdjust.css';
+
+const FONT_OPTIONS = [
+  "본고딕_BOLD", "본고딕_EXTRALIGHT", "본고딕_HEAVY", "본고딕_LIGHT", "본고딕_MEDIUM",
+  "본고딕_NORMAL", "본고딕_REGULAR", "BagelFatOne-Regular", "나눔손글씨 고딕 아니고 고딩",
+  "나눔손글씨 갈맷글", "나눔손글씨 강인한 위로", "파셜산스", "날씨", "베이글",
+  "쿠키런 블랙", "쿠키런 볼드", "쿠키런 레귤러"
+];
+
+const Step4TextAdjust = ({
+  adText, 
+  setAdText, 
+  adTextImage,
+  setAdTextImage, 
+  setTextImage,
+  position,
+  setPosition,
+  size, 
+  setSize,
+  sessionId,
+}) => {
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState(''); 
+  const [showProgress, setShowProgress] = useState(false); 
+  const [isProcessDone, setIsProcessDone] = useState(false);
+  const DURATION = 5000; 
+
+
+  const [localAdText, setLocalAdText] = useState(adText || ''); 
+  const [fontName, setFontName] = useState('본고딕_BOLD');
+  const [fontSize, setFontSize] = useState(50);
+  const [textColor, setTextColor] = useState('#000000');
+  const [strokeColor, setStrokeColor] = useState('#FFFFFF');
+  const [strokeWidth, setStrokeWidth] = useState(0);
+
+
+  useEffect(() => {
+    if (adText && adText !== localAdText) {
+      setLocalAdText(adText);
+      setTextImage(null); 
+      setMessage('');
+    }
+  }, [adText]);
+
+
+  const handleGenerateImage = async () => {
+    if (!localAdText.trim()) {
+      setMessage("❌ 문구를 입력해주세요.");
+      return;
+    }
+
+    setLoading(true);
+    setShowProgress(true);
+    setIsProcessDone(false);
+    setMessage("이미지 생성 중...");
+
+    try {
+      const imageResult = await generateTextImage({
+        text: localAdText, 
+        font_name: fontName,
+        font_size: fontSize,
+        text_colors: textColor,
+        stroke_colors: strokeColor,
+        stroke_width: strokeWidth,
+        word_based_colors: false,
+        background_size: [800, 400], 
+        background_color: [255, 255, 255, 0], 
+        padding: 80, 
+        output_format: "PNG",
+        session_id: sessionId, 
+      });
+
+      setTextImage(imageResult);
+      setMessage("✅ 이미지가 생성되었습니다!");
+    } catch (err) {
+      console.error("❌ 이미지 생성 오류:", err);
+      const errorMessage = err.response?.data?.detail || err.message || "텍스트 이미지 생성 중 오류가 발생했습니다.";
+      setMessage(`❌ ${errorMessage}`);
+    } finally {
+      setIsProcessDone(true);
+      setTimeout(() => setShowProgress(false), 300);
+      setLoading(false);
+    }
+  };
+
+
+  const handleLocalTextChange = (e) => {
+    setLocalAdText(e.target.value);
+    setAdText(e.target.value);
+  };
+
+
+  return (
+    <div className="step4-container">
+      {showProgress && (
+        <ProgressOverlay
+          duration={DURATION}
+          processDone={isProcessDone}
+          customMessage="🎨 문구를 이미지로 예쁘게 변환 중입니다..."
+        />
+      )}
+      <div className="controls-area">
+        <h2>광고 문구 디자인</h2>
+
+        <label htmlFor="localAdText">선택된 광고 문구:</label>
+        <textarea
+          id="localAdText"
+          value={localAdText}
+          onChange={handleLocalTextChange}
+          placeholder="AI가 생성한 문구가 여기에 표시됩니다. 필요하면 직접 수정 가능."
+          rows="4"
+          disabled={loading}
+        />
+
+        {/* Text styling options */}
+        <div className="image-settings">
+          <label>
+            폰트:
+            <select value={fontName} onChange={(e) => setFontName(e.target.value)} disabled={loading}>
+              {FONT_OPTIONS.map(font => (
+                <option key={font} value={font}>{font}</option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            폰트 크기:
+            <input
+              type="number"
+              min={10}
+              max={150} 
+              value={fontSize}
+              onChange={(e) => setFontSize(Number(e.target.value))}
+              disabled={loading}
+            />
+          </label>
+
+          <label>
+            텍스트 색상:
+            <input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} disabled={loading} />
+          </label>
+
+          <label>
+            테두리 색상:
+            <input type="color" value={strokeColor} onChange={(e) => setStrokeColor(e.target.value)} disabled={loading} />
+          </label>
+
+          <label>
+            테두리 두께:
+            <input
+              type="number"
+              min={0}
+              max={20}
+              value={strokeWidth}
+              onChange={(e) => setStrokeWidth(Number(e.target.value))}
+              disabled={loading}
+            />
+          </label>
+        </div>
+
+        <button onClick={handleGenerateImage} disabled={loading || !localAdText.trim()} className="generate-image-btn">
+          {loading ? '이미지 생성 중...' : '🎨 선택 문구로 이미지 생성'}
+        </button>
+
+        {message && <p className={`status-message ${message.startsWith('❌') ? 'error-message' : ''}`}>{message}</p>}
+      </div>
+
+      <div className="canvas-area">
+        {adTextImage ? (
+          <Rnd
+            bounds="parent"
+            size={size}
+            position={position}
+            onDragStop={(e, d) => setPosition({ x: d.x, y: d.y })}
+            onResizeStop={(e, direction, ref, delta, newPosition) => {
+              setSize({
+                width: parseInt(ref.style.width),
+                height: parseInt(ref.style.height),
+              });
+              setPosition(newPosition);
+            }}
+          >
+            <img
+              src={adTextImage}
+              alt="광고 문구 이미지"
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            />
+          </Rnd>
+        ) : (
+          <p className="placeholder-message">문구를 입력하고 '이미지 생성' 버튼을 눌러보세요!</p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Step4TextAdjust;
+
+/*
 import React, { useState } from 'react';
 import { generateAdText } from "../../../api/textAPI";
 import { generateTextImage } from "../../../api/text_images_API";
@@ -243,3 +447,4 @@ const Step4TextAdjust = ({
 };
 
 export default Step4TextAdjust;
+*/

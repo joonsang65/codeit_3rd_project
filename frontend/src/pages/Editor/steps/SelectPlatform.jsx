@@ -1,5 +1,4 @@
 // src/pages/Editor/steps/SelectPlatform.jsx
- 
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import Card from "../../../components/Card";
@@ -7,7 +6,7 @@ import Card from "../../../components/Card";
 import blogAdImg from "../../../assets/images/blog_ad.png";
 import instaAdImg from "../../../assets/images/instagram_ad.png";
 import posterAdImg from "../../../assets/images/poster_ad.png";
-import { saveAdTypeToSession } from "../../../api/sessionAPI";
+import { updateSessionData } from "../../../api/sessionAPI";
 
 
 function SelectPlatform({ setPlatform, sessionId }) {
@@ -40,10 +39,11 @@ function SelectPlatform({ setPlatform, sessionId }) {
     const handleCardClick = async (card) => {
     try {
         setPlatform(card.adType);                  // 상태 반영
-        await saveAdTypeToSession(card.adType, sessionId);  // 세션 저장
+        await updateSessionData(sessionId, { ad_type: card.adType });  // 세션 저장
         navigate("/editor");
     } catch (err) {
         console.error("ad_type 세션 저장 실패:", err);
+        alert("광고 유형 저장에 실패했습니다. 다시 시도해주세요.");
     }
     };
 

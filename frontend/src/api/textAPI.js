@@ -4,6 +4,7 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:8000"; // FastAPI 주소
 const TEXT_API = `${BASE_URL}/text`;
+const ADS_API = `${BASE_URL}/advertisements`;
 
 /**
  * 광고 문구 생성 API 호출
@@ -22,4 +23,32 @@ export const generateAdText = async ({ ad_type, model_type, user_prompt, session
   });
 
   return response.data.result;
+};
+
+/**
+ * 생성된 광고 문구를 백엔드에 저장하는 API 호출
+ * @param {number} adId - 관련 광고의 ID
+ * @param {string} copyText - 저장할 광고 문구 내용
+ * @param {string} adType - 광고 유형 (e.g., 'instagram', 'blog', 'poster')
+ * @param {string} userPromptForGeneration - 광고 문구 생성에 사용된 사용자 프롬프트
+ */
+export const saveAdCopy = async (adId, copyText, adType, userPromptForGeneration) => {
+    const payload = {
+        copy_text: copyText,
+        ad_type: adType,
+        user_prompt_for_generation: userPromptForGeneration,
+    };
+    console.log("DEBUG (textAPI.js): Saving ad copy payload:", payload); 
+
+    try {
+        const response = await axios.post(`${ADS_API}/${adId}/copies`, payload, { 
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        return response.data; // AdvertisementCopyRead 객체 반환
+    } catch (error) {
+        console.error("광고 문구 저장 오류:", error.response?.data?.detail || error.message);
+        throw error;
+    }
 };

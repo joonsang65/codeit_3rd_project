@@ -30,7 +30,7 @@ class AdImageGenerator:
         self.cfg = config
         self._category = category
         self.canvas_size = config.get('canvas_size', (512, 512))
-        self.api_key = os.getenv(config['openai']['api_key_env'])
+        self.api_key = config['openai']['api_key_env']
         self.client = gpt_module.GPTClient(
             api_key=self.api_key,
             model_name=config['openai']['gpt_model']

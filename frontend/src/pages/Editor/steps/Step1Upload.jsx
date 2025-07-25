@@ -1,3 +1,4 @@
+// src/components/Step1Upload.jsx (Proposed Merged Version)
 import React, { useRef, useState } from 'react';
 import './Step1Upload.css';
 import { preprocessImage } from '../../../api/imageAPI';
@@ -5,42 +6,54 @@ import ProgressOverlay from '../../../components/ProgressOverlay';
 
 const Step1Upload = ({
   sessionId,
-  uploadedImage,
+  uploadedImage, 
   setUploadedImage,
+  platform
 }) => {
   const inputRef = useRef();
   const [loading, setLoading] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
-  const [category, setCategory] = useState('food');
-  const DURATION = 1500;
+  const [message, setMessage] = useState('');
+  const [category, setCategory] = useState('food'); 
+
+  const DURATION = 3000; 
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     setLoading(true);
-    setShowProgress(true);
+    setShowProgress(true); 
+    setMessage(''); 
 
     try {
-      const response = await preprocessImage(file, sessionId, category);
+      const response = await preprocessImage(file, sessionId, category); 
+      
       const blob = response.data;
       const processedImageUrl = URL.createObjectURL(blob);
       setUploadedImage(processedImageUrl);
+      setMessage('✅ 이미지 전처리 완료');
     } catch (error) {
-      console.error('이미지 전처리 실패:', error);
+      console.error('❌ 이미지 전처리 실패:', error);
+      const errorMessage = error.response?.data?.detail || '이미지 전처리 중 오류가 발생했습니다.';
+      setMessage(`❌ ${errorMessage}`);
     } finally {
-      setShowProgress(false);
-      setLoading(false);
+      setTimeout(() => {
+        setShowProgress(false);
+        setLoading(false);
+      }, 500); 
     }
   };
 
   return (
     <div className="step1-container">
-      {showProgress && <ProgressOverlay 
-        duration={DURATION}
-        customMessage="✂️ 상품 이미지를 깔끔하게 다듬고 있어요..."
+      {showProgress && (
+        <ProgressOverlay
+          duration={DURATION}
+          customMessage="✂️ 상품 이미지를 깔끔하게 다듬고 있어요..."
         />
-      }
+      )}
+
       <div className="category-selector">
         <label htmlFor="category">카테고리 선택:</label>
         <select
@@ -66,10 +79,11 @@ const Step1Upload = ({
         <button
           className="upload-button"
           onClick={() => inputRef.current.click()}
-          disabled={loading}
+          disabled={loading} 
         >
           상품 이미지 업로드
         </button>
+        {message && <p className={`upload-message ${message.startsWith('❌') ? 'error-message' : ''}`}>{message}</p>}
       </div>
     </div>
   );

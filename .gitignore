@@ -35,6 +35,7 @@ yarn-error.log*
 
 # 내부 이미지 파일 (원하는 경우 예외로 둘 수 있음)
 frontend/src/image
+backend/static
 
 # dependencies
 node_modules/

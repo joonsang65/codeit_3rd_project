@@ -51,12 +51,22 @@ const Step2Background = ({
     const scaleX = scaleRenderToDesignX * scaleDesignToSDX;
     const scaleY = scaleRenderToDesignY * scaleDesignToSDY;
 
+    /*
     const productBox = {
       canvas_type: platform,
       x: Math.round(imagePosition.x * scaleX),
       y: Math.round(imagePosition.y * scaleY),
       width: Math.round(imageSize.width * scaleX),
       height: Math.round(imageSize.height * scaleY),
+    };
+    */
+
+    const productBox = {
+      canvas_type: platform,
+      x: Math.round(imagePosition.x * (targetSD.width / designCanvas.width)),
+      y: Math.round(imagePosition.y * (targetSD.height / designCanvas.height)),
+      width: Math.round(imageSize.width * (targetSD.width / designCanvas.width)),
+      height: Math.round(imageSize.height * (targetSD.height / designCanvas.height)),
     };
 
     console.log("🟡 선택된 플랫폼:", platform);
@@ -67,7 +77,7 @@ const Step2Background = ({
     console.log("🟡 보낼 productBox 값:", productBox);
     console.log("🟡 sessionId:", sessionId);
     console.log("🟡 prompt:", localPrompt);
-    
+
     try {
       await generateBackground({
         mode: 'inpaint',
@@ -105,6 +115,7 @@ const Step2Background = ({
         onChange={(e) => setLocalPrompt(e.target.value)}
         placeholder="예: 화려한, 자연의 풍경"
       />
+
       <button onClick={handleGenerate} disabled={loading}>
         🖼️ 배경 이미지 AI 생성
       </button>

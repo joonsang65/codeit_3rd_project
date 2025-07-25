@@ -1,11 +1,11 @@
 // src/pages/Editor/steps/Step3Textinput.jsx
 
 import React, { useState } from 'react';
-import { generateAdText } from "../../../api/textAPI";
+import { generateAdText, saveAdCopy } from "../../../api/textAPI";
 import './Step3TextInput.css';
 import ProgressOverlay from '../../../components/ProgressOverlay';
 
-const Step3TextInput = ({ productInfo, setProductInfo, adText, setAdText, sessionId, platform }) => {
+const Step3TextInput = ({ productInfo, setProductInfo, adText, setAdText, sessionId, platform, adId }) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [adTexts, setAdTexts] = useState([]);
@@ -63,10 +63,18 @@ const Step3TextInput = ({ productInfo, setProductInfo, adText, setAdText, sessio
 
       setAdTexts(parsedTexts);
       setCurrentIndex(0);
-      setAdText(parsedTexts[0]);
+      const selectedAdText = parsedTexts[0];
+      setAdText(selectedAdText);
       setMessage('✅ 광고 문구가 성공적으로 생성되었습니다!');
+
+      if (adId) {
+        await saveAdCopy(adId, selectedAdText, platform, productInfo.trim());
+        console.log("Ad copy successfully saved to backend!");
+      } else {
+        console.warn("adId is not available, skipping ad copy save to backend.");
+      }
     } catch (err) {
-      console.error('텍스트 생성 오류:', err);
+      console.error('텍스트 생성 오류 또는 저장 오류:', err);
       const errorMessage = err.response?.data?.detail || err.message || '알 수 없는 오류';
       setMessage(`❌ 오류: ${errorMessage}`);
     } finally {

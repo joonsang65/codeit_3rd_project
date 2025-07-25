@@ -1,10 +1,12 @@
 .sidebar {
   width: 130px;
-  background-color: #0E0E0E;
-  color: #ffffff;
+  background-color: var(--background-color);
+  color: var(--color);
   height: 100vh;
   padding: 30px;
   position: fixed;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
 }
 
 .sidebar h2 {

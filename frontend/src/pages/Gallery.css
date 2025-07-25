@@ -1,7 +1,9 @@
+/* frontend/src/pages/Gallery.css */
+
 .gallery-container {
   padding: 40px;
-  color: #f0f0f0;
-  background-color: #121212;
+  color: var(--gallery-text-color, #f0f0f0);
+  background-color: var(--gallery-background-color, #121212);
   min-height: 100vh;
 }
 
@@ -18,7 +20,7 @@
 }
 
 .gallery-card {
-  background-color: #1e1e1e;
+  background-color: var(--gallery-card-background-color, #1e1e1e);
   padding: 16px;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.3);
@@ -33,6 +35,6 @@
 
 .gallery-caption {
   margin-top: 12px;
-  color: #ccc;
+  color: var(--gallery-caption-color, #ccc);
   font-size: 14px;
 }
