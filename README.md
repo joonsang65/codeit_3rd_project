@@ -100,3 +100,29 @@ cd react_app
 npm install
 npm start
 ```
+
+만약 설치 또는 실행이 실패하면, 아래와 같이 살행하면 됩니다:
+
+```bash
+rm -rf node_modules
+rm package-lock.json
+npm install react-scripts@5.0.1
+npm start
+```
+
+3. 환경 변수 및 설정
+    * backend/에서 .env 생성한 후 `OPENAI_API_KEY=당신의_OpenAI_API_키` 입력합니다.
+    * backend/app/services/model_config.yaml 파일에 `openai > api_key_env`를 위와 동일하게 OpenAI API 키를 입력합니다.
+    * backend/app/routers/에서 .env 생성한 후 `JWT_SECRET_KEY=당신의_JWT_키` 입력합니다.
+
+FastAPI의 URL은 프론트엔드에 
+    * frontend/src/api/imageAPI.js
+    * frontend/src/api/sessionAPI.js
+    * frontend/src/api/text_images_API.js
+    * frontend/src/api/textAPI.js
+    * frontend/src/api/userAPI.js
+    * frontend/src/pages/Gallery.jsx
+    * frontend/src/pages/LoginPage.jsx
+    * frontend/src/pages/RegisterPage.jsx
+
+파일들에 설정할 수 있습니다. 반면으로, React의 URL은 backend/app/main.py에서 변경할 수 있습니다.
