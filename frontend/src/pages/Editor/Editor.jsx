@@ -4,8 +4,8 @@ import React, { useState, useRef, useEffect} from 'react';
 import CanvasStage from '../../components/CanvasStage';
 import Step1Upload from './steps/Step1Upload';
 import Step2Background from './steps/Step2Background';
-import Step3TextInput from './steps/Step3TextInput';
-import Step4TextAdjust from './steps/Step4TextAdjust';
+import Step3TextAdjust from './steps/Step3TextAdjust';
+import Step4TextInput from './steps/Step4TextInput';
 import Step5FinalOutput from './steps/Step5FinalOutput';
 import './Editor.css';
 
@@ -82,8 +82,8 @@ const Editor = ({ sessionId, platform }) => {
   const headerTexts = {
   1: { title: '상품 이미지 업로드', subtitle: '광고할 제품을 업로드 해주세요 !' },
   2: { title: '배경 생성', subtitle: '제품과 어울리는 배경을 생성합니다 !' },
-  3: { title: '광고 문구 생성', subtitle: '제품 정보를 바탕으로 텍스트를 만들어보세요 !' },
-  4: { title: '텍스트 이미지 조정', subtitle: '광고에 들어갈 문구 이미지를 조정하세요 !' },
+  3: { title: '텍스트 이미지 조정', subtitle: '광고에 들어갈 문구 이미지를 조정하세요 !' },
+  4: { title: '광고 문구 생성', subtitle: '제품 정보를 바탕으로 텍스트를 만들어보세요 !' },
   5: { title: '최종 결과', subtitle: '최종 이미지를 확인하고 다운로드하세요' },
   };
 
@@ -140,18 +140,7 @@ const Editor = ({ sessionId, platform }) => {
             />
           )}
           {step === 3 && (
-            <Step3TextInput
-              sessionId={sessionId}
-              platform={platform}
-              productInfo={productInfo}
-              setProductInfo={setProductInfo}
-              adText={adText}
-              setAdText={setAdText}
-              setBgImage={setBgImage}
-            />
-          )}
-          {step === 4 && (
-            <Step4TextAdjust
+            <Step3TextAdjust
               sessionId={sessionId}
               textImage={textImage}
               setTextImage={setTextImage}
@@ -172,6 +161,21 @@ const Editor = ({ sessionId, platform }) => {
               setStrokeColor={setStrokeColor}
               strokeWidth={strokeWidth}
               setStrokeWidth={setStrokeWidth}
+              productInfo={productInfo}
+              setProductInfo={setProductInfo}
+            />
+          )}
+          {step === 4 && (
+            <Step4TextInput
+              sessionId={sessionId}
+              platform={platform}
+              productInfo={productInfo}
+              setProductInfo={setProductInfo}
+              adText={adText}
+              setAdText={setAdText}
+              setBgImage={setBgImage}
+              setAdTexts={setAdTexts}
+              setCurrentIndex={setCurrentIndex}
             />
           )}
           {step === 5 && (

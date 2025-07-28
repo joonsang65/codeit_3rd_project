@@ -42,7 +42,7 @@ const Sidebar = () => {
                                 <strong>{user.email}</strong>님!
                             </div>
                         )}
-                        <NavLink to="#" onClick={handleLogout}>🚪 로그아웃</NavLink>
+                        <NavLink to="#" onClick={handleLogout}>⍈ 로그아웃</NavLink>
                     </>
                 )}
             </nav>

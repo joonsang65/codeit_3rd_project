@@ -140,10 +140,12 @@ class AdImageGenerator:
         이후 작업을 위해 추가적으로 만들어진 canvas의 배경을 제거한 이미지와 마스킹 이미지를 만들어 반환합니다.
         '''
         resized = utils.resize_to_ratio(self.back_rm, self.cfg['image_config']['resize_info'])
-        canvas = Image.new("RGBA", self.canvas_size, (255, 255, 255, 255)) if canvas_input is None else canvas_input
+        #canvas = Image.new("RGBA", self.canvas_size, (255, 255, 255, 255)) if canvas_input is None else canvas_input
+        canvas = Image.new("RGBA", self.canvas_size, (0, 0, 0, 0)) if canvas_input is None else canvas_input
         canvas = utils.overlay_product(canvas, resized, self.cfg['image_config']['position'])
         canvas, back_rm_canv = utils.remove_background(canvas)
-        mask = utils.create_mask(back_rm_canv)
+        #mask = utils.create_mask(back_rm_canv)
+        mask = utils.create_mask(back_rm_canv, 10, 10)
         return canvas, back_rm_canv, mask
 
     def run_text2img(self, canvas:Image.Image=None, ref_image:Image.Image=None):

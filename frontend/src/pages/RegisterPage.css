@@ -1,111 +1,120 @@
 /* src/pages/RegisterPage.css */
 
 .register-container {
-  padding: 20px;
-  max-width: 500px;
-  margin: 40px auto; /* Add some top margin */
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  background-color: #fff;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #333;
+    padding: 20px;
+    max-width: 500px;
+    margin: 40px auto; /* Add some top margin */
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    background-color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
 }
 
 .register-container h2 {
-  text-align: center;
-  color: #333;
-  margin-bottom: 25px;
-  font-size: 1.8em;
+    text-align: center;
+    color: #333;
+    margin-bottom: 25px;
+    font-size: 1.8em;
 }
 
 .register-message {
-  padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 5px;
-  text-align: center;
-  font-weight: bold;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+    white-space: pre-wrap; 
 }
 
 .register-message.error {
-  background-color: #ffebeb;
-  color: #e00;
-  border: 1px solid #e00;
+    background-color: #ffebeb;
+    color: #e00;
+    border: 1px solid #e00;
 }
 
 .register-message.success {
-  background-color: #e6ffe6;
-  color: #0c0;
-  border: 1px solid #0c0;
+    background-color: #e6ffe6;
+    color: #0c0;
+    border: 1px solid #0c0;
 }
 
 .register-form .form-group {
-  margin-bottom: 20px;
+    margin-bottom: 20px;
 }
 
 .register-form label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
-  color: #555;
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+}
+
+.register-form .input-hint {
+    font-size: 0.85em;
+    color: #888;
+    margin-top: 5px;
+    margin-bottom: 0;
+    padding-left: 2px;
 }
 
 .register-form input[type="text"],
 .register-form input[type="email"],
 .register-form input[type="password"] {
-  width: calc(100% - 16px);
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-sizing: border-box;
-  font-size: 1em;
+    width: calc(100% - 16px);
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 1em;
 }
 
 .register-form input[type="text"]:focus,
 .register-form input[type="email"]:focus,
 .register-form input[type="password"]:focus {
-  border-color: #007bff;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
 .register-button {
-  width: 100%;
-  padding: 12px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1.1em;
-  font-weight: 600;
-  transition: background-color 0.3s ease;
+    width: 100%;
+    padding: 12px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
 }
 
 .register-button:hover:not(:disabled) {
-  background-color: #0056b3;
+    background-color: #0056b3;
 }
 
 .register-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
+    background-color: #cccccc;
+    cursor: not-allowed;
 }
 
 .login-link-text {
-  margin-top: 25px;
-  text-align: center;
-  font-size: 0.95em;
-  color: #666;
+    margin-top: 25px;
+    text-align: center;
+    font-size: 0.95em;
+    color: #666;
 }
 
 .login-link {
-  color: #007bff;
-  text-decoration: none;
-  font-weight: bold;
-  transition: color 0.3s ease;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
 }
 
 .login-link:hover {
-  color: #0056b3;
-  text-decoration: underline;
+    color: #0056b3;
+    text-decoration: underline;
 }
