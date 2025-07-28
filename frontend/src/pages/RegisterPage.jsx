@@ -5,7 +5,8 @@ import axios from 'axios';
 import './RegisterPage.css';
 
 // environment variable here: process.env.REACT_APP_API_BASE_URL
-const API_BASE_URL = "http://localhost:8000"; 
+const API_BASE_URL = "http://34.135.93.123:8000";
+//const API_BASE_URL = "http://localhost:8000"; 
 
 function RegisterPage() {
   const [username, setUsername] = useState('');

@@ -2,7 +2,8 @@
 
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8000"; // FastAPI 주소
+const BASE_URL = "http://34.135.93.123:8000";
+//const BASE_URL = "http://localhost:8000"; // FastAPI 주소
 const TEXT_API = `${BASE_URL}/text`;
 const ADS_API = `${BASE_URL}/advertisements`;
 
