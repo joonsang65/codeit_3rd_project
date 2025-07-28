@@ -15,8 +15,7 @@ import result8 from '../assets/results/8.jpg';
 
 const sampleImages = [result1, result2, result3, result4, result5, result6, result7, result8];
 
-const API_BASE_URL = "http://34.135.93.123:8000";
-//const API_BASE_URL = "http://localhost:8000";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://34.135.93.123:8000"; 
 
 const Gallery = () => {
     const { user, isAuthenticated, loadingAuth } = useAuth();
