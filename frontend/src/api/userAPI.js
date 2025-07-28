@@ -1,8 +1,8 @@
 // src/api/userAPI.js
 import axios from 'axios';
 
-//const API_BASE_URL = "http://34.135.93.123:8000";
-const API_BASE_URL = "http://localhost:8000"; 
+const API_BASE_URL = "http://34.135.93.123:8000";
+//const API_BASE_URL = "http://localhost:8000"; 
 
 export const registerUser = async (userData) => {
     try {

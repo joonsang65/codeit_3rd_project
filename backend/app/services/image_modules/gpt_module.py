@@ -83,7 +83,6 @@ class GPTClient:
             {"type": "text", "text": f"Product type: {product_type}. Context: {marketing_type}."},
             {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{product_b64}"}},
         ]
-
         # 간단한 base64 유효성 검사 (PNG 시작 부분 체크)
         if ref_b64 and isinstance(ref_b64, str) and ref_b64.startswith(("iVBOR", "/9j/")):
             user_prompt.append({"type": "image_url", "image_url": {"url": f"data:image/png;base64,{ref_b64}"}})
