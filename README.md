@@ -3,11 +3,12 @@
 AI를 활용해 **소상공인을 위한 광고 이미지를 자동으로 생성**해주는 웹 서비스입니다.  
 제품 이미지만 업로드하면, 매력적인 배경과 문구를 자동으로 생성하여 광고 이미지를 완성할 수 있습니다.
 
----
 
-## 데모 (시연 영상 또는 배포 링크)
-
-[배포 주소 또는 영상 링크 삽입 예정]
+서비스와 관련된 자료는 아래 링크에서 확인하실 수 있습니다:
+- 📄 [최종 프로젝트 보고서](https://www.notion.so/AI-23a8fc4dd92380e99a39c873a9ed342e?source=copy_link)
+- 🖼️ [발표용 PPT 자료](https://drive.google.com/file/d/141hq0X4WL3qS-Nc5jcPIgxSSACKmJS3d/view?usp=drive_link)
+- 🎥 [시연 영상](https://example.com/demo-video) - 넣어야 함
+- 📝 [협업 일지 (Notion 정리)](https://example.com/collab-log) - 넣어야 함
 
 ---
 
