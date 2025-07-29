@@ -1,0 +1,78 @@
+/* src/pages/Editor/steps/Step5FinalOutput.css */
+
+.step5-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.image-display-area {
+  min-height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.generated-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column; /* 버튼 그룹을 세로로 배열 */
+  align-items: center; /* 가운데 정렬 */
+  gap: 10px; /* 줄 사이의 간격 */
+  margin-top: 20px;
+}
+
+.button-row {
+  display: flex;
+  justify-content: center;
+  gap: 5px; /* 버튼 사이의 간격 */
+}
+
+.step5-container button {
+  padding: 10px 20px;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.3s;
+  min-width: 150px; /* 버튼 최소 너비 설정 */
+}
+
+.step5-container button:hover {
+  opacity: 0.9;
+}
+
+.instagram-share-button {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+
+.twitter-share-button {
+  background-color: #00acee; /* 트위터 색상 */
+}
+
+.naver-blog-share-button {
+  background-color: #03C75A; /* 네이버 블로그 색상 */
+}
+
+.download-button {
+  background-color: #28a745;
+}
+
+.copy-text-button {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.generate-new-button {
+  background-color: #007bff;
+}

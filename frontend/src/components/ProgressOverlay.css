@@ -1,0 +1,29 @@
+.progress-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 5px;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.05);
+  z-index: 9999;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #4caf50;
+  transition: width 0.1s linear;
+}
+
+.progress-time {
+  position: fixed;
+  top: 12px;
+  left: 54%;
+  transform: translateX(-50%);
+  font-size: 15px;
+  color: var(--text-color);
+  z-index: 10000;
+  padding: 4px 12px;
+  border-radius: 6px;
+  white-space: nowrap;
+  text-align: center;
+}

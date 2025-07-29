@@ -1,0 +1,82 @@
+/* frontend/src/pages/Editor/Editor.css */
+.editor-container {
+  max-width: 1500px;
+  max-height: 1000px;
+  margin: 30px auto;
+  padding: 30px 24px;
+  font-family: 'Noto Sans KR', sans-serif;
+  color: var(--editor-text-color);
+  background: #00000000;
+  border-radius: 16px;
+  box-shadow: 0 0 36px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.step-navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 0;
+}
+
+.step-navigation button {
+  padding: 10px 20px;
+  background-color: #5a7fff;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.step-navigation button:disabled {
+  background-color: #4a4a4a;
+  cursor: not-allowed;
+}
+
+.step-navigation span {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.step-content {
+  display: flex;
+  gap: 0px;
+  flex: 1;
+  background-color: var(--editor-step-content-bg-color);
+  border-radius: 16px;
+  overflow: hidden;
+  max-height: 800px; /* editor-container의 max-height에서 navigation과 padding을 고려 */
+}
+
+.step-panel {
+  width: 100%;
+  max-width: 360px;
+  padding: 20px;
+  background: var(--editor-step-panel-color);
+  border-radius: 8px;
+  overflow-y: auto; /* 긴 콘텐츠 처리 */
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .editor-container {
+    max-height: none;
+    padding: 0 8px;
+  }
+
+  .step-content {
+    flex-direction: column;
+    max-height: none;
+    gap: 16px;
+  }
+
+  .step-panel {
+    max-width: 100%;
+    padding: 16px;
+  }
+}

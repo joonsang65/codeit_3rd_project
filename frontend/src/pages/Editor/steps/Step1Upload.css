@@ -1,0 +1,82 @@
+/* src/pages/Editor/steps/Step1Upload.css */
+
+.step1-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 10vh;         /* 뷰포트 기준 중앙 정렬 가능 */
+  margin: 0 auto;
+  padding: 20px 20px;
+}
+
+.upload-controls {
+  display: flex;
+  flex-direction: column;  /* 수직 정렬 */
+  align-items: center;      /* 가운데 정렬 (선택) */
+  gap: 8px;                 /* 버튼과 메시지 사이 간격 */
+  margin-bottom: 16px;      /* 필요시 아래 여백 */
+}
+
+.upload-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #6366f1, #3b82f6);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+.upload-button:hover {
+  background: linear-gradient(135deg, #4f46e5, #2563eb);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+}
+
+.upload-icon {
+  font-size: 20px;
+}
+
+.canvas-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.canvas-wrapper {
+  width: 1200px;
+  height: 800px;
+  background-color: #1c1c1c;
+  border: 2px dashed #555;
+  border-radius: 12px;
+  position: relative;
+}
+
+/* .category-selector {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+} */
+
+.category-selector {
+  margin-bottom: 16px;
+}
+
+.category-selector label {
+  margin-right: 8px;
+  font-weight: 600;
+}
+
+.category-selector select {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}

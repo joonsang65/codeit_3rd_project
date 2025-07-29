@@ -1,0 +1,36 @@
+/* src/pages/Editor/steps/Step2Background.css */
+
+.step2-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.step2-container label{
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--step2-label-color);
+}
+
+.step2-container input {
+  width: 360px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--step2-input-border-color);
+  background-color: var(--step2-input-bg-color);
+  color: var(--step2-input-text-color);
+}
+
+.step2-container button {
+  padding: 10px 16px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.step2-container button:hover {
+  background-color: #357ABD;
+}
