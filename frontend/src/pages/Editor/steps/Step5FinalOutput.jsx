@@ -18,20 +18,53 @@ function Step5FinalOutput({
       document.body.removeChild(link);
     }
   };
-
+  
   const handleCopyText = (showAlert = true) => {
-    if (generatedAdCopy) {
-      navigator.clipboard.writeText(generatedAdCopy)
-        .then(() => {
-          if (showAlert) alert('광고 문구가 복사되었습니다!');
-        })
-        .catch(err => {
-          console.error('텍스트 복사 실패:', err);
-          if (showAlert) alert('텍스트 복사에 실패했습니다.');
-        });
-    } else if (showAlert) {
-      alert('복사할 광고 문구가 없습니다.');
+    if (!generatedAdCopy) {
+      if (showAlert) alert('복사할 광고 문구가 없습니다.');
+      return;
     }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(generatedAdCopy)
+      .then(() => {
+        if (showAlert) alert('광고 문구가 복사되었습니다!');
+      })
+      .catch(err => {
+        console.error('Clipboard API write failed, falling back:', err);
+        fallbackCopyTextToClipboard(generatedAdCopy, showAlert);
+      });
+    } else {
+      console.warn('Clipboard API not available or context is insecure. Using fallback copy method.');
+      fallbackCopyTextToClipboard(generatedAdCopy, showAlert);
+    }
+  };
+  
+  const fallbackCopyTextToClipboard = (text, showAlert) => {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    
+    textArea.style.position = "fixed";
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.opacity = "0";
+    textArea.style.pointerEvents = "none";
+    
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+      const successful = document.execCommand('copy');
+      if (successful) {
+        if (showAlert) alert('광고 문구가 복사되었습니다!');
+      } else {
+        if (showAlert) alert('텍스트 복사에 실패했습니다.');
+      }
+    } catch (err) {
+      console.error('Fallback copy failed:', err);
+      if (showAlert) alert('텍스트 복사에 실패했습니다.');
+    }
+    document.body.removeChild(textArea);
   };
 
   const handleShare = (platform) => {

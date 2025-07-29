@@ -1,5 +1,5 @@
 openai:
-  api_key_env: 여기다 OpenAI API 키를 입력하세요
+  api_key_env: OPENAI_API_KEY
   gpt_model: gpt-4.1-mini
 
 sd_pipeline:

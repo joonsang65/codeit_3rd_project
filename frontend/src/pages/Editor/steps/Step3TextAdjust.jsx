@@ -12,7 +12,7 @@ const FONT_OPTIONS = [
   "쿠키런 블랙", "쿠키런 볼드", "쿠키런 레귤러"
 ];
 
-const Step4TextAdjust = ({
+const Step3TextAdjust = ({
   sessionId,
   textImage,
   setTextImage
@@ -137,7 +137,7 @@ const Step4TextAdjust = ({
   };
 
   return (
-    <div className="step4-container">
+    <div className="step3-container">
       <div className="controls-area">
         <label>
           상품의 세부 정보를 입력해주세요 !
@@ -247,7 +247,7 @@ const Step4TextAdjust = ({
   );
 };
 
-export default Step4TextAdjust;
+export default Step3TextAdjust;
 
 /*
 import React, { useState, useEffect } from 'react';

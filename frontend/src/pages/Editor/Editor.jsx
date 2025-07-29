@@ -199,6 +199,7 @@ const Editor = ({ sessionId, platform }) => {
 
 export default Editor;
 
+
 /*
 import React, { useState, useRef} from 'react';
 import CanvasStage from '../../components/CanvasStage';

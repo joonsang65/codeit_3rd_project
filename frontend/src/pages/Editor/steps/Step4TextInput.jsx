@@ -5,7 +5,7 @@ import { generateAdText, saveAdCopy } from "../../../api/textAPI";
 import './Step4TextInput.css';
 import ProgressOverlay from '../../../components/ProgressOverlay';
 
-const Step3TextInput = ({ productInfo, setProductInfo, adText, setAdText, sessionId, platform, adId }) => {
+const Step4TextInput = ({ productInfo, setProductInfo, adText, setAdText, sessionId, platform, adId }) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [adTexts, setAdTexts] = useState([]);
@@ -114,7 +114,7 @@ const Step3TextInput = ({ productInfo, setProductInfo, adText, setAdText, sessio
   };
 
   return (
-    <div className="step3-container">
+    <div className="step4-container">
       {showProgress && (
         <ProgressOverlay
           duration={DURATION}
@@ -170,4 +170,4 @@ const Step3TextInput = ({ productInfo, setProductInfo, adText, setAdText, sessio
   );
 };
 
-export default Step3TextInput;
+export default Step4TextInput;
