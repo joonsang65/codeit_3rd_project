@@ -2,8 +2,7 @@
 
 import axios from "axios";
 
-const BASE_URL = "http://34.135.93.123:8000";
-//const BASE_URL = "http://localhost:8000"; 
+const BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://34.135.93.123:8000"; 
 const IMAGE_API = `${BASE_URL}/image`; 
 
 export const preprocessImage = async (file, sessionId, category) => {
@@ -46,3 +45,19 @@ export async function getGeneratedBackground(sessionId) {
   });
   return URL.createObjectURL(response.data);
 }
+
+export const finalizeAdvertisement = async ({ sessionId, finalImageData }) => { 
+    const response = await axios.post(
+        `${IMAGE_API}/finalize-advertisement`,
+        { 
+            final_image_data: finalImageData
+        },
+        {
+            headers: {
+                "session-id": sessionId,
+                "Content-Type": "application/json",
+            },
+        }
+    );
+    return response.data;
+};

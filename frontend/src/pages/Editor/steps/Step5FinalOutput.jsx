@@ -1,13 +1,56 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './Step5FinalOutput.css';
 import ProgressOverlay from '../../../components/ProgressOverlay';
+import { finalizeAdvertisement } from '../../../api/imageAPI';
 
 function Step5FinalOutput({
   generatedImageUrl,
   generatedAdCopy,
   isLoading,
   onGenerateNew,
+  sessionId,
+  advertisementId,
 }) {
+  const [isSavingFinal, setIsSavingFinal] = useState(false);
+  const [hasSavedSuccessfully, setHasSavedSuccessfully] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
+
+  useEffect(() => {
+    const autoSaveAdvertisement = async () => {
+      const conditionMet = generatedImageUrl && generatedAdCopy && sessionId && !isSavingFinal && !hasSavedSuccessfully;
+      console.log("[Step5 useEffect] Auto-save condition check:", conditionMet);
+
+      if (conditionMet) {
+        console.log("[Step5] ATTEMPTING to call finalizeAdvertisement with sessionId:", sessionId, "and image data length:", generatedImageUrl.length);
+        setIsSavingFinal(true);
+        setSaveMessage('최종 광고 이미지를 저장 중...');
+        try {
+          const response = await finalizeAdvertisement({
+            sessionId: sessionId,
+            finalImageData: generatedImageUrl 
+          });
+          console.log("[Step5] finalizeAdvertisement SUCCESS:", response.data);
+          setHasSavedSuccessfully(true);
+          setSaveMessage('✅ 최종 광고 이미지 저장 완료!');
+        } catch (error) {
+          console.error('[Step5] finalizeAdvertisement FAILED:', error.response?.data?.detail || error.message || error);
+          setSaveMessage(`❌ 최종 광고 이미지 저장 실패: ${error.response?.data?.detail || error.message}`);
+          setHasSavedSuccessfully(false);
+        } finally {
+          setIsSavingFinal(false);
+          setTimeout(() => {
+              if (hasSavedSuccessfully) {
+                  setSaveMessage('');
+              }
+          }, 3000); 
+        }
+      } else {
+        console.log("[Step5 useEffect] Auto-save condition NOT met. Skipping API call.");
+      }
+    };
+    autoSaveAdvertisement();
+  }, [generatedImageUrl, generatedAdCopy, sessionId, isSavingFinal, hasSavedSuccessfully]);
+
   const handleDownload = () => {
     if (generatedImageUrl) {
       const link = document.createElement('a');
@@ -98,10 +141,40 @@ function Step5FinalOutput({
     window.open(url, '_blank');
     alert(`이미지 다운로드 및 광고 문구 복사가 완료되었습니다. 새로 열린 ${platformName} 탭에서 게시물을 올려주세요!`);
   };
+  
+  const handleSaveFinalImage = async () => {
+    if (isSavingFinal || hasSavedSuccessfully) {
+      alert("이미 저장 중이거나 저장이 완료되었습니다.");
+      return;
+    }
+    if (!generatedImageUrl || !generatedAdCopy || !sessionId || !advertisementId) {
+      alert("저장할 이미지 또는 정보가 부족합니다.");
+      return;
+    }
+    
+    setIsSavingFinal(true);
+    setSaveMessage('최종 광고 이미지를 저장 중...');
+    try {
+      const response = await finalizeAdvertisement({
+        sessionId: sessionId,
+        finalImageData: generatedImageUrl,
+      });
+      console.log("[Step5] Explicit save finalizeAdvertisement SUCCESS:", response.data);
+      setHasSavedSuccessfully(true);
+      setSaveMessage('✅ 최종 광고 이미지 저장 완료!');
+    } catch (error) {
+      console.error('[Step5] Explicit save finalizeAdvertisement FAILED:', error.response?.data?.detail || error.message || error);
+      setSaveMessage(`❌ 최종 광고 이미지 저장 실패: ${error.response?.data?.detail || error.message}`);
+      setHasSavedSuccessfully(false);
+    } finally {
+      setIsSavingFinal(false);
+      setTimeout(() => setSaveMessage(''), 3000);
+    }
+  };
 
   return (
     <div className="step5-container">
-      {isLoading && <ProgressOverlay />}
+      {(isLoading || isSavingFinal) && <ProgressOverlay customMessage={saveMessage || "최종 이미지를 준비 중입니다..."}/>}
       <h2>최종 결과물</h2>
       <div className="image-display-area">
         {generatedImageUrl ? (
@@ -109,6 +182,11 @@ function Step5FinalOutput({
         ) : (
           <p>이미지가 생성되지 않았습니다.</p>
         )}
+      </div>
+      <div className="ad-copy-display-area">
+          <h3>광고 문구:</h3>
+          <p>{generatedAdCopy}</p>
+          {saveMessage && <p className={`save-status-message ${saveMessage.includes('✅') ? 'success' : saveMessage.includes('❌') ? 'error' : ''}`}>{saveMessage}</p>}
       </div>
       <div className="button-group">
         <div className="button-row">
@@ -128,6 +206,13 @@ function Step5FinalOutput({
           </button>
           <button onClick={() => handleCopyText(true)} className="copy-text-button">
             글 복사하기
+          </button>
+          <button 
+            onClick={handleSaveFinalImage} 
+            className="save-final-button"
+            disabled={isSavingFinal || hasSavedSuccessfully || isLoading || !generatedImageUrl}
+          >
+            {isSavingFinal ? '저장 중...' : hasSavedSuccessfully ? '✅ 저장 완료' : '최종 광고 저장'}
           </button>
           <button onClick={onGenerateNew} className="generate-new-button">
             새로운 이미지 생성

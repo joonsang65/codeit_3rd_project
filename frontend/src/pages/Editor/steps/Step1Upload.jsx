@@ -8,7 +8,8 @@ const Step1Upload = ({
   sessionId,
   uploadedImage, 
   setUploadedImage,
-  platform
+  platform,
+  setAdvertisementId 
 }) => {
   const inputRef = useRef();
   const [loading, setLoading] = useState(false);

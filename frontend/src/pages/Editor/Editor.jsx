@@ -7,6 +7,7 @@ import Step2Background from './steps/Step2Background';
 import Step3TextAdjust from './steps/Step3TextAdjust';
 import Step4TextInput from './steps/Step4TextInput';
 import Step5FinalOutput from './steps/Step5FinalOutput';
+import { getSessionData } from '../../api/sessionAPI';
 import './Editor.css';
 
 const Editor = ({ sessionId, platform }) => {
@@ -30,11 +31,66 @@ const Editor = ({ sessionId, platform }) => {
   const [finalImage, setFinalImage] = useState(null);
   const canvasStageRef = useRef(null);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
-
   const [productInfo, setProductInfo] = useState('');
+  const [advertisementId, setAdvertisementId] = useState(null);
+  const [displayUploadedImage, setDisplayUploadedImage] = useState(true);
 
-  const nextStep = () => setStep((s) => Math.min(s + 1, 5));
-  const prevStep = () => setStep((s) => Math.max(s - 1, 1));
+  useEffect(() => {
+    const fetchSessionAndAdData = async () => {
+      if (sessionId && !advertisementId && step === 1 && uploadedImage) {
+        try {
+          const sessionData = await getSessionData(sessionId);
+          if (sessionData && sessionData.session_data && sessionData.session_data.advertisement_id) {
+            setAdvertisementId(sessionData.session_data.advertisement_id);
+            console.log("Editor.jsx: Fetched advertisementId:", sessionData.session_data.advertisement_id);
+          }
+        } catch (error) {
+          console.error("Editor.jsx: Failed to fetch advertisementId from session:", error);
+        }
+      }
+    };
+    fetchSessionAndAdData();
+  }, [sessionId, advertisementId, step, uploadedImage]);
+
+  useEffect(() => {
+    if (textImage) { 
+      setDisplayUploadedImage(false);
+    } else {
+      setDisplayUploadedImage(true);
+    }
+  }, [textImage]);
+  
+  const nextStep = async () => {
+    if (step === 4) { 
+      if (canvasStageRef.current) {
+        if (!textImage) {
+          console.error("Editor.jsx: textImage is null when trying to capture final image. Cannot proceed.");
+          alert("광고 문구가 생성되지 않았습니다. 다시 시도해주세요.");
+          return;
+        }
+        const cleanDataURL = await canvasStageRef.current.getCleanImageDataURL(); 
+        if (cleanDataURL) {
+          setFinalImage(cleanDataURL); 
+          console.log("Editor.jsx: Captured final image from canvas without UI. Data URL starts with:", cleanDataURL.substring(0, 50) + "...");
+        } else {
+          console.error("Editor.jsx: Failed to capture clean image from canvas.");
+          alert("최종 이미지를 캡처할 수 없습니다. 다시 시도해주세요.");
+          return; 
+        }
+      } else {
+        console.error("Editor.jsx: CanvasStage ref is null when trying to capture final image.");
+        alert("캔버스 스테이지를 찾을 수 없습니다. 다시 시도해주세요.");
+        return;
+      }
+    }
+    setStep((s) => Math.min(s + 1, 5));
+  };
+  const prevStep = () => {
+    if (step === 3 && textImage) {
+      setDisplayUploadedImage(true);
+    }
+    setStep((s) => Math.max(s - 1, 1));
+  };
 
   const handleGenerateNew = () => {
     setStep(1);
@@ -56,8 +112,11 @@ const Editor = ({ sessionId, platform }) => {
     setTextImageSize({ width: 300, height: 100 });
     setFinalImage(null);
     setProductInfo('');
+    setAdvertisementId(null);
+    setDisplayUploadedImage(true);
   };
 
+  /*
   const handleImagesReady = () => {
     if (canvasStageRef.current) {
       const stage = canvasStageRef.current.getStage();
@@ -66,10 +125,16 @@ const Editor = ({ sessionId, platform }) => {
       }
     }
   };
+  */
 
   // CanvasStage에 넘길 props 구성
   const canvasProps = {
     bgImage,
+    uploadedImage,
+    imagePosition,
+    setImagePosition,
+    imageSize,
+    setImageSize,
     textImage,
     textImagePosition,
     setTextImagePosition,
@@ -77,6 +142,8 @@ const Editor = ({ sessionId, platform }) => {
     setTextImageSize,
     platform,
     isEditable: step !== 5,
+    onResizeCanvas: setCanvasSize,
+    displayUploadedImage: displayUploadedImage,
   };
 
   const headerTexts = {
@@ -110,7 +177,7 @@ const Editor = ({ sessionId, platform }) => {
         <CanvasStage
           ref={canvasStageRef}
           {...canvasProps}
-          onDrawComplete={step === 5 ? handleImagesReady : null}
+          // onDrawComplete={step === 5 ? handleImagesReady : null}
         />
         <div className="step-panel">
           {step === 1 && (
@@ -123,6 +190,7 @@ const Editor = ({ sessionId, platform }) => {
               imageSize={imageSize}
               setImageSize={setImageSize}
               platform={platform}
+              setAdvertisementId={setAdvertisementId} 
             />
           )}
           {step === 2 && (
@@ -176,6 +244,7 @@ const Editor = ({ sessionId, platform }) => {
               setBgImage={setBgImage}
               setAdTexts={setAdTexts}
               setCurrentIndex={setCurrentIndex}
+              adId={advertisementId} 
             />
           )}
           {step === 5 && (
@@ -184,6 +253,8 @@ const Editor = ({ sessionId, platform }) => {
               generatedAdCopy={adText}
               isLoading={!finalImage}
               onGenerateNew={handleGenerateNew}
+              sessionId={sessionId}
+              advertisementId={advertisementId}
             />
           )}
         </div>

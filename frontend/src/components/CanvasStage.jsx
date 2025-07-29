@@ -41,13 +41,28 @@ const CanvasStage = forwardRef(({
   onResizeCanvas,
   isEditable = true,
   onDrawComplete,
+  displayUploadedImage = true,
 }, ref) => {
   const canvasRef = useRef(null);
+  const [drawUIElements, setDrawUIElements] = useState(true); 
 
   useImperativeHandle(ref, () => ({
     getStage: () => {
       return canvasRef.current;
     },
+    getCleanImageDataURL: () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return null;
+      
+      setDrawUIElements(false);
+      return new Promise(resolve => {
+        setTimeout(() => {
+          const dataURL = canvas.toDataURL('image/png');
+          setDrawUIElements(true);
+          resolve(dataURL);
+        }, 50); 
+      });
+    }
   }));
   const [dragging, setDragging] = useState(false);
   const [resizing, setResizing] = useState(false);
@@ -94,10 +109,10 @@ const CanvasStage = forwardRef(({
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (bgImg) ctx.drawImage(bgImg, 0, 0, canvas.width, canvasHeight);
 
-      if (uploadedImg) {
+      if (uploadedImg && displayUploadedImage) {
         ctx.drawImage(uploadedImg, imagePosition.x, imagePosition.y, imageSize.width, imageSize.height);
 
-        if (isEditable) {
+        if (isEditable  && drawUIElements) {
           // 점선 테두리
           ctx.strokeStyle = '#5a7fff';
           ctx.lineWidth = 2;
@@ -129,7 +144,7 @@ const CanvasStage = forwardRef(({
       if (textImg) {
         ctx.drawImage(textImg, textImagePosition.x, textImagePosition.y, textImageSize.width, textImageSize.height);
 
-        if (isEditable) {
+        if (isEditable  && drawUIElements) {
           ctx.strokeStyle = '#f47c7c';
           ctx.lineWidth = 2;
           ctx.setLineDash([6, 4]);
@@ -160,6 +175,7 @@ const CanvasStage = forwardRef(({
     uploadedImage, imagePosition, imageSize,
     bgImage, textImage, textImagePosition, textImageSize,
     canvasWidth, canvasHeight, onResizeCanvas, isEditable,
+    drawUIElements, displayUploadedImage
   ]);
 
   const getRelativePosition = (e, isTouch = false) => {
@@ -207,7 +223,7 @@ const CanvasStage = forwardRef(({
     const { x, y } = getRelativePosition(e);
 
     // 텍스트 이미지 클릭 감지 (textImage가 존재할 때만)
-    if (textImage && textImagePosition && textImageSize) {
+    if (textImage && textImagePosition && textImageSize && isEditable) {
       if (isInResizeHandle(x, y, textImagePosition, textImageSize)) {
         setResizingText(true);
         return; // 텍스트 이미지 핸들을 잡았으면 다른 객체 확인 불필요
@@ -219,7 +235,7 @@ const CanvasStage = forwardRef(({
     }
 
     // 업로드된 이미지 클릭 감지 (uploadedImage가 존재할 때만)
-    if (uploadedImage && imagePosition && imageSize) {
+    if (uploadedImage && imagePosition && imageSize && isEditable && displayUploadedImage) {
       if (isInResizeHandle(x, y, imagePosition, imageSize)) {
         setResizing(true);
       } else if (isInBox(x, y, imagePosition, imageSize)) {
@@ -233,12 +249,12 @@ const CanvasStage = forwardRef(({
     if (!isEditable) return;
     const { x, y } = getRelativePosition(e);
 
-    if (dragging) {
+    if (dragging && displayUploadedImage) {
       setImagePosition({
         x: Math.max(0, Math.min(x - offset.x, canvasRef.current.width - imageSize.width)),
         y: Math.max(0, Math.min(y - offset.y, canvasRef.current.height - imageSize.height)),
       });
-    } else if (resizing) {
+    } else if (resizing && displayUploadedImage) {
       setImageSize({
         width: Math.max(50, Math.min(x - imagePosition.x, canvasRef.current.width - imagePosition.x)),
         height: Math.max(50, Math.min(y - imagePosition.y, canvasRef.current.height - imagePosition.y)),
@@ -269,10 +285,10 @@ const CanvasStage = forwardRef(({
         ref={canvasRef}
         width={canvasWidth}
         height={canvasHeight}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onMouseDown={isEditable ? handleMouseDown : null}
+        onMouseMove={isEditable ? handleMouseMove : null}
+        onMouseUp={isEditable ? handleMouseUp : null}
+        onMouseLeave={isEditable ? handleMouseUp : null}
         className="canvas"
         style={{
           cursor: isEditable
