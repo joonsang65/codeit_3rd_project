@@ -8,7 +8,6 @@ AI를 활용해 **소상공인을 위한 광고 이미지를 자동으로 생성
 - 📄 [최종 프로젝트 보고서](https://www.notion.so/AI-23a8fc4dd92380e99a39c873a9ed342e?source=copy_link)
 - 🖼️ [발표용 PPT 자료](https://drive.google.com/file/d/141hq0X4WL3qS-Nc5jcPIgxSSACKmJS3d/view?usp=drive_link)
 - 🎥 [시연 영상](https://drive.google.com/file/d/1uuDVNcdHftWTDcf1SwTmtLFookBUiMM0/view?usp=sharing)
-- 📝 [협업 일지 ](https://www.notion.so/23f8fc4dd92380f5aaedf63d1775262b?source=copy_link)
 
 ---
 
