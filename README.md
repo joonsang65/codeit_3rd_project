@@ -163,4 +163,7 @@ FastAPI의 URL은 프론트엔드에
 
    [LoRA 가중치는 여기서 내려받으면 됩니다](https://drive.google.com/file/d/10xvB24UQttPTlBe8tEh3y1GToxuQkc5b/view?usp=sharing)
 
-   내려받아서 압축 풀은 후, backend/app/services에서 "lora"라는 폴더 만들어서(backend/app/services/lora/) LoRA 가중치 파일 6개 다 저장하기 
+   내려받아서 압축 풀은 후, backend/app/services에서 "lora"라는 폴더 만들어서(backend/app/services/lora/) LoRA 가중치 파일 6개 다 저장하기
+
+5. 협업일지
+   - 구극모: https://www.notion.so/222e1cd92be680f9a800e768ef04cdef?source=copy_link
