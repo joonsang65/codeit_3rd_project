@@ -1,10 +1,14 @@
-import os, csv, shutil, gc, subprocess
+import os, csv, shutil, gc, subprocess, sys
 from PIL import Image
 import torch
 import torchvision.transforms as T
 from transformers import BlipProcessor, BlipForConditionalGeneration
 import argparse
+sys.path.append('/home/spai0107/project/model_dev/')
+print(sys.path)
 from modules.utils import resize_with_padding
+
+from modules import utils
 
 # 1. 폴더 초기화 함수
 def delete_folder(folder):
@@ -71,6 +75,14 @@ def create_augmented_dataset(image_dir, output_dir, csv_path, category_token, pr
                 writer.writerow([save_path, full_caption])
     print(f"[✅] CSV 저장 완료: {csv_path}")
 
+def get_default_prompt_by_category(category: str):
+    prompts = {
+        "CDP_COS": "cosmetic product",
+        "CDP_FOOD": "a delicious dish",
+        "CDO_FUR": "furniture product",
+    }
+    return prompts.get(category.lower(), "a product photo")
+
 # 5. 학습 명령어 실행 함수
 def train_lora(module_path, image_id, csv_dir, train_epochs=10, base_model="../std_v1.5_cdp", accumulation_steps=None, resume=False):
     '''
@@ -87,12 +99,12 @@ def train_lora(module_path, image_id, csv_dir, train_epochs=10, base_model="../s
     # warm_up step, epoch에 따라 동적 계산, resume의 경우 0부터 시작이 아닌 멈췄던 step 부터 시작이므로, 
     # 추가 학습의 경우 기본 20 epochs으로 설정
     warm_steps = estimate_warmup_steps(
-            csv_path='model_dev/aug/captions.csv',
+            csv_path=csv_dir,
             batch_size=2, 
             accumulation_steps=accumulation_steps or 1,
             num_epochs=train_epochs if not resume else 20
             )
-    
+    instance_prompt = get_default_prompt_by_category(image_id)
     command = [
         "accelerate", "launch", module_path,
         "--pretrained_model_name_or_path", base_model,
@@ -100,17 +112,17 @@ def train_lora(module_path, image_id, csv_dir, train_epochs=10, base_model="../s
         "--dataset_config_name", csv_dir,
         "--image_column", "file_name",
         "--caption_column", "caption",
-        "--instance_prompt", f"a photo of {image_id}_0 {image_id}_1 perfume bottle",  # 학습된 특수 토큰 방식으로 넣기 (단, 기본 프롬프트는 json 의 형태로 학습되며 이건 특)
+        "--instance_prompt", f"a photo of {image_id}_0 {image_id}_1 {instance_prompt}",  # 학습된 특수 토큰 방식으로 넣기 (단, 기본 프롬프트는 json 의 형태로 학습되며 이건 특)
         "--resolution", "512",
         "--train_batch_size", "2",
         "--num_train_epochs", str(train_epochs),
         "--output_dir", output_dir,
-        "--validation_prompt", f"a photo of {image_id}_0 {image_id}_1 perfume bottle",
+        "--validation_prompt", f"a photo of {image_id}_0 {image_id}_1 {instance_prompt}",
         "--rank", "2",
         "--lora_dropout", "0.3",
         "--learning_rate", "2e-5",
         "--lr_scheduler", "cosine_with_restarts",
-        "--warmup_steps", str(warm_steps),
+        "--lr_warmup_steps", str(warm_steps),
         "--checkpointing_steps", "100",
         "--validation_epochs", "5",
         "--mixed_precision", "fp16" if not resume else "no",
@@ -217,5 +229,5 @@ def main():
 #             'to optimize the generated image from text2img or inpaint with our fine-tuned dreambooth-lora'
 #         )
 #     )
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+    # main()

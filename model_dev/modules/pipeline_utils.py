@@ -126,6 +126,7 @@ def apply_loras(pipe, config, category=None):
 
     if adapter_names:
         pipe.set_adapters(adapter_names, adapter_weights)
+        pipe.fuse_lora(adapter_names=adapter_names)
     return pipe
 
 @log_execution_time(label="Load IP-Adapter")

@@ -11,10 +11,10 @@ class ImageEvaluator:
         self.device = device
         self.clip_model = CLIPModel.from_pretrained("openai/clip-vit-large-patch14").eval().to(device)
         self.clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
-        self.blip_model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base").eval().to(device)
-        self.blip_processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
-        self.aesthetic_model = AestheticsPredictorV1.from_pretrained("shunk031/aesthetics-predictor-v1-vit-large-patch14").eval().to(device)
-        self.aesthetic_processor = CLIPProcessor.from_pretrained("shunk031/aesthetics-predictor-v1-vit-large-patch14")
+        # self.blip_model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base").eval().to(device)
+        # self.blip_processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
+        # self.aesthetic_model = AestheticsPredictorV1.from_pretrained("shunk031/aesthetics-predictor-v1-vit-large-patch14").eval().to(device)
+        # self.aesthetic_processor = CLIPProcessor.from_pretrained("shunk031/aesthetics-predictor-v1-vit-large-patch14")
     
     @log_execution_time(label="Aesthetic Score 채점 중...")
     def get_aesthetic_score(self, image: Image.Image):
@@ -34,14 +34,14 @@ class ImageEvaluator:
             self.clip_model(**clip_inputs).text_embeds
         ).item() * 100
 
-        logger.debug(f"Clip Score: {round(clip_score, 2)}")
-        blip_inputs = self.blip_processor(image, return_tensors="pt").to(self.device)
-        caption_ids = self.blip_model.generate(**blip_inputs, max_new_tokens=30)
-        caption = self.blip_processor.decode(caption_ids[0], skip_special_tokens=True)
-        logger.debug(f"Caption 기록: {caption[:10]}...")
+        # logger.debug(f"Clip Score: {round(clip_score, 2)}")
+        # blip_inputs = self.blip_processor(image, return_tensors="pt").to(self.device)
+        # caption_ids = self.blip_model.generate(**blip_inputs, max_new_tokens=30)
+        # caption = self.blip_processor.decode(caption_ids[0], skip_special_tokens=True)
+        # logger.debug(f"Caption 기록: {caption[:10]}...")
 
         return {
             "clip_score": round(clip_score, 2),
-            "aesthetic_score": self.get_aesthetic_score(image),
-            "blip_caption": caption
+            # "aesthetic_score": self.get_aesthetic_score(image),
+            # "blip_caption": caption
         }
