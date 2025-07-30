@@ -3,7 +3,7 @@
 ## Overview
 
 This project implements a **DreamBooth + LoRA training pipeline optimized for product-centered inpainting**.  
-By introducing **category-specific special tokens**, the model learns how to generate appropriate backgrounds tailored to different product types.  
+By introducing **category-specific special tokens**, the model learns to generate appropriate backgrounds tailored to different product types.  
 Even with a **small dataset**, this approach enables **high-quality outpainting** results.
 
 ---
@@ -25,17 +25,18 @@ The dataset is stored in CSV format with the following fields:
 ## Training Strategy
 
 - **Model**: [`StableDiffusionInpaintPipeline`](https://huggingface.co/runwayml/stable-diffusion-inpainting)
+
 - **Trainable Components**:
   - `UNet` (for masked latent denoising)
-  - `CLIPTextEncoder` (for prompt conditioning)
-  - → Both are wrapped with **LoRA**
+  - `CLIPTextEncoder` (for prompt conditioning)  
+  → Both components are wrapped with **LoRA**
 
 - **Prompt Formatting with Special Tokens**:  
-  Custom tokens are added to the tokenizer to represent product categories. During training, prompts are formatted as:
-    """<code>
-    "{special_token} background, {original_prompt}"
-    Example: "CDP_COS background, elegant cosmetic product on glass table"
-    """
+  Custom tokens are added to the tokenizer to represent product categories. Prompts during training are formatted as:
+  ```text
+  {special_token} background, {original_prompt}
+  Example: CDP_COS background, elegant cosmetic product on glass table
+  ```
 
 - **Learning Objectives**:
 - `UNet`: Learns to restore noise within the masked latent region
@@ -45,24 +46,23 @@ The dataset is stored in CSV format with the following fields:
 
 ## Purpose & Goals
 
-- **Background specialization by category**  
+- **Category-specific background generation**  
 Enable distinct background generation styles for each product type (e.g., cosmetics, food)
 
-- **Effective learning with limited data**  
-Use data augmentation and prompt engineering to generalize from small datasets
+- **Efficient learning from small datasets**  
+Leverage data augmentation and special tokens to generalize well from limited samples
 
 - **Lightweight deployment with LoRA**  
-Export category-specific LoRA weights that can be easily integrated into:
-- Diffusers pipelines
-- ONNX runtime environments
-- API-based inference services
+Export LoRA weights per category for easy integration into:
+- Diffusers pipelines  
+- ONNX inference environments  
+- API-based services
 
 ---
 
 ## Project Structure Assumptions
 
-- Training code is expected to be run from the `notebooks/` directory
-- CSV files and image resources are assumed to be located relative to that path
+- Training scripts are expected to run inside the `notebooks/` directory
+- CSV files and image resources should be located relative to that path
 
 ---
-
