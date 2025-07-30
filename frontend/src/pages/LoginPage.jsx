@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import './LoginPage.css';
 
 // process.env.REACT_APP_API_BASE_URL
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://34.135.93.123:8000"; 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://34.135.93.123:8000";
 
 function LoginPage() {
   const [email, setEmail] = useState('');
