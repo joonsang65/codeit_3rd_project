@@ -1,28 +1,68 @@
-# 이미지 생성 모듈화 (진행 중)
+# Inpainting-Specific Training with DreamBooth + LoRA
 
-model_dev 폴더 내부의 image_module.py를 임포트 하여 확인 하실 수 있습니다.
+## Overview
 
-## 실행 분기
-step1(): 이미지의 전처리 과정을 실행합니다. (배경 생성의 경우 불필요 합니다.)
-step2(): mode 설정을 하여 text2img 혹은 inpaint 과정을 수행하게 됩니다.
-    - text2img (배경 생성)의 경우 mode만 입력하면 되며 나머지 인자는 무시하게 됩니다.
-    - inpaint 모드의 경우 step1()에서 생성된 canvas와 mask 인자를 넘겨 주어야만 합니다.
+This project implements a **DreamBooth + LoRA training pipeline optimized for product-centered inpainting**.  
+By introducing **category-specific special tokens**, the model learns how to generate appropriate backgrounds tailored to different product types.  
+Even with a **small dataset**, this approach enables **high-quality outpainting** results.
 
-## 응용 방법:
-```<code>
-import os
-import sys
-print(sys.path) # 여기에 '..../model_dev' 경로가 포함되어 있다면 경로의 문제가 없습니다.
+---
 
-# 아니라면 경로를 추적해 봅시다. 올바른 경로를 찾아 시스템 경로에 추가해 줍시다.
-print(os.path.abspath('./'))
-print(os.path.dirname(os.path.abspath('./')))
-# sys.path.append()
+## Dataset Structure
 
-import image_module # 모듈 초기화가 내부적으로 진행됩니다.
-print(image_module.cfg) # 내부적인 설정을 확인합니다.
+The dataset is stored in CSV format with the following fields:
 
-# 실행합니다. 배경생성의 경우 'inpaint' -> 'text2img'
-canvas, back_rm_canv, mask = image_module.step1()
-top_image = image_module.step2('inpaint', canvas, mask)
-```
+| Column     | Description                                                                 |
+|------------|-----------------------------------------------------------------------------|
+| `input`    | Randomly cropped product image (center portion retained)                    |
+| `mask`     | Inverted binary mask indicating which regions to inpaint (white = restore)  |
+| `output`   | Full original image including product and background                        |
+| `prompt`   | Descriptive caption of the original image                                   |
+| `category` | Product category (e.g., `CDP_COS`, `CDP_FOOD`, etc.)                         |
+
+---
+
+## Training Strategy
+
+- **Model**: [`StableDiffusionInpaintPipeline`](https://huggingface.co/runwayml/stable-diffusion-inpainting)
+- **Trainable Components**:
+  - `UNet` (for masked latent denoising)
+  - `CLIPTextEncoder` (for prompt conditioning)
+  - → Both are wrapped with **LoRA**
+
+- **Prompt Formatting with Special Tokens**:  
+  Custom tokens are added to the tokenizer to represent product categories. During training, prompts are formatted as:
+    """<code>
+    "{special_token} background, {original_prompt}"
+    Example: "CDP_COS background, elegant cosmetic product on glass table"
+    """
+
+- **Learning Objectives**:
+- `UNet`: Learns to restore noise within the masked latent region
+- `TextEncoder`: Learns to interpret category-aware prompts for better conditioning
+
+---
+
+## Purpose & Goals
+
+- **Background specialization by category**  
+Enable distinct background generation styles for each product type (e.g., cosmetics, food)
+
+- **Effective learning with limited data**  
+Use data augmentation and prompt engineering to generalize from small datasets
+
+- **Lightweight deployment with LoRA**  
+Export category-specific LoRA weights that can be easily integrated into:
+- Diffusers pipelines
+- ONNX runtime environments
+- API-based inference services
+
+---
+
+## Project Structure Assumptions
+
+- Training code is expected to be run from the `notebooks/` directory
+- CSV files and image resources are assumed to be located relative to that path
+
+---
+
