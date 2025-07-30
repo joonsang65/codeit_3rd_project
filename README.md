@@ -144,6 +144,8 @@ npm start
 * backend/에서 .env 생성한 후 `OPENAI_API_KEY=당신의_OpenAI_API_키` 입력합니다.
 * backend/app/services/model_config.yaml 파일에 `openai > api_key_env`를 위와 동일하게 OpenAI API 키를 입력합니다.
 * backend/app/routers/에서 .env 생성한 후 `JWT_SECRET_KEY=당신의_JWT_키` 입력합니다.
+* frontend/src/api/에서 .env 생성한 후 `REACT_APP_API_BASE_URL=http://[GCP_외부_IP_주소]:8000_혹은_http://localhost:8000` 입력합니다.
+* frontend/src/pages/에서 .env 생성한 후 `REACT_APP_API_BASE_URL=http://[GCP_외부_IP_주소]:8000_혹은_http://localhost:8000` 입력합니다.
 
 FastAPI의 URL은 프론트엔드에  
 ```bash
@@ -159,8 +161,34 @@ FastAPI의 URL은 프론트엔드에
 
 파일들에 설정할 수 있습니다. 반면으로, React의 URL은 backend/app/main.py에서 변경할 수 있습니다.
 
-4. LoRA 파일 설정
+### 4. LoRA 파일 설정
 
    [LoRA 가중치는 여기서 내려받으면 됩니다](https://drive.google.com/file/d/10xvB24UQttPTlBe8tEh3y1GToxuQkc5b/view?usp=sharing)
 
    내려받아서 압축 풀은 후, backend/app/services에서 "lora"라는 폴더 만들어서(backend/app/services/lora/) LoRA 가중치 파일 6개 다 저장하기
+
+### 5. Docker 사용법
+
+codeit_3rd_project/ 경로에서 .env 생성한 후, 다음과 같이 설정합니다.
+```bash
+GCP_EXTERNAL_IP=GCP_EXTERNAL_IP
+OPENAI_API_KEY=OPENAI_API_KEY
+JWT_SECRET_KEY=JWT_SECRET_KEY
+```
+
+설정 끝나는 대로 codeit_3rd_project/ 경로에서,
+
+```bash
+docker compose up --build -d
+```
+
+빌드 성공한 후, 
+
+```bash
+curl http://[GCP_외부_IP_주소]:3000_혹은_http://localhost:3000
+curl http://[GCP_외부_IP_주소]:8000_혹은_http://localhost:8000
+```
+
+실행해서 애플리케이션을 접속할 수가 있습니다.
+
+
